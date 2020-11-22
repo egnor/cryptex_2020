@@ -18,28 +18,33 @@ themes {
 }
 
 booleans {
-   daniel_met: boolean "false";
-   daniel_talked: boolean "false";
-   haley_met: boolean "false";
-   haley_talked: boolean "false";
-   joyce_checkin_attempted: boolean "false";
-   joyce_checkin_done: boolean "false";
-   joyce_met: boolean "false";
-   joyce_return_greeting_done: boolean "false";
-   lobby_eyes_adjusted: boolean "false";
-   mobile_phone_buzzed: boolean "false";
-   mobile_phone_unread: boolean "true";
-   nora_met: boolean "false";
-   nora_talked: boolean "false";
+   part0_checkin_attempted: boolean "false";
+   part0_checkin_done: dynamic_boolean {(game_part > 0)}
+   part0_joyce_met: boolean "false";
+
+   part1_daniel_met: boolean "false";
+   part1_daniel_talked: boolean "false";
+   part1_haley_met: boolean "false";
+   part1_haley_talked: boolean "false";
+   part1_joyce_met: boolean "false";
+   part1_lobby_visited: boolean "false";
+   part1_nora_met: boolean "false";
+   part1_nora_talked: boolean "false";
+
+   part2_hallway_visited: boolean "false";
+   part2_hotel_room_woken: boolean "false";
+
+   phone_buzzed: boolean "false";
+   phone_read: boolean "false";
 }
 
 integers {
-   game_part: integer "1";
+   game_part: integer "0";
    clock_hour: integer "3";
 }
 
 strings {
-   joyce_checkin_code: string "";
+   part0_checkin_code: string "";
 }
 
 #
@@ -80,12 +85,14 @@ locations {
 
    hotel_room: location {
       header = "Your Hotel Room";
-      
+
       on_describe {
-         :if (game_part == 2) {
-            :print "TODO TODO TODO transition to part 2 TODO TODO TODO";
+         :if (game_part == 2 && !part2_hotel_room_woken) {
+            :print "You are woken by loud, repeated banging on the door to the <east<14>>. What's going on? Is there an emergency? You'd better check it out!";
+         } :else_if (game_part == 2 && !part2_hallway_visited) {
+         } :else {
+            :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories. There's a hallway door to the <east<14>>.";
          }
-         :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories. There's a hallway door to the <east<14>>.";
       }
    }
 
@@ -98,12 +105,12 @@ locations {
       header = "Hotel Lobby";
 
       on_describe {
-         :if (!lobby_eyes_adjusted) {
-            :set_true "lobby_eyes_adjusted";
+         :if (!part1_lobby_visited) {
+            :set_true "part1_lobby_visited";
             :print "As you enter, your eyes adjust to the dim light of the Red Soldier Inn's lobby.";
          }
          :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>>, with a <plaque<5>> under it.";
-         :if (joyce_checkin_done) {
+         :if (game_part >= 1) {
             :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, and some rickety steps <up<14>> to the guest rooms. You could go back outside to the <east<14>>, but why would you?";
          }
       }
@@ -140,7 +147,7 @@ connections {
 
 barriers {
    stay_in_lobby_until_checked_in :block {
-      block_when_not = "joyce_checkin_done";
+      block_when_not = "part0_checkin_done";
       message = "Maybe <check in to the hotel<5>> before roaming around?";
    }
 
@@ -155,11 +162,11 @@ barriers {
 #
 
 objects {
-   bed: scenery "hotel bed" at="hotel_room" conspicuous="false";
+   hotel_bed: scenery "hotel bed" at="hotel_room" conspicuous="false" msg="The bed looks soft and comfortable.";
 
    clock: scenery "wall clock" at="hallway_east" conspicuous="false";
 
-   clock_plaque: scenery "plaque below the clock" at="hallway_east" conspicuous="false" msg="The plaque below the clock reads: <\"This clock, owned by the late Captain Sunders himself, is a fine example of early 19th century craftsmanship. Unfortunately this particular clock no longer runs, so don't set your watch by it!\"<14>>";
+   clock_plaque: scenery "plaque below the clock" at="hallway_east" conspicuous="false" msg="The plaque below the clock reads: \"This clock, owned by the late Captain Sunders himself, is a fine example of early 19th century craftsmanship. Unfortunately this particular clock no longer runs, so don't set your watch by it!\"";
 
    daniel: scenery "Daniel" at="cellar" conspicuous="false";
 
@@ -173,7 +180,7 @@ objects {
    
    nora: scenery "Nora" at="dining_room" conspicuous="false";
    
-   oil_painting: scenery "oil painting" at="lobby" conspicuous="false" msg="Some old dude got his portrait painted. TODO";
+   oil_painting: scenery "oil painting" at="lobby" conspicuous="false" msg="The painting depicts a soldier in British Army uniform.";
 
    painting_plaque: scenery "plaque below the painting" at="lobby" conspicuous="false" msg="The plaque has some sort of poem on it. TODO";
 
@@ -217,89 +224,123 @@ on_render {
 
 on_describe {
    #
-   # NPC / object descriptions
+   # Part 0 (pre-checkin) extra description
    #
 
-   :if (is_present "daniel") {
-      :if (!daniel_met) {
-         :set_true "daniel_met";
-         :print "A portly gentleman hunched over some equipment must be the <Daniel<5>> that Joyce had mentioned. He gives a little jump as you approach. <\"Oh! What brings you here?\"<14>>";
-      } :else_if (!daniel_talked) {
-         :print "<Daniel<5>> glances at you warily before going back to his equipment.";
-      } :else {
-         :print "<Daniel<5>> fusses with his equipment in the corner.";
+   :if (game_part == 0) {
+      :if (is_present "joyce") {
+         :if (!part0_joyce_met) {
+            :set_true "part0_joyce_met";
+            :print "Behind the <front desk<5>> a woman beams at you with her best customer service smile. \"Welcome to the Red Soldier Inn!\", she proclaims, \"I'm <Joyce<5>>. How can I help you?\"";
+         } :else_if (!part0_checkin_attempted) {
+            :print "<Joyce<5>> continues to beam at you, though the amount of time you are taking seems to be making her somewhat nervous. \"Excuse me\", she says, \"can I help you?\"";
+         } :else {
+            :print "<Joyce<5>> waits patiently for you to find your confirmation number.";
+         }
       }
-   }
-   
-   :if (is_present "haley") {
-      :if (!haley_met) {
-         :set_true "haley_met";
-         :print "A young woman making tea must be Joyce's daughter <Haley<5>>. She nods at you curiously.";
-      } :else_if (!haley_talked) {
-         :print "<Haley<5>> makes tea and tries not to seem too curious about you.";
-      } :else {
-         :print "<Haley<5>> rummages about making tea.";
-      }
-   }
 
-   :if (is_present "joyce") {
-      :if (!joyce_met) {
-         :set_true "joyce_met";
-         :print "Behind the <front desk<5>> a woman beams at you with her best customer service smile. <\"Welcome to the Red Soldier Inn!\"<14>>, she proclaims, <\"I'm<14>> <Joyce<5>><. How can I help you?\"<14>>";
-      } :else_if (!joyce_checkin_attempted) {
-         :print "<Joyce<5>> continues to beam at you, though the amount of time you are taking seems to be making her somewhat nervous. <\"Excuse me\"<14>>, she says, <\"can I help you?\"<14>>";
-      } :else_if (!joyce_checkin_done) {
-         :print "<Joyce<5>> waits patiently for you to find your confirmation number.";
-      } :else_if (!joyce_return_greeting_done) {
-         :set_true "joyce_return_greeting_done";
-         :print "<Joyce<5>> gives you a friendly wave. <\"I hope you've settled in to your room? Do feel free to take a look around! We've got quite an historic beauty here. I'm sure Nora would love some company in the dining room! My daughter Haley is making her some tea. And I'm sure Daniel's off nosing about somewhere...\"<14>>";
-      } :else {
-         :print "<Joyce<5>> is doing paperwork behind the check-in desk.";
-      }
-   }
-
-   :if (is_present "nora") {
-      :if (!nora_met) {
-         :set_true "nora_met";
-         :print "An older woman sitting at a table must be <Nora<5>>. <\"Oh, hello!\"<14>> she says, <\"you must be the new guest?\"<14>>";
-      } :else_if (!nora_talked) {
-         :print "<Nora<5>> gestures for you to sit down at her table.";
-      } :else {
-         :print "<Nora<5>> waits patiently for her tea.";
-      }
    }
 
    #
-   # State nudges
+   # Part 1 (first day) extra description
+   #
+
+   :if (game_part == 1) {
+      :if (is_present "daniel") {
+         :if (!part1_daniel_met) {
+            :set_true "part1_daniel_met";
+            :print "A portly gentleman hunched over some equipment must be the <Daniel<5>> that Joyce had mentioned. He gives a little jump as you approach. \"Oh! What brings you here?\"";
+         } :else_if (!part1_daniel_talked) {
+            :print "<Daniel<5>> glances at you warily before going back to his equipment.";
+         } :else {
+            :print "<Daniel<5>> fusses with his equipment in the corner.";
+         }
+      }
+      
+      :if (is_present "haley") {
+         :if (!part1_haley_met) {
+            :set_true "part1_haley_met";
+            :print "A young woman making tea must be Joyce's daughter <Haley<5>>. She nods at you curiously.";
+         } :else_if (!part1_haley_talked) {
+            :print "<Haley<5>> makes tea and tries not to seem too curious about you.";
+         } :else {
+            :print "<Haley<5>> rummages about making tea.";
+         }
+      }
+
+      :if (is_present "joyce") {
+         :if (!part1_joyce_met) {
+            :set_true "part1_joyce_met";
+            :print "<Joyce<5>> gives you a friendly wave. \"I hope you've settled in to your room? Do feel free to take a look around! We've got quite an historic beauty here. I'm sure Nora would love some company in the dining room! My daughter Haley is making her some tea. And I'm sure Daniel's off nosing about somewhere...\"";
+         } :else {
+            :print "<Joyce<5>> is doing paperwork behind the check-in desk.";
+         }
+      }
+
+      :if (is_present "nora") {
+         :if (!part1_nora_met) {
+            :set_true "part1_nora_met";
+            :print "An older woman sitting at a table must be <Nora<5>>. \"Oh, hello!\" she says, \"you must be the new guest?\"";
+         } :else_if (!part1_nora_talked) {
+            :print "<Nora<5>> gestures for you to sit down at her table.";
+         } :else {
+            :print "<Nora<5>> waits patiently for her tea.";
+         }
+      }
+
+      :if (part1_daniel_talked && part1_haley_talked && part1_joyce_met && part1_nora_talked) {
+         :print "You're feeling sleepy. Maybe you should head to bed?";
+      }
+   }
+
+   #
+   # Part 2 extra description
+   #
+
+   :if (game_part == 2) {
+   }
+
+   #
+   # General extra description
    #
 
    :if (is_holding "mobile_phone") {
-      :if (mobile_phone_unread) {
-         :if (!mobile_phone_buzzed) {
-            :set_true "mobile_phone_buzzed";
+      :if (!phone_read) {
+         :if (!phone_buzzed) {
+            :set_true "phone_buzzed";
             :print "Meanwhile, your mobile phone buzzes with a notification.";
          } :else {
             :print "Also, your phone buzzed recently, and you're itching to check it.";
          }
       } :else {
-         :set_false "mobile_phone_buzzed";
+         :set_false "phone_buzzed";
       }
-   }
-
-   :if (game_part == 1 && daniel_talked && haley_talked && joyce_return_greeting_done && !mobile_phone_unread && nora_talked) {
-      :print "You're feeling sleepy. Maybe you should head to bed?";
    }
 }
 
 on_command {
-   :if (is_present "bed") {
-      :if (game_part == 1 && daniel_talked && haley_talked && joyce_return_greeting_done && !mobile_phone_unread && nora_talked) {
-         :match "sleep -;sleep bed;goto sleep;goto bed;lie bed;lie down;bed -" {
-            :print "You do your evening stuff and flop into bed. It's not the softest but you're plenty tired and doze off in no time.";
-            :set_integer var="game_part" value="2";
-            :press_any_key;
-            :print "TODO TODO - activate part 2";
-            :redescribe;
+   #
+   # Commands for specific objects, scenery, and NPCs
+   #
+
+   :if (is_present "hotel_bed") {
+      :match "sleep -;sleep hotel_bed;goto sleep;goto hotel_bed;lie hotel_bed;lie down;bed -" {
+         :if (game_part == 1) {
+            :if (part1_daniel_talked && part1_haley_talked && part1_joyce_met && phone_read && part1_nora_talked) {
+               :print "You do your evening stuff and flop into bed. You're plenty tired and doze off in no time.";
+               :press_any_key;
+               :set_integer var="game_part" value="2";
+               :redescribe;
+               :done;
+            } :else_if (!phone_read) {
+               :print "How can you sleep with unread messages on your phone?";
+               :done;
+            } :else {
+               :print "You're not really feeling sleepy. You feel like maybe exploring the hotel and talking to people?";
+               :done;
+            }
+         } :else {
+            :print "You're not really feeling sleepy at the moment.";
             :done;
          }
       }
@@ -313,16 +354,16 @@ on_command {
    }
 
    :if (is_present "daniel") {
-      :if (!daniel_talked) {
+      :if (!part1_daniel_talked) {
          :match "look daniel" {
             :print "<Daniel<5>> is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
             :done;
          }
          :match "talk -;talk daniel" {
-            :set_true "daniel_talked";
-            :print "You try to put Daniel at ease. <\"Wow, that equipment looks pretty cool! I hope I'm not in your way?\"<14>>";
-            :print "He relaxes a bit and responds. <\"Sorry, no, you're fine! There just aren't usually many other guests around, because of, you know, all the press.\"<14>> He puts out his hand to shake. <\"I'm Daniel Dweebly, and I'm actually here to investigate the phenomena. I know this stuff looks fancy,\"<14>> he gestures at the equipment, <\"but it's all pretty standard psionic metrology gear. They won't let you take the good stuff on a plane, you know how it is.\"<14>> (Actually, you don't.)";
-            :print "<\"Oh, speaking of which! They put you in the Captain's room, right?\"<14>> (You're not sure what he means, but he doesn't pause for an answer.) <\"If you wouldn't mind, take this<14>> <voice recorder<4>> <and record any unusual noises you might hear?\"<14>>";
+            :set_true "part1_daniel_talked";
+            :print "You try to put Daniel at ease. \"Wow, that equipment looks pretty cool! I hope I'm not in your way?\"";
+            :print "He relaxes a bit and responds. \"Sorry, no, you're fine! There just aren't usually many other guests around, because of, you know, all the press.\" He puts out his hand to shake. \"I'm Daniel Dweebly, and I'm actually here to investigate the phenomena. I know this stuff looks fancy,\" he gestures at the equipment, \"but it's all pretty standard psionic metrology gear. They won't let you take the good stuff on a plane, you know how it is.\" (Actually, you don't.)";
+            :print "\"Oh, speaking of which! They put you in the Captain's room, right?\" (You're not sure what he means, but he doesn't pause for an answer.) \"If you wouldn't mind, take this <voice recorder<4>> and record any unusual noises you might hear?\"";
             :print "You're not sure what he means by \"unusual noises\", but you take the gizmo.";
             :pocket "voice_recorder";
             :done;
@@ -340,17 +381,17 @@ on_command {
    }
    
    :if (is_present "haley") {
-      :if (!haley_talked) {
+      :if (!part1_haley_talked) {
          :match "look haley" {
             :print "<Haley<5>> is a young woman in a button down uniform. She seems curious to talk but a little shy.";
             :done;
          }
          :match "talk -;talk haley" {
-            :set_true "haley_talked";
-            :print "You greet Haley. <\"Oh hi! You must be Haley? I just met Joyce when I checked in.\"<14>>";
-            :print "Haley rolls her eyes a tiny bit. <\"Oh yeah, Mom was so excited to have a guest! We haven't had hardly any with all the, you know, ghost stuff.\"<14>> She makes woo-woo motions with her hands and lowers her voice. <\"Honestly I think Mom should just sell the place. Anyhoo, are you, like, another ''paranormal investigator'' like that Daniel guy?\"<14>> The air quotes and tone of voice make it clear what she thinks of him.";
-            :print "<\"Oh no, I'm just in town for Gamecon! What's this about a ghost anyway?\"<14>>";
-            :print "Haley looks at you for a moment. <\"Gamecon? Weird, you seem pretty normal to me. I mean, no offense. And you seriously hadn't heard about the ghost stutff? There was that whole thing back in July with the blood and... I dunno, seems pretty fake to me\"<14>> (she makes the woo-woo hand motions again) <\"but whatever, you know? Anyway, I should probably finish this tea for the old lady, she gets real grumpy without it.\"<14>>";
+            :set_true "part1_haley_talked";
+            :print "You greet Haley. \"Oh hi! You must be Haley? I just met Joyce when I checked in.\"";
+            :print "Haley rolls her eyes a tiny bit. \"Oh yeah, Mom was so excited to have a guest! We haven't had hardly any with all the, you know, ghost stuff.\" She makes woo-woo motions with her hands and lowers her voice. \"Honestly I think Mom should just sell the place. Anyhoo, are you, like, another ''paranormal investigator'' like that Daniel guy?\" The air quotes and tone of voice make it clear what she thinks of him.";
+            :print "\"Oh no, I'm just in town for Gamecon! What's this about a ghost anyway?\"";
+            :print "Haley looks at you for a moment. \"Gamecon? Weird, you seem pretty normal to me. I mean, no offense. And you seriously hadn't heard about the ghost stutff? There was that whole thing back in July with the blood and... I dunno, seems pretty fake to me\" (she makes the woo-woo hand motions again) \"but whatever, you know? Anyway, I should probably finish this tea for the old lady, she gets real grumpy without it.\"";
             :done;
          }
       } :else {
@@ -366,64 +407,71 @@ on_command {
    }
 
    :if (is_present "joyce") {
-      :if (!joyce_checkin_done) {
+      :if (game_part == 0) {
          :match "look joyce" {
             :print "<Joyce<5>> seems excited for you to <check in to the hotel<5>>.";
             :done;
          }
+
          :match "talk -;talk joyce;check hotel;check red_soldier;check -;checkin -" {
-            :if (!joyce_checkin_attempted) {
-               :set_true "joyce_checkin_attempted";
-               :ask_string var="joyce_checkin_code" empty_is_ok="true" question="You step up to the desk. Joyce says <\"Hi! If you're here to check in, what's your confirmation number?\"<14>>";
+            :if (!part0_checkin_attempted) {
+               :set_true "part0_checkin_attempted";
+               :ask_string var="part0_checkin_code" empty_is_ok="true" question="You step up to the desk. Joyce says \"Hi! If you're here to check in, what's your confirmation number?\"";
             } :else {
-               :ask_string var="joyce_checkin_code" empty_is_ok="true" question="Joyce looks up. <\"Ah, did you find the confirmation number?\"<14>>";
+               :ask_string var="part0_checkin_code" empty_is_ok="true" question="Joyce looks up. \"Ah, did you find the confirmation number?\"";
             }
-            :if (joyce_checkin_code != "13") {
-               :print "<\"Hmm, that doesn't seem quite right. You should have an email with a confirmation number. Do you have your phone with you?\"<14>>";
+
+            :if (part0_checkin_code != "13") {
+               :print "\"Hmm, that doesn't seem quite right. You should have an email with a confirmation number. Do you have your phone with you?\"";
             } :else {
-               :set_true "joyce_checkin_done";
-               :print "<\"Perfect! We are always so excited to get guests! Let me just get you your key and I can show you your room!\"<14>> Joyce turns around to reach for the key above her. As she does so, you notice it seem to wrench off its peg, clattering to the ground. Her cheerful demeanor disappears for a moment, replaced with a nervous fear. She quickly replaces it with a smile again though, snatching up the key. <\"Oops, butterfingers!\"<14>> she laughs, though you can sense the tension in her voice. <\"Let's get you upstairs!\"<14>>";
-               :print "You follow Joyce up the creaky stairs. She walks to the end of the hallway and opens the last door. <\"You have the Captain's room, I hope that's okay!\"<14>> She quickly points out the door to the bathroom, the glasses for water, and the phone on the side table. You can't help but notice the lack of a television in here. A hotel with no tv?! Madness. Still, the bed looks comfy. <\"I'll leave you to unpack. Do feel free to explore! If you need anything, I'll just be in the lobby!\"<14>> she says as she shuts the door behind her. She can't seem to wait to get out of here.";
+               :print "\"Perfect! We are always so excited to get guests! Let me just get you your key and I can show you your room!\" Joyce turns around to reach for the key above her. As she does so, you notice it seem to wrench off its peg, clattering to the ground. Her cheerful demeanor disappears for a moment, replaced with a nervous fear. She quickly replaces it with a smile again though, snatching up the key. \"Oops, butterfingers!\" she laughs, though you can sense the tension in her voice. \"Let's get you upstairs!\"";
+               :print "You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door. \"You have the Captain's room, I hope that's okay!\" She quickly points out the door to the bathroom, the glasses for water, and the phone on the side table. It's a little basic, but the bed looks comfy. \"I'll leave you to unpack. Do feel free to explore! If you need anything, I'll just be in the lobby!\" she says as she shuts the door behind her. She can't seem to wait to get out of here.";
                :pocket "room_keys";
                :press_any_key;
+               :set_integer var="game_part" value="1";
                :goto "hotel_room";
                :redescribe;
             }
             :done;
          }
       } :else {
+         # Not part 0, so checkin is done.
+         :match "check hotel;check red_soldier;check -;checkin -" {
+            :print "You've already checked into the hotel.";
+            :done;
+         }
+      }
+
+      :if (game_part == 1) {
          :match "look joyce" {
             :print "<Joyce<5>> seems busy. You probably shouldn't bother her.";
             :done;
          }
+
          :match "talk -;talk joyce" {
             :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
-            :done;
-         }
-         :match "check hotel;check red_soldier;checkin -" {
-            :print "You've already checked into the hotel.";
             :done;
          }
       }
    }
    
    :if (is_present "nora") {
-      :if (!nora_talked) {
+      :if (!part1_nora_talked) {
          :match "look nora" {
             :print "<Nora<5>> is a primly dressed older woman, patting the seat next to her and clearly interested in saying hello.";
             :done;
          }
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
-            :set_true "nora_talked";
-            :print "You sit down with Nora. <\"Hi, I just checked in here, you must be Nora? Are you also staying here?\"<14>>";
-            :print "<\"Oh, no, I live just across the street!\"<14>> Nora laughs, <\"but I come in here just about every day for my tea. They know how to make it right, even if it takes Haley forever and a day,\"<14>> she says, glancing at the kitchen. <\"Ghost or no ghost!\"<14>>";
-            :print "<\"I'm sorry, what's this about a ghost?\"<14>>";
-            :print "<\"Oh, you haven't heard?\"<14>> Nora looks positively delighted to tell the story. <\"Well, it seems this old place is haunted!\"<14>> She laughs, and you can't tell if she's serious. <\"The old Captain Sunders himself still roams these halls, they say, and he's a restless spirit. There was that messy business back in July...\"<14>>";
-            :print "You're starting to get interested despite yourself. <\"Captain Sunders, the one in the lobby portrait?\"<14>>";
-            :print "<\"Oh yes. He's the Red Soldier! Defected from the American Side in the War of 1812, if you believe that.\"<14>>";
-            :print "<\"Do you believe that? About the ghost?\"<14>>";
-            :print "<\"I sure believe nobody will stay here any more!\"<14>> Nora lowers her voice conspiratorially. <\"I think Joyce might have to sell. I'm sure Haley wouldn't mind that one bit, she's always griping about having to live out here. It's a real shame, they make a real nice tea. Even if their service is slower than their molasses,\"<14>> she says, glowering at the kitchen.";
-            :print "<\"Well, on that note, I'd better get going. I'm sure your tea will be out soon!\"<14>> you say as you smile and stand up, trying your best to extract yourself before you spend all night listening to ghost stories...";
+            :set_true "part1_nora_talked";
+            :print "You sit down with Nora. \"Hi, I just checked in here, you must be Nora? Are you also staying here?\"";
+            :print "\"Oh, no, I live just across the street!\" Nora laughs, \"but I come in here just about every day for my tea. They know how to make it right, even if it takes Haley forever and a day,\" she says, glancing at the kitchen. \"Ghost or no ghost!\"";
+            :print "\"I'm sorry, what's this about a ghost?\"";
+            :print "\"Oh, you haven't heard?\" Nora looks positively delighted to tell the story. \"Well, it seems this old place is haunted!\" She laughs, and you can't tell if she's serious. \"The old Captain Sunders himself still roams these halls, they say, and he's a restless spirit. There was that messy business back in July...\"";
+            :print "You're starting to get interested despite yourself. \"Captain Sunders, the one in the lobby portrait?\"";
+            :print "\"Oh yes. He's the Red Soldier! Defected from the American Side in the War of 1812, if you believe that.\"";
+            :print "\"Do you believe that? About the ghost?\"";
+            :print "\"I sure believe nobody will stay here any more!\" Nora lowers her voice conspiratorially. \"I think Joyce might have to sell. I'm sure Haley wouldn't mind that one bit, she's always griping about having to live out here. It's a real shame, they make a real nice tea. Even if their service is slower than their molasses,\" she says, glowering at the kitchen.";
+            :print "\"Well, on that note, I'd better get going. I'm sure your tea will be out soon!\" you say as you smile and stand up, trying your best to extract yourself before you spend all night listening to ghost stories...";
             :done;
          }
       } :else {
@@ -444,16 +492,16 @@ on_command {
          :done;
       }
       :match "look phone;check phone" {
-         :if (mobile_phone_unread) {
-            :set_false "mobile_phone_buzzed";
-            :set_false "mobile_phone_unread";
-            :print "You open your phone and see a text from your friend, Sabrina: <\"Hey! Have you arrived yet? We're just checking into our hotel! Sorry you had to book at another place! I heard it's kind of weird, but hopefully it will be alright! We'll see each other tomorrow at least!\"<14>>";
+         :if (!phone_read) {
+            :set_false "phone_buzzed";
+            :set_true "phone_read";
+            :print "You open your phone and see a text from your friend, Sabrina: \"Hey! Have you arrived yet? We're just checking into our hotel! Sorry you had to book at another place! I heard it's kind of weird, but hopefully it will be alright! We'll see each other tomorrow at least!\"";
             :print "You sigh, and send a quick text back confirming you've arrived. Hotels book up fast with these conventions, and Gamecon was no exception. The only place left seemed to be The Red Soldier. It's out of the way of the convention centre and you'd prefer to be nerding out with your friends, but beggers can't be choosers. And what did she mean by weird? Ah well, it can't be that bad.";
          } :else {
             :print "You check your phone messages. Nothing new since that exposition message from Sabrina. You would check social media except your data ran out when you decided you just had to download the latest true crime podcast without a wifi signal. Hope it was worth it.";
          }
-         :if (!joyce_checkin_done) {
-            :print "You do see the booking email from the hotel. The confirmation number is... 13? Can that be right? They must not get a lot of guests!";
+         :if (game_part == 0) {
+            :print "You do have the booking email from the hotel. The confirmation number is... 13? Can that be right? They must not get a lot of guests!";
          }
          :done;
       }
@@ -468,13 +516,17 @@ on_command {
       }
    }
 
-   # General rule: Don't allow dropping objects.   
+   #
+   # General command rules
+   #
+
+   # Don't allow dropping objects.   
    :match "drop *" {
       :print "There's no need to put that down.";
       :done;
    }
 
-   # General rule: Treat all examine/look synonyms the same.
+   # Treat all examine/look synonyms the same.
    :match "look -" {:redescribe;}
 }
 
