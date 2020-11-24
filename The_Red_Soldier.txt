@@ -1,5 +1,6 @@
 ﻿game_information {
    game_name = "The Red Soldier";
+   game_version = "0.2.0";
    game_shortname = "CHPuzzleXX";
    written_by = "Manda Whitney and Dan Egnor";
    uuid = "bd5feb0c-e319-41fa-8ed9-e1d806308cc3";
@@ -36,10 +37,13 @@ booleans {
    night1_kitchen_visited: boolean "false";
    night1_slept: boolean "false";
 
+   day2_awake: boolean "false";
+
    phone_buzzed: boolean "false";
    phone_read: boolean "false";
 
-   recorded_sound: boolean "false";
+   sound_recorded: boolean "false";
+   sound_played: boolean "false";
 }
 
 integers {
@@ -133,12 +137,23 @@ locations {
             :return;
          }
 
+         :if (night1_slept && !day2_awake) {
+            :set_true "day2_awake";
+            :print "You wake with a groggy start. Your alarm has been going off for an hour! You're late for events at Gamecon! It's not until you're rushing out the door that you remember the weird events last night. Was that a dream? But no... the recording is real, and so is the button you found.";
+            :print "You're happy to get out of the place for the day. You have a good time at Gamecon, but your friends are teasing you about your ghost stories and keep sneaking up behind you and going BOO. Ha, ha, they're so funny. By the time you get back to the hotel at night, you've decided it's just some dumb prank, and resolved to get to the bottom of it.";
+            :press_any_key;
+            :goto "lobby";
+            :redescribe;
+            :return;
+         }
+
          :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories. There's a hallway door to the <east<14>>.";
 
-         :if (night1_awake && !night1_hallway_visited) {
-            :print "Everything seems normal here, but you feel like you should check on the commotion you heard in the hallway.";
-         } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
-            :print "Everything seems normal here, but you feel like you should check on those clattering sounds you heard.";
+         :if (night1_awake && is_carried "shirt_button" && !is_present "eerie_sound" && !sound_recorded) {
+            :create "eerie_sound";
+            :print "In the silence of the room, you hear a distinctly <eerie sound<14>> coming from a <heating vent<14>>. That wasn't there before!";
+         } :else_if (is_present "eerie_sound") {
+            :print "You still hear that <eerie sound<14>> from the <vent<14>>...";
          }
       }
    }
@@ -238,9 +253,13 @@ objects {
 
    daniel: scenery "Daniel" at="cellar" conspicuous="false";
 
+   eerie_sound: scenery "an eerie sound" conspicuous="false" msg="The sound is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
+
    front_desk: scenery "the hotel front desk" at="lobby" conspicuous="false" msg="The front desk isn't fancy but it is solid. The nameplate says \"Joyce\" and looks like it doesn't get changed much.";
    
    haley: scenery "Haley" at="kitchen" conspicuous="false";
+
+   heating_vent: scenery "a heating vent" at="hotel_room" conspicuous="false" msg="The heating vent looks totally ordinary, and you have no way to remove it.";
 
    joyce: scenery "Joyce" at="lobby" conspicuous="false";
 
@@ -256,15 +275,17 @@ objects {
 
    shirt_button: object "a button you found with the creepy forks" msg="This is a shirt button that seems to have fallen off someone's clothes.";
 
-   voice_recorder: object "voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humor him. You can use it to <record sound<5>> and <play sound<5>>.";
+   voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humor him. You can use it to <record sound<5>> and <play sound<5>>.";
 }
 
 vocabulary {
    :adjective / aliases=[cell, mobile]
+   :adjective / aliases=[creepy, eerie, spooky, weird]
 
    :noun / aliases=[cell, mobile, phone]
    :noun / aliases=[dan, daniel]
    :noun / aliases=[hotel, inn]
+   :noun / aliases=[noise, sound]
    :noun / aliases=[woman, lady]
 
    :verb / aliases=[chat, greet, say, speak, talk, tell]
@@ -295,7 +316,7 @@ on_render {
 
 on_describe {
    #
-   # Part 0 (pre-checkin) extra description
+   # First day extra description
    #
 
    :if (!day1_checkin_done) {
@@ -309,14 +330,9 @@ on_describe {
             :print "<Joyce<5>> waits patiently for you to find your confirmation number.";
          }
       }
-
    }
 
-   #
-   # Part 1 (first day) extra description
-   #
-
-   :if (!day1_slept) {
+   :if (day1_checkin_done && !day1_slept) {
       :if (is_present "daniel") {
          :if (!day1_daniel_met) {
             :set_true "day1_daniel_met";
@@ -359,9 +375,17 @@ on_describe {
          }
       }
 
-      :if (day1_daniel_talked && day1_haley_talked && day1_nora_talked) {
+      :if (phone_read && day1_daniel_talked && day1_haley_talked && day1_nora_talked) {
          :print "You're feeling sleepy. Maybe you should head to bed?";
       }
+   }
+
+   #
+   # First night extra description
+   #
+
+   :if (night1_awake && !night1_slept && is_carried "shirt_button" && sound_recorded && sound_played) {
+      :print "You're seriously exhausted now. Maybe try to get some sleep?";
    }
 
    #
@@ -410,8 +434,20 @@ on_command {
             :print "You'd try to sleep, but what was that clattering sound you heard? Better go check it out.";
          } :else_if (!is_carried "shirt_button") {
             :print "You try to sleep, but something about those forks tugs at your memory. Maybe go take a closer look?";
+         } :else_if (is_present "eerie_sound") {
+            :print "There's no way you can sleep with that eerie sound droning on!";
+         } :else_if (sound_recorded && !sound_played) {
+            :print "The sound stopped, but you can't stop wondering what it was. Maybe listen to the recording?";
          } :else_if (!night1_slept) {
-            # TODO
+            :set_true "night1_slept";
+            :print "That was intense and creepy, but you desperately need sleep. You doze off thinking about everything you heard and saw.";
+            :press_any_key;
+            :destroy "creepy_forks";
+            :create "daniel" target="cellar";
+            :create "haley" target="kitchen";
+            :create "joyce" target="lobby";
+            :create "nora" target="dining_room";
+            :redescribe;
          } :else {
             :print "You're not really feeling sleepy at the moment.";
          }
@@ -423,6 +459,23 @@ on_command {
       :match "look clock" {
           :print "This is a fine old <clock<5>>, but it seems to have stopped; it currently reads {clock_hour} o'clock.";
           :done;
+      }
+   }
+
+   :if (is_present "creepy_forks") {
+      :match "look forks" {
+         :if (is_beside "shirt_button") {
+            :print "Looking closer, there's a <shirt button<4>> perched on top of a fork. Was that left by whoever or whatever did this? Do ghosts wear button down shirts? Impulsively, you pocket the button.";
+            :pocket "shirt_button";
+         } :else {
+            :print "Other than spelling an ambiguous but definitely creepy message, these seem like ordinary kitchen forks.";
+         }
+         :done;
+      }
+
+      :match "take forks" {
+         :print "These forks are creepy; you don't really want to touch them.";
+         :done;
       }
    }
 
@@ -453,20 +506,9 @@ on_command {
       }
    }
 
-   :if (is_present "creepy_forks") {
-      :match "look forks" {
-         :if (is_beside "shirt_button") {
-            :print "Looking closer, there's a <shirt button<4>> perched on top of a fork. Was that left by whoever or whatever did this? Do ghosts wear button down shirts? Impulsively, you pocket the button.";
-            :pocket "shirt_button";
-         } :else {
-            :print "Other than spelling an ambiguous but definitely creepy message, these seem like ordinary kitchen forks.";
-         }
-         :done;
-      }
-
-      :match "take forks" {
-         :print "These forks are creepy; you don't really want to touch them.";
-         :done;
+   :if (is_present "eerie_sound") {
+      :match "listen sound;listen -" {
+         :set_sentence "examine eerie sound";
       }
    }
 
@@ -531,16 +573,14 @@ on_command {
          :done;
       }
 
-      :if (day1_checkin_done && !day1_slept) {
-         :match "look joyce" {
-            :print "<Joyce<5>> seems busy. You probably shouldn't bother her.";
-            :done;
-         }
+      :match "look joyce" {
+         :print "<Joyce<5>> seems busy. You probably shouldn't bother her.";
+         :done;
+      }
 
-         :match "talk -;talk joyce" {
-            :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
-            :done;
-         }
+      :match "talk -;talk joyce" {
+         :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
+         :done;
       }
    }
    
@@ -602,7 +642,11 @@ on_command {
 
    :if (is_holding "voice_recorder") {
       :match "record sound;record voice;record -;use voice_recorder" {
-         :if (night1_awake && !night1_hallway_visited) {
+         :if (is_present "eerie_sound") {
+            :set_true "sound_recorded";
+            :destroy "eerie_sound";
+            :print "After taking a moment to figure out the controls, you hold the recorder up to the <vent<14>> and record a few seconds of sound. Just in time, too -- only a few seconds after you stop recording, the sound stutters and stops.";
+         } :else_if (night1_awake && !night1_hallway_visited) {
             :print "The commotion outside has stopped, and everything is quiet now, so there's nothing unusual to record.";
          } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "The distant clattering doesn't seem like the sort of thing you'd record. Might as well just go see what's causing it.";
@@ -612,7 +656,13 @@ on_command {
          :done;
       }
 
-      :match "play recorder;play sound;play voice;play -" {
+      :match "listen recorder;play recorder;play sound;play voice;play -" {
+         :if (!sound_recorded) {
+            :print "The voice recorder's memory is empty at the moment.";
+         } :else {
+            :set_true "sound_played";
+            :print "Amplified by the recorder, you can make out a distorted voice saying \"YoU'rE nExT... yOu'Re NeXt...\" over and over. Super creepy!";
+         }
       }
    }
 
