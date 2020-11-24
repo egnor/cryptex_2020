@@ -18,34 +18,36 @@ themes {
 }
 
 booleans {
-   part0_checkin_attempted: boolean "false";
-   part0_checkin_done: dynamic_boolean {(game_part > 0)}
-   part0_joyce_met: boolean "false";
+   day1_checkin_attempted: boolean "false";
+   day1_checkin_done: boolean "false";
+   day1_daniel_met: boolean "false";
+   day1_daniel_talked: boolean "false";
+   day1_haley_met: boolean "false";
+   day1_haley_talked: boolean "false";
+   day1_joyce_met: boolean "false";
+   day1_joyce_met_again: boolean "false";
+   day1_lobby_visited: boolean "false";
+   day1_nora_met: boolean "false";
+   day1_nora_talked: boolean "false";
+   day1_slept: boolean "false";
 
-   part1_daniel_met: boolean "false";
-   part1_daniel_talked: boolean "false";
-   part1_haley_met: boolean "false";
-   part1_haley_talked: boolean "false";
-   part1_joyce_met: boolean "false";
-   part1_lobby_visited: boolean "false";
-   part1_nora_met: boolean "false";
-   part1_nora_talked: boolean "false";
-
-   part2_hallway_visited: boolean "false";
-   part2_hotel_room_woken: boolean "false";
-   part2_kitchen_visited: boolean "false";
+   night1_awake: boolean "false";
+   night1_hallway_visited: boolean "false";
+   night1_kitchen_visited: boolean "false";
+   night1_slept: boolean "false";
 
    phone_buzzed: boolean "false";
    phone_read: boolean "false";
+
+   recorded_sound: boolean "false";
 }
 
 integers {
-   game_part: integer "0";
    clock_hour: integer "3";
 }
 
 strings {
-   part0_checkin_code: string "";
+   day1_checkin_code: string "";
 }
 
 #
@@ -60,7 +62,7 @@ locations {
       on_describe {
          :print "The cellar is a little damp and a lot dusty. There's a washroom to the <east<14>>, or you can go back <up<14>> to the main floor.";
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
       }
@@ -71,7 +73,7 @@ locations {
       on_describe {
          :print "A sketchy flight of stairs leads <down<14>> to the cellar from here, or you can go <east<14>> to the kitchen or <south<14>> to the dining room.";
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "The clattering is definitely coming from the kitchen.";
          }
       }
@@ -82,7 +84,7 @@ locations {
       on_describe {
          :print "The quaint pub style dining room feels warm and cozy. You see the hotel lobby to the <east<14>> and cellar stairs to the <north<14>>.";
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "You hear clattering from a nearby room.";
          }
       }
@@ -93,7 +95,7 @@ locations {
       on_describe {
          :print "This is the east end of the hotel hallway. There's a <clock<5>> on the wall with a <plaque<5>> under it. The hallway leads <west<14>>, there's a locked guest room to the south, and stairs lead <down<14>> to the lobby.";
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere downstairs.";
          }
       }
@@ -104,13 +106,11 @@ locations {
       on_describe {
          :print "This is the west end of the hotel hallway. Your own hotel room is to the <west<14>>, the hallway leads <east<14>>, and there's a locked guest room to the south.";
 
-         :if (game_part == 2) {
-            :if (!part2_hallway_visited) {
-               :set_true "part2_hallway_visited";
-               :print "Nobody is here, and there's no sign of the disturbance that woke you up. Weird! But you do hear faint clattering from somewhere downstairs...";
-            } :else_if (!part2_kitchen_visited) {
-               :print "You hear faint clattering from somewhere downstairs.";
-            }
+         :if (night1_awake && !night1_hallway_visited) {
+            :set_true "night1_hallway_visited";
+            :print "Nobody is here, and there's no sign of the disturbance that woke you up. Weird! But you do hear faint clattering from somewhere downstairs...";
+         } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
+            :print "You hear faint clattering from somewhere downstairs.";
          }
       }
    }
@@ -118,7 +118,7 @@ locations {
    hidden_room: location {
       header = "Hidden Cellar Room";
       on_describe {
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
       }
@@ -127,17 +127,17 @@ locations {
    hotel_room: location {
       header = "Your Hotel Room";
       on_describe {
-         :if (game_part == 2 && !part2_hotel_room_woken) {
-            :set_true "part2_hotel_room_woken";
+         :if (day1_slept && !night1_awake) {
+            :set_true "night1_awake";
             :print "You are woken by loud, repeated thumps from the hallway to the <east<14>>. They suddenly stop, but what's going on? Is there an emergency? You'd better check it out!";
             :return;
          }
 
          :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories. There's a hallway door to the <east<14>>.";
 
-         :if (game_part == 2 && !part2_hallway_visited) {
+         :if (night1_awake && !night1_hallway_visited) {
             :print "Everything seems normal here, but you feel like you should check on the commotion you heard in the hallway.";
-         } :else_if (game_part == 2 && !part2_kitchen_visited) {
+         } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "Everything seems normal here, but you feel like you should check on those clattering sounds you heard.";
          }
       }
@@ -148,10 +148,10 @@ locations {
       on_describe {
          :print "This is the inn's kitchen, cluttered with supplies and implements. Cellar stairs are to the <west<14>> and the lobby door to the <south<14>>.";
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
-            :set_true "part2_kitchen_visited";
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
+            :set_true "night1_kitchen_visited";
             :print "The clattering abruptly stops moments before you enter the room. A silverware drawer is open, and <creepy forks<14>> are all over the floor, arranged to spell \"GET OUT\" in big letters. A shiver goes down your spine.";
-         } :else_if (game_part == 2) {
+         } :else_if (night1_kitchen_visited && !night1_slept) {
             :print "There are <creepy forks<14>> all over the floor here, spelling \"GET OUT\".";
          }
       }
@@ -160,17 +160,17 @@ locations {
    lobby: location { 
       header = "Hotel Lobby";
       on_describe {
-         :if (!part1_lobby_visited) {
-            :set_true "part1_lobby_visited";
+         :if (!day1_lobby_visited) {
+            :set_true "day1_lobby_visited";
             :print "As you enter, your eyes adjust to the dim light of the Red Soldier Inn's lobby.";
          }
 
          :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>>, with a <plaque<5>> under it.";
-         :if (game_part >= 1) {
+         :if (day1_checkin_done) {
             :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, and some rickety steps <up<14>> to the guest rooms. You could go back outside to the <east<14>>, but why would you?";
          }
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "The clattering is definitely coming from the kitchen.";
          }
       }
@@ -183,7 +183,7 @@ locations {
       on_describe {
          :print "This is the hotel's public washroom. You've seen better, but you've also seen a lot worse.";
 
-         :if (game_part == 2 && !part2_kitchen_visited) {
+         :if (night1_hallway_visited && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
       }
@@ -213,7 +213,7 @@ connections {
 
 barriers {
    stay_in_lobby_until_checked_in :block {
-      block_when_not = "part0_checkin_done";
+      block_when_not = "day1_checkin_done";
       message = "Maybe <check in to the hotel<5>> before roaming around?";
    }
 
@@ -270,10 +270,11 @@ vocabulary {
    :verb / aliases=[chat, greet, say, speak, talk, tell]
    :verb / aliases=[checkin, register]
    :verb / aliases=[examine, inspect, look, search, read]
+   :verb / aliases=[play, playback]
 }
 
 on_render {
-   :if (game_part == 2) {
+   :if (day1_slept && !night1_slept) {
       :if (is_at "cellar") {:overlay "cellar_night";}
       :if (is_at "cellar_stairs") {:overlay "cellar_stairs_night";}
       :if (is_at "dining_room") {:overlay "dining_room_night";}
@@ -297,12 +298,12 @@ on_describe {
    # Part 0 (pre-checkin) extra description
    #
 
-   :if (game_part == 0) {
+   :if (!day1_checkin_done) {
       :if (is_present "joyce") {
-         :if (!part0_joyce_met) {
-            :set_true "part0_joyce_met";
+         :if (!day1_joyce_met) {
+            :set_true "day1_joyce_met";
             :print "Behind the <front desk<5>> a woman beams at you with her best customer service smile. \"Welcome to the Red Soldier Inn!\", she proclaims, \"I'm <Joyce<5>>. How can I help you?\"";
-         } :else_if (!part0_checkin_attempted) {
+         } :else_if (!day1_checkin_attempted) {
             :print "<Joyce<5>> continues to beam at you, though the amount of time you are taking seems to be making her somewhat nervous. \"Excuse me\", she says, \"can I help you?\"";
          } :else {
             :print "<Joyce<5>> waits patiently for you to find your confirmation number.";
@@ -315,12 +316,12 @@ on_describe {
    # Part 1 (first day) extra description
    #
 
-   :if (game_part == 1) {
+   :if (!day1_slept) {
       :if (is_present "daniel") {
-         :if (!part1_daniel_met) {
-            :set_true "part1_daniel_met";
+         :if (!day1_daniel_met) {
+            :set_true "day1_daniel_met";
             :print "A portly gentleman hunched over some equipment must be the <Daniel<5>> that Joyce had mentioned. He gives a little jump as you approach. \"Oh! What brings you here?\"";
-         } :else_if (!part1_daniel_talked) {
+         } :else_if (!day1_daniel_talked) {
             :print "<Daniel<5>> glances at you warily before going back to his equipment.";
          } :else {
             :print "<Daniel<5>> fusses with his equipment in the corner.";
@@ -328,10 +329,10 @@ on_describe {
       }
       
       :if (is_present "haley") {
-         :if (!part1_haley_met) {
-            :set_true "part1_haley_met";
+         :if (!day1_haley_met) {
+            :set_true "day1_haley_met";
             :print "A young woman making tea must be Joyce's daughter <Haley<5>>. She nods at you curiously, but doesn't seem to object to your presence.";
-         } :else_if (!part1_haley_talked) {
+         } :else_if (!day1_haley_talked) {
             :print "<Haley<5>> makes tea and tries not to seem too curious about you.";
          } :else {
             :print "<Haley<5>> rummages about making tea.";
@@ -339,8 +340,8 @@ on_describe {
       }
 
       :if (is_present "joyce") {
-         :if (!part1_joyce_met) {
-            :set_true "part1_joyce_met";
+         :if (!day1_joyce_met_again) {
+            :set_true "day1_joyce_met_again";
             :print "<Joyce<5>> gives you a friendly wave. \"I hope you've settled in to your room? Do feel free to take a look around! We've got quite an historic beauty here. I'm sure Nora would love some company in the dining room! My daughter Haley is making her some tea. And I'm sure Daniel's off nosing about somewhere...\"";
          } :else {
             :print "<Joyce<5>> is doing paperwork behind the check-in desk.";
@@ -348,25 +349,20 @@ on_describe {
       }
 
       :if (is_present "nora") {
-         :if (!part1_nora_met) {
-            :set_true "part1_nora_met";
+         :if (!day1_nora_met) {
+            :set_true "day1_nora_met";
             :print "An older woman sitting at a table must be <Nora<5>>. \"Oh, hello!\" she says, \"you must be the new guest?\"";
-         } :else_if (!part1_nora_talked) {
+         } :else_if (!day1_nora_talked) {
             :print "<Nora<5>> gestures for you to sit down at her table.";
          } :else {
             :print "<Nora<5>> waits patiently for her tea.";
          }
       }
 
-      :if (part1_daniel_talked && part1_haley_talked && part1_joyce_met && part1_nora_talked) {
+      :if (day1_daniel_talked && day1_haley_talked && day1_nora_talked) {
          :print "You're feeling sleepy. Maybe you should head to bed?";
       }
    }
-
-   #
-   # Part 2 extra description
-   #
-
 
    #
    # General extra description
@@ -393,38 +389,33 @@ on_command {
 
    :if (is_present "hotel_bed") {
       :match "sleep -;sleep hotel_bed;goto sleep;goto hotel_bed;lie hotel_bed;lie down;use hotel_bed;bed -" {
-         :if (game_part == 1) {
-            :if (part1_daniel_talked && part1_haley_talked && part1_joyce_met && phone_read && part1_nora_talked) {
-               :print "You do your evening stuff and flop into bed. You're plenty tired and doze off in no time.";
-               :press_any_key;
-               :set_integer var="game_part" value="2";
-               :destroy "daniel";
-               :destroy "haley";
-               :destroy "joyce";
-               :destroy "nora";
-               :create "creepy_forks" target="kitchen";
-               :create "shirt_button" target="kitchen";
-               :redescribe;
-               :done;
-            } :else_if (!phone_read) {
-               :print "How can you sleep with unread messages on your phone?";
-               :done;
-            } :else {
-               :print "You're not really feeling sleepy yet. Maybe explore the hotel and talk to people?";
-               :done;
-            }
-         } :else_if (game_part == 2) {
-            :if (!part2_hallway_visited) {
-               :print "You're too disturbed by the hallway commotion to sleep. Better go check it out.";
-            } :else_if (!part2_kitchen_visited) {
-               :print "You'd try to sleep, but what was that clattering sound you heard? Better go check it out.";
-            } :else_if (!is_carried "shirt_button") {
-               :print "You try to sleep, but something about those forks tugs at your memory. Maybe go take a closer look?";
-            }
+         :if (!phone_read) {
+            :print "How can you sleep with unread messages on your phone?";
+         } :else_if (!day1_daniel_talked || !day1_haley_talked || !day1_joyce_met_again || !day1_nora_talked) {
+            :print "You're not really feeling sleepy yet. Maybe explore the hotel and talk to people?";
+         } :else_if (!day1_slept) {
+            :set_true "day1_slept";
+            :print "You do your evening stuff and flop into bed. You're plenty tired and doze off in no time.";
+            :press_any_key;
+            :destroy "daniel";
+            :destroy "haley";
+            :destroy "joyce";
+            :destroy "nora";
+            :create "creepy_forks" target="kitchen";
+            :create "shirt_button" target="kitchen";
+            :redescribe;
+         } :else_if (!night1_hallway_visited) {
+            :print "You're too disturbed by the hallway commotion to sleep. Better go check it out.";
+         } :else_if (!night1_kitchen_visited) {
+            :print "You'd try to sleep, but what was that clattering sound you heard? Better go check it out.";
+         } :else_if (!is_carried "shirt_button") {
+            :print "You try to sleep, but something about those forks tugs at your memory. Maybe go take a closer look?";
+         } :else_if (!night1_slept) {
+            # TODO
          } :else {
             :print "You're not really feeling sleepy at the moment.";
-            :done;
          }
+         :done;
       }
    }
 
@@ -436,13 +427,13 @@ on_command {
    }
 
    :if (is_present "daniel") {
-      :if (!part1_daniel_talked) {
+      :if (!day1_daniel_talked) {
          :match "look daniel" {
             :print "<Daniel<5>> is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
             :done;
          }
          :match "talk -;talk daniel" {
-            :set_true "part1_daniel_talked";
+            :set_true "day1_daniel_talked";
             :print "You try to put Daniel at ease. \"Wow, that equipment looks pretty cool! I hope I'm not in your way?\"";
             :print "He relaxes a bit and responds. \"Sorry, no, you're fine! There just aren't usually many other guests around, because of, you know, all the press.\" He puts out his hand to shake. \"I'm Daniel Dweebly, and I'm actually here to investigate the phenomena. I know this stuff looks fancy,\" he gestures at the equipment, \"but it's all pretty standard psionic metrology gear. They won't let you take the good stuff on a plane, you know how it is.\" (Actually, you don't.)";
             :print "\"Oh, speaking of which! They put you in the Captain's room, right?\" (You're not sure what he means, but he doesn't pause for an answer.) \"If you wouldn't mind, take this <voice recorder<4>>? You can use it to record and amplify any unusual noises.\"";
@@ -480,13 +471,13 @@ on_command {
    }
 
    :if (is_present "haley") {
-      :if (!part1_haley_talked) {
+      :if (!day1_haley_talked) {
          :match "look haley" {
             :print "<Haley<5>> is a young woman in a button down uniform. She seems curious to talk but a little shy.";
             :done;
          }
          :match "talk -;talk haley" {
-            :set_true "part1_haley_talked";
+            :set_true "day1_haley_talked";
             :print "You greet Haley. \"Oh hi! You must be Haley? I just met Joyce when I checked in.\"";
             :print "Haley rolls her eyes a tiny bit. \"Oh yeah, Mom was so excited to have a guest! We haven't had hardly any with all the, you know, ghost stuff.\" She makes woo-woo motions with her hands and lowers her voice. \"Honestly I think Mom should just sell the place. Anyhoo, are you, like, another ''paranormal investigator'' like that Daniel guy?\" The air quotes and tone of voice make it clear what she thinks of him.";
             :print "\"Oh no, I'm just in town for Gamecon! What's this about a ghost anyway?\"";
@@ -506,42 +497,41 @@ on_command {
    }
 
    :if (is_present "joyce") {
-      :if (game_part == 0) {
+      :if (!day1_checkin_done) {
          :match "look joyce" {
             :print "<Joyce<5>> seems excited for you to <check in to the hotel<5>>.";
             :done;
          }
 
          :match "talk -;talk joyce;check hotel;check red_soldier;check -;checkin -" {
-            :if (!part0_checkin_attempted) {
-               :set_true "part0_checkin_attempted";
-               :ask_string var="part0_checkin_code" empty_is_ok="true" question="You step up to the desk. Joyce says \"Hi! If you're here to check in, what's your confirmation number?\"";
+            :if (!day1_checkin_attempted) {
+               :set_true "day1_checkin_attempted";
+               :ask_string var="day1_checkin_code" empty_is_ok="true" question="You step up to the desk. Joyce says \"Hi! If you're here to check in, what's your confirmation number?\"";
             } :else {
-               :ask_string var="part0_checkin_code" empty_is_ok="true" question="Joyce looks up. \"Ah, did you find the confirmation number?\"";
+               :ask_string var="day1_checkin_code" empty_is_ok="true" question="Joyce looks up. \"Ah, did you find the confirmation number?\"";
             }
 
-            :if (part0_checkin_code != "13") {
+            :if (day1_checkin_code != "13") {
                :print "\"Hmm, that doesn't seem quite right. You should have an email with a confirmation number. Do you have your phone with you?\"";
             } :else {
+               :set_true "day1_checkin_done";
                :print "\"Perfect! We are always so excited to get guests! Let me just get you your key and I can show you your room!\" Joyce turns around to reach for the key above her. As she does so, you notice it seem to wrench off its peg, clattering to the ground. Her cheerful demeanor disappears for a moment, replaced with a nervous fear. She quickly replaces it with a smile again though, snatching up the key. \"Oops, butterfingers!\" she laughs, though you can sense the tension in her voice. \"Let's get you upstairs!\"";
                :print "You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door. \"You have the Captain's room, I hope that's okay!\" She quickly points out the door to the bathroom, the glasses for water, and the phone on the side table. It's a little basic, but the bed looks comfy. \"I'll leave you to unpack. Do feel free to explore! If you need anything, I'll just be in the lobby!\" she says as she shuts the door behind her. She can't seem to wait to get out of here.";
                :pocket "room_keys";
                :press_any_key;
-               :set_integer var="game_part" value="1";
                :goto "hotel_room";
                :redescribe;
             }
             :done;
          }
-      } :else {
-         # Not part 0, so checkin is done.
-         :match "check hotel;check red_soldier;check -;checkin -" {
-            :print "You've already checked into the hotel.";
-            :done;
-         }
       }
 
-      :if (game_part == 1) {
+      :match "check hotel;check red_soldier;check -;checkin -" {
+         :print "You've already checked into the hotel.";
+         :done;
+      }
+
+      :if (day1_checkin_done && !day1_slept) {
          :match "look joyce" {
             :print "<Joyce<5>> seems busy. You probably shouldn't bother her.";
             :done;
@@ -555,13 +545,13 @@ on_command {
    }
    
    :if (is_present "nora") {
-      :if (!part1_nora_talked) {
+      :if (!day1_nora_talked) {
          :match "look nora" {
             :print "<Nora<5>> is a primly dressed older woman, patting the seat next to her and clearly interested in saying hello.";
             :done;
          }
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
-            :set_true "part1_nora_talked";
+            :set_true "day1_nora_talked";
             :print "You sit down with Nora. \"Hi, I just checked in here, you must be Nora? Are you also staying here?\"";
             :print "\"Oh, no, I live just across the street!\" Nora laughs, \"but I come in here just about every day for my tea. They know how to make it right, even if it takes Haley forever and a day,\" she says, glancing at the kitchen. \"Ghost or no ghost!\"";
             :print "\"I'm sorry, what's this about a ghost?\"";
@@ -599,7 +589,7 @@ on_command {
          } :else {
             :print "You check your phone messages. Nothing new since that exposition message from Sabrina. You would check social media except your data ran out when you decided you just had to download the latest true crime podcast without a wifi signal. Hope it was worth it.";
          }
-         :if (game_part == 0) {
+         :if (!day1_checkin_done) {
             :print "You do have the booking email from the hotel. The confirmation number is... 13? Can that be right? They must not get a lot of guests!";
          }
          :done;
@@ -611,9 +601,18 @@ on_command {
    }
 
    :if (is_holding "voice_recorder") {
-      # TODO lampshade recording of clanking
       :match "record sound;record voice;record -;use voice_recorder" {
+         :if (night1_awake && !night1_hallway_visited) {
+            :print "The commotion outside has stopped, and everything is quiet now, so there's nothing unusual to record.";
+         } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
+            :print "The distant clattering doesn't seem like the sort of thing you'd record. Might as well just go see what's causing it.";
+         } :else {
+            :print "There aren't any unusual sounds to record right now.";
+         }
          :done;
+      }
+
+      :match "play recorder;play sound;play voice;play -" {
       }
    }
 
