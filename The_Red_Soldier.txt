@@ -24,7 +24,7 @@ booleans {
    day1_daniel_met: boolean "false";
    day1_daniel_talked: boolean "false";
    day1_haley_met: boolean "false";
-   day1_haley_talked: boolean "false";
+   day1_haley_done: boolean "false";
    day1_inventory_prompted: boolean "false";
    day1_joyce_met: boolean "false";
    day1_joyce_met_again: boolean "false";
@@ -263,8 +263,10 @@ objects {
    creepy_forks: scenery "scattered forks on the floor" conspicuous="false";
 
    daniel: scenery "Daniel" at="cellar" conspicuous="false";
-
+   
    eerie_sound: scenery "an eerie sound" conspicuous="false" msg="The sound is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
+
+   fine_china: scenery "fine china" conspicuous="false" msg="The fine china in the hutch doesn't look very interesting.";
 
    front_desk: scenery "the hotel front desk" at="lobby" conspicuous="false" msg="The front desk isn't fancy but it is solid. The nameplate says \"Joyce\" and looks like it doesn't get changed much.";
    
@@ -272,7 +274,7 @@ objects {
 
    heating_vent: scenery "a heating vent" at="hotel_room" conspicuous="false" msg="The heating vent looks totally ordinary, and you have no way to remove it.";
    
-   hutch: scenery "an antique hutch" at="dining_room" conspicuous="false" msg="The hutch reminds you of something your parents inherited from your grandparents. Various pretty things sit on its shelves.";
+   hutch: scenery "an antique hutch" at="dining_room" conspicuous="false" msg="The hutch reminds you of something your parents inherited from your grandparents. Fine china sits on its shelves.";
    
    hutch_plaque: scenery "plaque on the hutch" at="dining_room" conspicuous="false" msg="The plaque on the hutch reads \"This hutch is one of the few surviving pieces belonging to Captain Sunders. Specially crafted for the inn, it has remained here in accordance with Sunders' will.";
 
@@ -365,7 +367,7 @@ on_describe {
          :if (!day1_haley_met) {
             :set_true "day1_haley_met";
             :print "A young woman making tea must be Joyce's daughter <Haley<5>>. She nods at you curiously, but doesn't seem to object to your presence.";
-         } :else_if (!day1_haley_talked) {
+         } :else_if (!day1_haley_done) {
             :print "<Haley<5>> makes tea and tries not to seem too curious about you.";
          } :else {
             :print "<Haley<5>> rummages about making tea.";
@@ -392,7 +394,7 @@ on_describe {
          }
       }
 
-      :if (phone_read && day1_daniel_talked && day1_haley_talked && day1_nora_done) {
+      :if (phone_read && day1_daniel_talked && day1_haley_done && day1_nora_done) {
          :print "You're feeling sleepy. Maybe you should head to bed?";
       }
    }
@@ -437,7 +439,7 @@ on_command {
       :match "sleep -;sleep hotel_bed;goto sleep;goto hotel_bed;lie hotel_bed;lie down;use hotel_bed;bed -" {
          :if (!phone_read) {
             :print "How can you sleep with unread messages on your phone?";
-         } :else_if (!day1_daniel_talked || !day1_haley_talked || !day1_joyce_met_again || !day1_nora_done) {
+         } :else_if (!day1_daniel_talked || !day1_haley_done || !day1_joyce_met_again || !day1_nora_done) {
             :print "You're not feeling sleepy yet. Maybe explore the hotel and talk to people?";
          } :else_if (!day1_slept) {
             :set_true "day1_slept";
@@ -535,26 +537,45 @@ on_command {
    }
 
    :if (is_present "haley") {
-      :if (!day1_haley_talked) {
+      :if (!day1_haley_done) {
          :match "look haley" {
-            :print "<Haley<5>> is a young woman in a button down uniform. She seems curious to talk but a little shy.";
+            :print "<Haley<5>> wears a button down uniform and a smirk only a teenager can perfect. She's  making Nora's tea, which seems like a surprisingly complicated affair.";
             :done;
          }
          :match "talk -;talk haley" {
-            :set_true "day1_haley_talked";
-            :print "You greet Haley. \"Oh hi! You must be Haley? I just met Joyce when I checked in.\"";
-            :print "Haley rolls her eyes a tiny bit. \"Oh yeah, Mom was so excited to have a guest! We haven't had hardly any with all the, you know, ghost stuff.\" She makes woo-woo motions with her hands and lowers her voice. \"Honestly I think Mom should just sell the place. Anyhoo, are you, like, another ''paranormal investigator'' like that Daniel guy?\" The air quotes and tone of voice make it clear what she thinks of him.";
-            :print "\"Oh no, I'm just in town for Gamecon! What's this about a ghost anyway?\"";
-            :print "Haley looks at you for a moment. \"Gamecon? Weird, you seem pretty normal to me. I mean, no offense. And you seriously hadn't heard about the ghost stutff? There was that whole thing back in July with the blood and... I dunno, seems pretty fake to me\" (she makes the woo-woo hand motions again) \"but whatever, you know? Anyway, I should probably finish this tea for the old lady, she gets real grumpy without it.\"";
+            :add_choice "Say hello" {
+               :print "You greet Haley. She responds with a perky smile. She seems overly excited to see you here.";
+               :print "\"Finally! We get a new guest! And one that isn't a total weirdo! Have you met Daniel by the way? He's a total weirdo. He's into all sorts of weird ghost stuff. Anyway, what brings you to town?\"";
+               :press_any_key;
+               :print "You explain that you are here for the local gaming convention. Haley's eyes grow even bigger.";
+               :print "\"No way! You go to Gamecon! Aw man, I wish I could go, but I have to help mom out with the inn. It's not fair. If it weren't for Nora out there always needing scones, I could probably go!";
+            }
+            :add_choice "Ask about Nora" {
+               :print "";
+            }
+            :if (is_holding "pamphlet") {
+               :add_choice "Show Haley the pamphlet" {
+                  :set_true "day1_haley_done";
+
+                  :print "\"So you saw mom’s pamphlets! She’ll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
+                  :press_any_key;
+                  :print "She sees you raise your eyes.";
+                  :print "\"What? You don’t know about the ghost? I thought that’s the only reason people would come here. And also the reason this place stays empty. If it wasn’t for Daniel, we would be out of business. He’s been here two months! Seriously, how is a bunch of knocks worth staying here two months?! If there is a ghost, it should be a proper ghost, like--\"";
+                  :print "She makes a woooing sound and waves her arms around, then stops suddenly, looking worried.";
+                  :press_any_key;
+                  :print "\"Oh, crap. Hey, don’t tell mom I told you about the ghost, okay? It stresses her out. You won’t leave, right?\"";
+                  :print "You assure her you won't.";
+               }
+            }
             :done;
          }
       } :else {
          :match "look haley" {
-            :print "<Haley<5>> is a young woman in a button down uniform. She's focused on making Nora's tea, which seems like a surprisingly complicated affair.";
+            :print "<Haley<5>> is a young woman in a button down uniform, focused intently on making Nora's tea and scones.";
             :done;
          }
          :match "talk -;talk haley" {
-            :print "You should probably let Haley finish making Nora's tea.";
+            :print "You should probably let Haley finish making Nora's tea and scones.";
             :done;
          }
       }
@@ -580,11 +601,16 @@ on_command {
             } :else {
                :set_true "day1_checkin_done";
                :print "\"Perfect! We are always so excited to get guests! Let me just get you your key and I can show you your room!\"";
+               :press_any_key;
                :print "She turns around to grab the key. Before her hands are anywhere near it, it suddenly seems to wrench itself off its peg and clatters to the floor.";
+               :press_any_key;
                :print "Joyce's cheerful demeanor falters for a moment, replaced with nervous fear. She recovers quickly and turns around, smile back in place. \"Oops! Butterfingers! Now lets' get you upstairs!\"";
+               :press_any_key;
                :print "She laughs, but it's a little shaky. What on earth was that about? You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door.";
+               :press_any_key;
                :print "\"You have the Captain's room, I hope that's okay!\"";
-               :print "She quickly points out the facilities. It's a basic setup, but looks comfy.";
+               :press_any_key;
+               :print "She quickly points out the features of the room. It's a basic setup, but looks comfy.";
                :print "\"I'll leave you to unpack. Do feel free to explore! If you need anything, I'll just be in the lobby!\" She shuts the door behind her. You can't help but notice she seemed eager to get out of here.";
                :pocket "room_keys";
                :press_any_key;
@@ -593,32 +619,33 @@ on_command {
             }
             :done;
          }
-      }
-
-      :match "look joyce" {
-         :print "<Joyce<5>> seems busy.";
-         :done;
-      }
-
-      :match "talk -;talk joyce" {
-         :add_choice "Say hello" {
-            :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
+      } :else {
+         :match "look joyce" {
+            :print "<Joyce<5>> seems busy.";
+            :done;
          }
-         :add_choice "Ask about the pamphlet" {
-            :print "<Joyce<5>> seems excited you have taken an interest in the <pamphlet<5>>. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
+   
+         :match "talk -;talk joyce" {
+            :add_choice "Say hello" {
+               :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
+            }
+            :add_choice "Ask about the pamphlet" {
+               :print "<Joyce<5>> seems excited you have taken an interest in the <pamphlet<5>>. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
+            }
+            :choose "What would you like to talk to Joyce about?";
+            :done;
          }
-         :choose "What would you like to talk to Joyce about?";
-         :done;
       }
    }
 
    :if (is_present "nora") {
       :if (!day1_nora_done) {
+         :match "look nora" {
+            :print "<Nora<5>> is a primly dressed older woman, waiting for her tea. Type <TALK TO NORA<5>> to chat.";
+            :done;
+         }
+
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
-            :match "look nora" {
-               :print "<Nora<5>> is a primly dressed older woman, waiting for her tea. Type <TALK TO NORA<5>> to chat.";
-               :done;
-            }
             :add_choice "Say hello" {
                :print "The old woman seems excited to see another guest. \"I love this old inn. In fact, I come here every day for tea. I just love surrounding myself with all this history. And really, you just can't beat the scones here!\"";
             }
@@ -630,13 +657,16 @@ on_command {
                }
             }
             :if (is_holding "pamphlet") {
-               :add_choice "Ask about the pamphlet" {
+               :add_choice "Show Nora the pamphlet" {
                   :set_true "day1_nora_done";
                   :print "Nora’s eyes light up. \"Oh! Are you interested in history too? Well, you can’t get much more interesting than Captain Sunders. Interesting, and tragic…\"";
+                  :press_any_key;
                   :print "She barely gives you the chance to ask what she means before she barrels on.";
+                  :press_any_key;
                   :print "\"You see, Captain Sunders had a sweetheart. They were deeply in love and had plans to marry but...it would never come to pass. He was killed by his own soldiers. You see...he was a British officer and spy during the War of 1812. When the Americans invaded, his superiors ordered a retreat. But he refused to leave. He wanted to see his beloved one last time...\"";
+                  :press_any_key;
                   :print "\"Unfortunately, they were never able to meet up. The Americans found him in his inn. When he refused to give up British secrets, they killed him on the spot. He never got to see his beloved again. Such a shame...but you must admit, it does make a captivating story!\"";
-                  :print "\"It feels awkward to agree with the old bat, but you’ve always been a fan of true crime, and this one seems extra true!\"";
+                  :print "It feels awkward to agree with the old bat, but you’ve always been a fan of true crime, and this one seems extra true!";
                }
             }
             :choose "What would you like to talk to Nora about?";
