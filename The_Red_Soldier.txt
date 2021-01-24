@@ -34,7 +34,6 @@ booleans {
    day1_slept: boolean "false";
 
    night1_awake: boolean "false";
-   night1_hallway_visited: boolean "false";
    night1_kitchen_visited: boolean "false";
    night1_slept: boolean "false";
 
@@ -67,7 +66,7 @@ locations {
       on_describe {
          :print "The cellar is a little damp and a lot dusty. There's a washroom to the <east<14>>, or you can go back <up<14>> to the main floor.";
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
+         :if (night1_awake && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
       }
@@ -78,7 +77,7 @@ locations {
       on_describe {
          :print "A sketchy flight of stairs leads <down<14>> to the cellar from here, or you can go <east<14>> to the kitchen or <south<14>> to the dining room.";
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
+         :if (night1_awake && !night1_kitchen_visited) {
             :print "The clattering is definitely coming from the kitchen.";
          }
       }
@@ -87,10 +86,14 @@ locations {
    dining_room: location {
       header = "Dining Room";
       on_describe {
-         :print "The quaint pub style dining room feels warm and inviting. There is an <antique hitch<5>> in one corner with a <plaque<5>> on the front. You see the lobby to the <east<14>> and cellar stairs to the <north<14>>.";
+         :if (!(night1_awake && !day2_awake)) {
+            :print "The quaint pub style dining room feels warm and inviting. There is an <antique hutch<5>> in one corner with a <plaque<5>> on the front. You see the lobby to the <east<14>> and cellar stairs to the <north<14>>.";
+         } :else {
+            :print "You almost trip over a chair in the dark. You can still make out the <hutch<5>> and its <plaque<5>>. The lobby is <east<14>> and the cellar stairs to the <north<14>>.";
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
-            :print "You hear clattering from a nearby room.";
+            :if (!night1_kitchen_visited) {
+               :print "You hear clattering from a nearby room.";
+            }
          }
       }
    }
@@ -100,8 +103,8 @@ locations {
       on_describe {
          :print "This is the east end of the hotel hallway. There's a <clock<5>> on the wall with a <plaque<5>> under it. The hallway leads <west<14>>, there's a locked guest room to the south, and stairs lead <down<14>> to the lobby.";
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
-            :print "You hear soft clattering from somewhere downstairs.";
+         :if (night1_awake && !night1_kitchen_visited) {
+            :print "The boards creak loudly under your feet. The clattering continues downstairs.";
          }
       }
    }
@@ -111,11 +114,8 @@ locations {
       on_describe {
          :print "This is the west end of the hotel hallway. Your own hotel room is to the <west<14>>, the hallway leads <east<14>>, and there's a locked guest room to the south.";
 
-         :if (night1_awake && !night1_hallway_visited) {
-            :set_true "night1_hallway_visited";
-            :print "Nobody is here, and there's no sign of the disturbance that woke you up. Weird! But you do hear faint clattering from somewhere downstairs...";
-         } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
-            :print "You hear faint clattering from somewhere downstairs.";
+         :if (night1_awake && !night1_kitchen_visited) {
+            :print "There is another thump from downstairs, followed by clattering...";
          }
       }
    }
@@ -123,7 +123,7 @@ locations {
    hidden_room: location {
       header = "Hidden Cellar Room";
       on_describe {
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
+         :if (night1_awake && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
       }
@@ -134,7 +134,11 @@ locations {
       on_describe {
          :if (day1_slept && !night1_awake) {
             :set_true "night1_awake";
-            :print "You are woken by loud, repeated thumps from the hallway to the <east<14>>. They suddenly stop, but what's going on? Is there an emergency? You'd better check it out!";
+            :print "A large thump jolts you out of your sleep.";
+            :print "You think nothing of it, and try to go back to sleep.";
+            :press_any_key;
+            :print "There is another thump. And then another. It seems to be coming from downstairs.";
+            :print "Maybe you should check it out…";
             :return;
          }
 
@@ -150,11 +154,8 @@ locations {
 
          :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories. There's a hallway door to the <east<14>>.";
 
-         :if (night1_awake && is_carried "shirt_button" && !is_present "eerie_sound" && !sound_recorded) {
-            :create "eerie_sound";
-            :print "In the silence of the room, you hear a distinctly <eerie sound<14>> coming from a <heating vent<14>>. That wasn't there before!";
-         } :else_if (is_present "eerie_sound") {
-            :print "You still hear that <eerie sound<14>> from the <vent<14>>...";
+         :if (is_present "eerie_sound") {
+            :print "You still hear that <eerie sound<5>> from the <vent<5>>...";
          }
       }
    }
@@ -162,13 +163,20 @@ locations {
    kitchen: location {
       header = "Hotel Kitchen";
       on_describe {
-         :print "This is the inn's kitchen, cluttered with supplies and implements. Cellar stairs are to the <west<14>> and the lobby door to the <south<14>>.";
+         :if (!(night1_awake && !day2_awake)) {
+            :print "This is the inn's kitchen, cluttered with supplies and implements. Cellar stairs are to the <west<14>> and the lobby door to the <south<14>>.";
+         } :else {
+            :if (!night1_kitchen_visited) {
+               :set_true "night1_kitchen_visited";
+               :print "You hold your breath and tense up as you approach the kitchen door. The clattering sounds are very clear now. Your heart practically leaps out of your chest as you turn the doorknob...";
+               :press_any_key;
+               :print "The clattering stops the moment you enter the room. The single security light that is on illuminates the area just enough to reveal the damage.";
+               :press_any_key;
+            } :else {
+               :print "This is the kitchen, but something is very strange.";
+            }
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
-            :set_true "night1_kitchen_visited";
-            :print "The clattering abruptly stops moments before you enter the room. A silverware drawer is open, and <creepy forks<14>> are all over the floor, arranged to spell \"GET OUT\" in big letters. A shiver goes down your spine.";
-         } :else_if (night1_kitchen_visited && !night1_slept) {
-            :print "There are <creepy forks<14>> all over the floor here, spelling \"GET OUT\".";
+            :print "Drawers seem to be wrenched open. Various forks and spoons are wedged in between the countertop and the wall. And on the cupboards, written in bright red, is a <message<5>>: “GET OUT”. It drips off of the cupboards and onto the counter.";
          }
       }
    }
@@ -181,13 +189,18 @@ locations {
             :print "As you enter, your eyes adjust to the dim light of the Red Soldier Inn's lobby.";
          }
 
-         :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>> with a <plaque<5>> under it. There are some <pamphlets<5>> on the lobby desk.";
-         :if (day1_checkin_done) {
-            :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, and some rickety steps <up<14>> to the guest rooms. You could go back outside to the <east<14>>, but why would you?";
-         }
+         :if (!(night1_awake && !day2_awake)) {
+            :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>> with a <plaque<5>> under it. There are some <pamphlets<5>> on the lobby desk.";
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
-            :print "The clattering is definitely coming from the kitchen.";
+            :if (day1_checkin_done) {
+               :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, and some rickety steps <up<14>> to the guest rooms. You could go back outside to the <east<14>>, but why would you?";
+            }
+         } :else {
+            :print "The lobby seems far less inviting at night. You can still make out the <oil painting<5>>, <plaque<5>> and <pamphlets<5>>. You could make your way <west<14>> to the dining room, <north<14>> to the kitchen, or back <up<14>> to the guest rooms.";
+
+            :if (!night1_kitchen_visited) {
+               :print "The clattering is definitely coming from the kitchen.";
+            }
          }
       }
    }
@@ -209,7 +222,7 @@ locations {
       on_describe {
          :print "This is the inn's public washroom. You've seen better, but you've also seen a lot worse.";
 
-         :if (night1_hallway_visited && !night1_kitchen_visited) {
+         :if (night1_awake && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
       }
@@ -260,7 +273,7 @@ objects {
 
    clock_plaque: scenery "plaque below the clock" at="hallway_east" conspicuous="false" msg="The plaque below the clock reads: \"This clock, owned by the late Captain Sunders himself, is a fine example of early 19th century craftsmanship. Unfortunately this particular clock no longer runs, so don't set your watch by it!\"";
 
-   creepy_forks: scenery "scattered forks on the floor" conspicuous="false";
+   creepy_message: scenery "a message smeared on the cupboards" conspicuous="false";
 
    daniel: scenery "Daniel" at="cellar" conspicuous="false";
    
@@ -292,7 +305,7 @@ objects {
 
    room_keys: object "your hotel room keys" msg="This hotel is old enough to have real room keys, not some newfangled swipey card.";
 
-   shirt_button: object "a button you found with the creepy forks" msg="This is a shirt button that seems to have fallen off someone's clothes.";
+   shirt_button: object "a button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes.";
 
    voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humor him. You can use it to <RECORD SOUND<5>> and <PLAY SOUND<5>>.";
 
@@ -405,8 +418,12 @@ on_describe {
    # First night extra description
    #
 
-   :if (night1_awake && !night1_slept && is_carried "shirt_button" && sound_recorded && sound_played) {
-      :print "You're seriously exhausted now. Maybe try to get some sleep?";
+   :if (night1_awake && !night1_slept) {
+      :if (is_carried "shirt_button" && !is_at "hotel_room") {
+         :print "You're pretty tired, and whatever was making the noise seems to be gone. Perhaps you should head back to bed.";
+      } :else_if (sound_recorded && sound_played) {
+         :print "You're seriously exhausted now. Maybe try to get some sleep?";
+      }
    }
 
    #
@@ -455,15 +472,21 @@ on_command {
             :destroy "haley";
             :destroy "joyce";
             :destroy "nora";
-            :create "creepy_forks" target="kitchen";
+            :create "creepy_message" target="kitchen";
             :create "shirt_button" target="kitchen";
             :redescribe;
-         } :else_if (!night1_hallway_visited) {
-            :print "You're too disturbed by the hallway commotion to sleep. Better go check it out.";
          } :else_if (!night1_kitchen_visited) {
             :print "You'd try to sleep, but what was that clattering sound you heard? Better go check it out.";
          } :else_if (!is_carried "shirt_button") {
-            :print "You try to sleep, but something about those forks tugs at your memory. Maybe go take a closer look?";
+            :print "You try to sleep, but something about that message tugs at your memory. Maybe go take a closer look?";
+         } :else_if (!is_present "eerie_sound" && !sound_recorded) {
+            :print "You are relieved to escape back to your bed. Your head gratefully hits the pillow.";
+            :print "Sleep almost comes when...";
+            :press_any_key;
+            :create "eerie_sound" target="hotel_room";
+            :print "You hear an <eerie sound<5>> coming from the <heating vent<5>>.";
+            :press_any_key;
+            :print "It sounds like a whisper...";
          } :else_if (is_present "eerie_sound") {
             :print "There's no way you can sleep with that eerie sound droning on!";
          } :else_if (sound_recorded && !sound_played) {
@@ -472,7 +495,7 @@ on_command {
             :set_true "night1_slept";
             :print "That was intense and creepy, but you desperately need sleep. You doze off thinking about everything you heard and saw.";
             :press_any_key;
-            :destroy "creepy_forks";
+            :destroy "creepy_message";
             :create "daniel" target="cellar";
             :create "haley" target="kitchen";
             :create "joyce" target="lobby";
@@ -492,19 +515,14 @@ on_command {
       }
    }
 
-   :if (is_present "creepy_forks") {
-      :match "look forks" {
+   :if (is_present "creepy_message") {
+      :match "look message" {
          :if (is_beside "shirt_button") {
-            :print "Looking closer, there's a <shirt button<4>> perched on top of a fork. Was that left by whoever or whatever did this? Do ghosts wear button down shirts? Impulsively, you pocket the button.";
+            :print "You examine the message more closely. It smells like ketchup. Upon closer inspection, you notice something in one of the pools of ketchup dripping onto the counter. It appears to be a shirt button. That’s odd. Do ghosts wear button down shirts? Impulsively, you pocket the button.";
             :pocket "shirt_button";
          } :else {
-            :print "Other than spelling an ambiguous but definitely creepy message, these seem like ordinary kitchen forks.";
+            :print "The creepy GET OUT message seems to be made of ketchup.";
          }
-         :done;
-      }
-
-      :match "take forks" {
-         :print "These forks are creepy; you don't really want to touch them.";
          :done;
       }
    }
@@ -559,7 +577,7 @@ on_command {
    }
 
    :if (is_present "eerie_sound") {
-      :match "listen sound;listen -" {
+      :match "listen sound;listen vent;listen -" {
          :set_sentence "examine eerie sound";
       }
    }
@@ -780,11 +798,15 @@ on_command {
          :if (is_present "eerie_sound") {
             :set_true "sound_recorded";
             :destroy "eerie_sound";
-            :print "After taking a moment to figure out the controls, you hold the recorder up to the <vent<14>> and record a few seconds of sound. Just in time, too -- only a few seconds after you stop recording, the sound stutters and stops.";
-         } :else_if (night1_awake && !night1_hallway_visited) {
-            :print "The commotion outside has stopped, and everything is quiet now, so there's nothing unusual to record.";
-         } :else_if (night1_hallway_visited && !night1_kitchen_visited) {
-            :print "The distant clattering doesn't seem like the sort of thing you'd record. Might as well just go see what's causing it.";
+            :print "It takes a full five minutes to psych yourself up, but you grab the voice recorder and gingerly head to the <heating vent<5>>.";
+            :press_any_key;
+            :print "You hold the voice recorder out over the vent and press the record button, hoping it's close enough to capture the strange sounds.";
+            :press_any_key;
+            :print "The sounds fade shortly after you press stop.";
+         } :else_if (night1_awake && !night1_kitchen_visited) {
+            :print "The distant sound doesn't seem like the sort of thing you'd record. Might as well just go see what's causing it.";
+         } :else_if (night1_awake && !night1_slept && is_at "kitchen") {
+            :print "You wave the recorder around, but no sound seems to remain.";
          } :else {
             :print "There aren't any unusual sounds to record right now.";
          }
