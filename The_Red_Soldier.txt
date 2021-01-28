@@ -305,6 +305,8 @@ objects {
 
    room_keys: object "your hotel room keys" msg="This hotel is old enough to have real room keys, not some newfangled swipey card.";
 
+   scones_recipe: object "a recipe for scones";
+
    shirt_button: object "a button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes.";
 
    voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humor him. You can use it to <RECORD SOUND<5>> and <PLAY SOUND<5>>.";
@@ -415,7 +417,7 @@ on_describe {
       } :else_if (!day1_slept) {
          :print "<Nora<5>> waits for her tea.";
       } :else_if (!day2_nora_scones) {
-         :print "<Nora<5>> picks at her tea scones unhappily.";
+         :print "<Nora<5>> considers her tea unhappily.";
       } :else {
          :print "<Nora<5>> savors her tea and scones.";
       }
@@ -450,7 +452,7 @@ on_command {
 
    :if (is_present "clock") {
       :match "look clock" {
-          :print "This is a fine old <clock<5>>, but it seems to have stopped; it currently reads {clock_hour} o'clock.";
+          :print "This is a fine old clock, but it seems to have stopped; it currently reads {clock_hour} o'clock.";
           :done;
       }
    }
@@ -458,7 +460,7 @@ on_command {
    :if (is_present "creepy_message") {
       :match "look message" {
          :if (is_beside "shirt_button") {
-            :print "You examine the message more closely. It smells like ketchup. Upon closer inspection, you notice something in one of the pools of ketchup dripping onto the counter. It appears to be a shirt button. That's odd. Do ghosts wear button down shirts? Impulsively, you pocket the button.";
+            :print "You examine the message more closely. It smells like ketchup. Upon closer inspection, you notice something in one of the pools of ketchup dripping onto the counter. It appears to be a <shirt button<5>>. That's odd. Do ghosts wear button down shirts? Impulsively, you pocket the button.";
             :pocket "shirt_button";
          } :else {
             :print "The creepy GET OUT message seems to be made of ketchup.";
@@ -470,7 +472,7 @@ on_command {
    :if (is_present "daniel") {
       :if (!day1_daniel_done) {
          :match "look daniel" {
-            :print "<Daniel<5>> is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
+            :print "Daniel is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
             :done;
          }
 
@@ -509,7 +511,7 @@ on_command {
          }
       } :else {
          :match "look daniel" {
-            :print "<Daniel<5>> is a rotund fellow with frizzy hair. He's frowning at his inscrutable equipment.";
+            :print "Daniel is frowning at his inscrutable equipment.";
             :done;
          }
 
@@ -529,7 +531,7 @@ on_command {
    :if (is_present "haley") {
       :if (!day1_haley_done) {
          :match "look haley" {
-            :print "<Haley<5>> wears a button down uniform and a smirk only a teenager can perfect. She's making Nora's tea, which seems like a surprisingly complicated affair.";
+            :print "Haley wears a button down uniform and a smirk only a teenager can perfect. She's making Nora's tea, which seems like a surprisingly complicated affair.";
             :done;
          }
 
@@ -566,7 +568,7 @@ on_command {
          }
       } :else {
          :match "look haley" {
-            :print "<Haley<5>> is a young woman in a button down uniform, focused intently on making Nora's tea.";
+            :print "Haley is a young woman in a button down uniform, focused intently on making Nora's tea.";
             :done;
          }
 
@@ -634,7 +636,7 @@ on_command {
    :if (is_present "joyce") {
       :if (!day1_checkin_done) {
          :match "look joyce" {
-            :print "<Joyce<5>> would like to talk to you. Type <TALK TO JOYCE<5>> to say hello.";
+            :print "Joyce would like to talk to you. Type <TALK TO JOYCE<5>> to say hello.";
             :done;
          }
 
@@ -671,35 +673,35 @@ on_command {
          }
       } :else_if (!day1_slept) {
          :match "look joyce" {
-            :print "<Joyce<5>> seems busy.";
+            :print "Joyce seems busy.";
             :done;
          }
    
          :match "talk -;talk joyce" {
             :add_choice "Say hello" {
-               :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
+               :print "Joyce is friendly but preoccupied. She encourages you to explore the hotel.";
             }
             :add_choice "Ask about the pamphlet" {
-               :print "<Joyce<5>> seems excited you have taken an interest in the <pamphlet<5>>. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
+               :print "Joyce seems excited you have taken an interest in the pamphlet. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
             }
             :choose "What would you like to talk to Joyce about?";
             :done;
          }
       } :else {
          :match "look joyce" {
-            :print "<Joyce<5>> is just as professionally dressed as she was yesterday. Not a thread is out of place.";
+            :print "Joyce is just as professionally dressed as she was yesterday. Not a thread is out of place.";
          }
          
          :match "talk -;talk joyce" {
             :add_choice "Say good morning" {
-               :print "<Joyce<5>> smiles and says hello, but she seems a little distracted.";
+               :print "Joyce smiles and says hello, but she seems a little distracted.";
             }
 
             :add_choice "Ask Joyce if the hotel could be haunted" {
                :print "\"What?! A haunting?! Here? Ridiculous\"";
             }
 
-            :add_choice "Play the audio recording for Joyce" {
+            :add_choice "Play the audio recording for <Joyce<5>>" {
                :print "Joyce's face suddenly falls.";
                :print "\"Oh dear... where did you get that?\"";
                :press_any_key;
@@ -727,7 +729,7 @@ on_command {
    :if (is_present "nora") {
       :if (!day1_nora_done) {
          :match "look nora" {
-            :print "<Nora<5>> is a primly dressed older woman, waiting for her tea. Type <TALK TO NORA<5>> to chat.";
+            :print "Nora is a primly dressed older woman, waiting for her tea. Type <TALK TO NORA<5>> to chat.";
             :done;
          }
 
@@ -762,7 +764,7 @@ on_command {
          }
       } :else_if (!day1_slept) {
          :match "look nora" {
-            :print "<Nora<5>> is a primly dressed older woman, patiently waiting for her tea.";
+            :print "Nora is a primly dressed older woman, patiently waiting for her tea.";
             :done;
          }
 
@@ -771,6 +773,21 @@ on_command {
             :done;
          }
       } :else_if (!day2_nora_scones) {
+         :match "look nora" {
+            :print "Nora's outfit is immaculate and fully buttoned up.";
+            :done;
+         }
+
+         :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
+            :if (!is_holding "scones_recipe") {
+               :pocket "scones_recipe";
+               :print "You say hello to Nora, but she is uncharacteristically grouchy.";
+               :print "\"I'm sorry. Whatever you want to talk to me about, I just can't focus! It's Captain Sunders' birthday today and I always have his special scones. That young cook can never seem to get it right! Here, maybe you can help her! Why work in the Captain's Inn if you can't make his scones?\"";
+               :done;
+            } :else {
+               :print "Apparently Nora needs the Captain's scones to function. I guess you'll just have to make her some.";
+            }
+         }
       }
    }
 
@@ -788,7 +805,7 @@ on_command {
             :print "\"Hey! Hope you made it okay to the inn! Sorry the hotel was all booked up. Let me know how it is! I heard some weird stories about it! At any rate, can't wait to see you at Gamecon tomorrow!";
             :if (!day1_checkin_done) {
                :print "You smile. It was a last minute decision to join your friends for the convention but you are glad you made it. It's too bad you can't hang out at the hotel with your friends, but at least you were able to find somewhere to stay.";
-               :print "Speaking of which, it would be good to check in. What was your confirmation number again? You should <CHECK EMAIL<5>>.";
+               :print "Speaking of which, it would be good to check in. What was your confirmation number again? Maybe you should <CHECK EMAIL<5>>.";
             } :else {
                :print "You're not sure what she means by 'weird stories', but maybe you'll find out while you're here.";
             }
@@ -842,7 +859,7 @@ on_command {
          :if (is_present "eerie_sound") {
             :set_true "sound_recorded";
             :destroy "eerie_sound";
-            :print "It takes a full five minutes to psych yourself up, but you grab the voice recorder and gingerly head to the <heating vent<5>>.";
+            :print "It takes a full five minutes to psych yourself up, but you grab the voice recorder and gingerly head to the heating vent.";
             :press_any_key;
             :print "You hold the voice recorder out over the vent and press the record button, hoping it's close enough to capture the strange sounds.";
             :press_any_key;
