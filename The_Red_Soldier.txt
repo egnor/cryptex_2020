@@ -8,6 +8,10 @@
    short_synopsis = "Part of the 2020 Cryptex Hunt";
 }
 
+game_settings {
+   inventory_items_limit_var = "inventory_limit";
+}
+
 themes {
    t: theme {
       colors status_bar_pen="0" status_bar_paper="15";
@@ -36,6 +40,8 @@ booleans {
    night1_awake: boolean "false";
    night1_kitchen_visited: boolean "false";
    night1_slept: boolean "false";
+   night1_sound_recorded: boolean "false";
+   night1_sound_played: boolean "false";
 
    day2_awake: boolean "false";
    day2_daniel_done: boolean "false";
@@ -47,29 +53,46 @@ booleans {
    day2_nora_given_scones: boolean "false";
    day2_nora_done: boolean "false";
    day2_poem_read: boolean "false";
-   day2_returned: boolean "false";
 
-   phone_buzzed: boolean "false";
-   phone_read: boolean "false";
+   night2_box_open: boolean "false";
+   night2_daniel_conked: boolean "false";
+   night2_daniel_threatening: boolean "false";
+   night2_found: boolean "false";
+   night2_necklace_input: boolean "false";
+   night2_letter_unread: boolean "false";
+   night2_returned: boolean "false";
+   night2_painting_dim: boolean "false";
+   night2_papers_found: boolean "false";
+   
+   day3_awake: boolean "false";
+   day3_haley_done: boolean "false";
+   day3_joyce_done: boolean "false";
+   day3_necklace_input: boolean "false";
+   day3_nora_done: boolean "false";
 
-   sound_recorded: boolean "false";
-   sound_played: boolean "false";
+   phone_message: boolean "false";
+   phone_message_read: boolean "false";
+   phone_used: boolean "false";
+   
+   hidden_room_opened: boolean "false";
+   hidden_room_lit: boolean "false";
 }
 
 integers {
-   clock_hour: integer "3";
-   day1_checkin_code: integer "0";  # Temporary for prompt questions.
-   day2_cups_sugar: integer "0";
-   day2_cups_flour: integer "0";
-   day2_teaspoons_salt: integer "0";
-   day2_sticks_butter: integer "0";
-   day2_eggs: integer "0";
+   checkin_code_input: integer "0";  # Temporary for prompt questions.
+   inventory_limit: integer "100";
+   recipe_sugar_input: integer "0";
+   recipe_flour_input: integer "0";
+   recipe_salt_input: integer "0";
+   recipe_butter_input: integer "0";
+   recipe_eggs_input: integer "0";
 }
 
 strings {
-   day2_clock_time: string "";
-   day2_hutch_direction: string "";
-   day2_painting_location: string "";
+   clock_time_input: string "";
+   hutch_direction_input: string "";
+   necklace_decision_input: string "";
+   painting_location_input: string "";
 }
 
 #
@@ -85,6 +108,9 @@ locations {
          :print "The cellar is a little damp and a lot dusty. There's a washroom to the <east<14>>, or you can go back <up<14>> to the main floor.";
          :if (night1_awake && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
+         }
+         :if (night2_returned && !day3_awake) {
+            :print "Unlike the night before, the <computer<5>> seems to be running. There is a faint sound coming from the <headphones<5>>.";
          }
       }
    }
@@ -102,7 +128,7 @@ locations {
    dining_room: location {
       header = "Dining Room";
       on_describe {
-         :if ((!day1_slept || night1_slept) && !day2_returned) {
+         :if (!day1_slept || (day2_awake && !night2_returned) || day3_awake) {
             :print "The quaint pub style dining room feels warm and inviting. There is an <antique hutch<5>> in one corner with a <plaque<5>> on the front. You see the lobby to the <east<14>> and cellar stairs to the <north<14>>.";
          } :else {
             :print "You almost trip over a chair in the dark. You can still make out the <hutch<5>> and its <plaque<5>>. The lobby is <east<14>> and the cellar stairs to the <north<14>>.";
@@ -136,8 +162,18 @@ locations {
    hidden_room: location {
       header = "Hidden Cellar Room";
       on_describe {
-         :if (night1_awake && !night1_kitchen_visited) {
-            :print "You hear soft clattering from somewhere upstairs.";
+         :if (!hidden_room_lit) {
+            :print "The hidden room is pitch black and you can't see a thing. It smells musty.";
+         } :else_if  (!night2_box_open) {
+            :print "Thick layers of dust cover a table and some shelves. On the table is an <elaborate box<5>>.";
+         } :else_if (is_beside("letter") && is_beside("necklace")) {
+            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table with an <old letter<5>> and a <golden necklace<5>> inside.";
+         } :else_if (is_beside("letter")) {
+            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table with an <old letter<5>> inside.";
+         } :else_if (is_beside("necklace") && !is_present("daniel")) {
+            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table with a <golden necklace<5>> inside.";
+         } :else  {
+            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table, empty.";
          }
       }
    }
@@ -145,23 +181,30 @@ locations {
    hotel_room: location {
       header = "Your Hotel Room";
       on_describe {
-         :if (day1_slept && !night1_awake) {
+         :if (!day1_slept) {
+            :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories.";
+         } :else_if (day1_slept && !night1_awake) {
             :set_true "night1_awake";
             :print "A large thump jolts you out of your sleep.";
             :print "You think nothing of it, and try to go back to sleep.";
             :press_any_key;
-            :print "There is another thump. And then another. It seems to be coming from downstairs.";
-            :print "Maybe you should check it out...";
+            :print "There is another thump. And then another. It seems to be coming from downstairs. Maybe you should check it out?";
          } :else_if (night1_slept && !day2_awake) {
             :set_true "day2_awake";
             :print "You wake up. In the daylight the room is back to its cheery coziness.";
             :print "You have some time before the convention begins. Time to get some answers. Who does this button belong to? You should examine the staff and show them it. And what does this recording mean? You're sure people would be interested in hearing it.";
+         } :else_if (night2_found && !day3_awake) {
+            :set_false "night2_daniel_conked";
+            :set_true "day3_awake";
+            :print "You wake up several hours later. You figure you should talk to Joyce about last night.";
          } :else {
-            :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories. There's a hallway door to the <east<14>>.";
-   
-            :if (is_present "eerie_sound") {
-               :print "You still hear that <eerie sound<5>> from the <vent<5>>...";
-            }
+            :print "This is your familiar hotel room.";
+         }
+
+         :if (is_present("sound")) {
+            :print "You still hear that <eerie sound<5>> from the <vent<5>>...";
+         } :else {
+            :print "There's a hallway door to the <east<14>>.";
          }
       }
    }
@@ -170,7 +213,7 @@ locations {
       header = "Hotel Kitchen";
       on_describe {
          :if (!(night1_awake && !day2_awake)) {
-            :print "This is the inn's kitchen, cluttered with supplies and implements. Cellar stairs are to the <west<14>> and the lobby door to the <south<14>>.";
+            :print "This is the inn's kitchen, cluttered with supplies and implements. Cellar stairs are to the <west<14>>, and the lobby is <south<14>>.";
          } :else {
             :if (!night1_kitchen_visited) {
                :set_true "night1_kitchen_visited";
@@ -183,6 +226,8 @@ locations {
             }
 
             :print "Drawers seem to be wrenched open. Various forks and spoons are wedged in between the countertop and the wall. And on the cupboards, written in bright red, is a <message<5>>: \"GET OUT\". It drips off of the cupboards and onto the counter.";
+
+            :print "The cellar stairs are <west<14>>, and the lobby is <south<14>>.";
          }
       }
    }
@@ -195,7 +240,7 @@ locations {
             :print "As you enter, your eyes adjust to the dim light of the Red Soldier Inn's lobby.";
          }
 
-         :if (!day1_slept || (day2_awake && !day2_returned)) {
+         :if (!day1_slept || (day2_awake && !night2_returned) || day3_awake) {
             :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>> with a <plaque<5>> under it. There are some <pamphlets<5>> on the lobby desk.";
 
             :if (day1_checkin_done) {
@@ -214,7 +259,7 @@ locations {
    outside: location {
       header = "Outside the Red Soldier";
       on_describe {
-         :if (!day2_returned) {
+         :if (!night2_returned) {
             :print "You approach a quaint but somewhat run down looking inn. A sign swings over the door: \"The Red Soldier\".";
             :press_any_key;
             :print "It was a long bus ride to get here. You're just thankful there is a bed in your immediate future.";
@@ -231,7 +276,13 @@ locations {
    washroom: location {
       header = "Public Washroom";
       on_describe {
-         :print "This is the inn's public washroom. You've seen better, but you've also seen a lot worse.";
+         :if (!night2_papers_found) {
+            :print "This is the inn's public washroom. You've seen better, but you've also seen a lot worse. You can exit <west<14>> to the cellar.";
+         } :else_if (!hidden_room_opened) {
+            :print "The washroom is even creepier at night. The <bricks<5>> here sure do look familiar...";
+         } :else {
+            :print "This previously ordinary washroom now has a secret passage to the <south<14>>! You can also exit <west<14>> to the cellar.";
+         }
          :if (night1_awake && !night1_kitchen_visited) {
             :print "You hear soft clattering from somewhere upstairs.";
          }
@@ -242,7 +293,7 @@ locations {
 connections {
    from, direction, to = [
       cellar, east, washroom,
-      cellar, south, hidden_room,
+      cellar, leave, cellar_stairs,
       cellar, up, cellar_stairs,
       
       cellar_stairs, east, kitchen,
@@ -253,11 +304,16 @@ connections {
       hallway_east, west, hallway_west,
       hallway_east, down, lobby,
       hallway_west, west, hotel_room,
+      
+      hotel_room, leave, hallway_west,
 
       kitchen, south, lobby,
       
-      outside, west, lobby,
       outside, enter, lobby,
+      outside, west, lobby,
+
+      washroom, leave, cellar,
+      washroom, south, hidden_room,
    ]
 }
 
@@ -269,7 +325,27 @@ barriers {
 
    do_not_go_outside :block {
       location = "outside";
-      message = "It's cold and damp out there. No thanks!";
+      message = "Brr! You're not going out into the cold until it's time for Gamecon.";
+   }
+   
+   hidden_room_opening :block {
+      location = "hidden_room";
+      block_when_not = "hidden_room_opened";
+   }
+   
+   daniel_blocks_exit :block {
+      block_when = "night2_daniel_threatening";
+      message = "You can't go anywhere with Daniel waving that gun at you!";
+   }
+   
+   do_not_leave_letter_unread :block {
+      block_when = "night2_letter_unread";
+      message = "Before you leave, aren't you curious what the letter says?";
+   }
+   
+   do_not_leave_necklace_behind :block {
+      block_when = "night2_daniel_conked";
+      message = "Are you going to leave the necklace lying there?";
    }
 }
 
@@ -278,19 +354,29 @@ barriers {
 #
 
 objects {
+   box: scenery "an elaborate box" at="hidden_room" conspicuous="false" msg="The box is quite dusty, ornately carved, and apparently very old. It has a hinged lid.";
+
+   brick_wall: scenery "brick wall" at="washroom" conspicuous="false" msg="The brick wall of the washroom doesn't seem very special.";
+
+   button: object "a shirt button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes.";
+
    clock: scenery "wall clock" at="hallway_east" conspicuous="false";
    
    clock_paper: object "a slip of paper from the clock" msg="There are lines on the old-looking paper, but they don't make much sense on their own.";
 
    clock_plaque: scenery "plaque below the clock" at="hallway_east" conspicuous="false" msg="The plaque below the clock reads: \"This clock, owned by the late Captain Sunders himself, is a fine example of early 19th century craftsmanship. Unfortunately this particular clock no longer runs, so don't set your watch by it!\"";
 
+   computer: scenery "Daniel's computer" at="cellar" conspicuous="false";
+   
+   computer_headphones: scenery "headphones attached to the computer" at="cellar" conspicuous="false";
+
    creepy_message: scenery "a message smeared on the cupboards" conspicuous="false";
 
    daniel: scenery "Daniel" at="cellar" conspicuous="false";
    
-   eerie_sound: scenery "an eerie sound" conspicuous="false" msg="The sound is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
-
    fine_china: scenery "fine china" at="dining_room" conspicuous="false";
+   
+   flickering_light: scenery "a flickering light" at="washroom" conspicuous="false" msg="The flickering bathroom light doesn't seem very interesting.";
 
    front_desk: scenery "the hotel front desk" at="lobby" conspicuous="false" msg="The front desk isn't fancy but it is solid. The nameplate says \"Joyce\" and looks like it doesn't get changed much.";
    
@@ -307,8 +393,10 @@ objects {
    hutch_plaque: scenery "plaque on the hutch" at="dining_room" conspicuous="false" msg="The plaque on the hutch reads \"This hutch is one of the few surviving pieces belonging to Captain Sunders. Specially crafted for the inn, it has remained here in accordance with Sunders' will.\"";
 
    joyce: scenery "Joyce" at="lobby" conspicuous="false";
-   
-   mobile_phone: object "your mobile phone" at="inventory" msg="You will never let your beloved phone go!";
+
+   letter: object "an old letter" conspicuous="false";
+
+   necklace: object "a golden necklace" conspicuous="false" msg="The necklace feels like solid gold. It must be worth a fortune!";
 
    nora: scenery "Nora" at="dining_room" conspicuous="false";
    
@@ -320,6 +408,8 @@ objects {
 
    pamphlet: object "an informational pamphlet" at="lobby" conspicuous="false" msg="The pamphlet details the history of the inn and the town. It seems the inn was originally built in the early 1800s by someone named Captain Sunders.";
 
+   phone: object "your mobile phone" at="inventory" msg="You will never let your beloved phone go!";
+   
    poem: object "a poem written on old paper";
 
    room_keys: object "your hotel room keys" msg="This hotel is old enough to have real room keys, not some newfangled swipey card.";
@@ -328,31 +418,29 @@ objects {
    
    scones: object "some delicious Captain Sunders scones" msg="These scones are incredibly buttery and fluffy.";
 
-   shirt_button: object "a button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes.";
+   sound: scenery "an eerie sound" conspicuous="false" msg="The sound is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
 
    voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humor him. You can use it to <RECORD SOUND<5>> and <PLAY SOUND<5>>.";
-
-   washroom_light: scenery "Washroom light" at="washroom" conspicuous="false" msg="The half broken flickering bathroom light doesn't seem very interesting.";
 }
 
 on_render {
-   :if ((day1_slept && !night1_slept) || day2_returned) {
-       :if (is_at "cellar") {:overlay "cellar_night";}
-       :if (is_at "cellar_stairs") {:overlay "cellar_stairs_night";}
-       :if (is_at "dining_room") {:overlay "dining_room_night";}
-       :if (is_at "hallway_east") {:overlay "hallway_east_night";}
-       :if (is_at "hallway_west") {:overlay "hallway_west_night";}
-       :if (is_at "hotel_room") {:overlay "hotel_room_night";}
-       :if (is_at "kitchen") {:overlay "kitchen_night";}
-       :if (is_at "lobby") {:overlay "lobby_night";}
+   :if ((day1_slept && !night1_slept) || (night2_returned && !night2_found)) {
+       :if (is_at("cellar")) {:overlay "cellar_night";}
+       :if (is_at("cellar_stairs")) {:overlay "cellar_stairs_night";}
+       :if (is_at("dining_room")) {:overlay "dining_room_night";}
+       :if (is_at("hallway_east")) {:overlay "hallway_east_night";}
+       :if (is_at("hallway_west")) {:overlay "hallway_west_night";}
+       :if (is_at("hotel_room")) {:overlay "hotel_room_night";}
+       :if (is_at("kitchen")) {:overlay "kitchen_night";}
+       :if (is_at("lobby")) {:overlay "lobby_night";}
    }
 
-   :if (is_at "cellar" && is_present "daniel") {:overlay "cellar_daniel";}
-   :if (is_at "dining_room" && is_present "nora") {:overlay "dining_room_nora";}
-   :if (is_at "hallway_east" && clock_hour == 3) {:overlay "clock_hour3";}
-   :if (is_at "hallway_east" && clock_hour == 12) {:overlay "clock_hour12";}
-   :if (is_at "kitchen" && is_present "haley") {:overlay "kitchen_haley";}
-   :if (is_at "lobby" && is_present "joyce") {:overlay "lobby_joyce";}
+   :if (is_at("cellar") && is_present("daniel")) {:overlay "cellar_daniel";}
+   :if (is_at("dining_room") && is_present("nora")) {:overlay "dining_room_nora";}
+   :if (is_at("hallway_east") && !is_carried("clock_paper")) {:overlay "clock_hour3";}
+   :if (is_at("hallway_east") && is_carried("clock_paper")) {:overlay "clock_hour12";}
+   :if (is_at("kitchen") && is_present("haley")) {:overlay "kitchen_haley";}
+   :if (is_at("lobby") && is_present("joyce")) {:overlay "lobby_joyce";}
 }
 
 on_describe {
@@ -360,31 +448,41 @@ on_describe {
    # Description for objects, scenery, and NPCs
    #
 
-   :if (is_present "daniel") {
+   :if (is_present("daniel")) {
       :if (!day1_daniel_met) {
          :set_true "day1_daniel_met";
          :print "A portly gentleman hunched over some equipment must be <Daniel<5>> like Joyce had mentioned.";
       } :else_if (!day1_daniel_done) {
          :print "<Daniel<5>> glances at you warily before going back to his equipment.";
-      } :else {
+      } :else_if (!night2_daniel_threatening && !night2_daniel_conked) {
          :print "<Daniel<5>> fusses with his equipment in the corner.";
+      } :else_if (night2_daniel_threatening) {
+         :print "<Daniel<5>> is holding a <gun<5>>, with a hint of a smirk on his lips.";
+      } :else_if (night2_daniel_conked) {
+         :if (is_beside("necklace")) {
+            :print "<Daniel<5>> lies unconscious on the floor, a <golden necklace<5>> lies spilled from his hands.";
+         } :else {
+            :print "<Daniel<5>> lies unconscious on the floor.";
+         }
       }
    }
-   
-   :if (is_present "haley") {
+
+   :if (is_present("haley")) {
       :if (!day1_haley_met) {
          :set_true "day1_haley_met";
          :print "A young woman making tea must be Joyce's daughter <Haley<5>>. She nods at you curiously, but doesn't seem to object to your presence.";
       } :else_if (!day1_haley_done) {
          :print "<Haley<5>> makes tea and tries not to seem too curious about you.";
-      } :else_if (!night1_slept) {
+      } :else_if (!day2_awake) {
          :print "<Haley<5>> rummages about making tea.";
-      } :else {
+      } :else_if (!day3_awake) {
          :print "<Haley<5>> is cleaning off the cupboards.";
+      } :else {
+         :print "<Haley<5>> is preparing some scones, humming as she works.";
       }
    }
 
-   :if (is_present "joyce") {
+   :if (is_present("joyce")) {
       :if (!day1_joyce_met) {
          :set_true "day1_joyce_met";
          :print "Behind the <front desk<5>> a woman beams at you with her best customer service smile. \"Welcome to the Red Soldier Inn!\", she proclaims, \"I'm <Joyce<5>>. How can I help you?\" (Type <TALK TO JOYCE<5>> to say hello.)";
@@ -397,38 +495,38 @@ on_describe {
          :print "<Joyce<5>> gives you a friendly wave. \"I hope you've settled in to your room? Do feel free to take a look around! We've got quite an historic beauty here. I'm sure Nora would love some company in the dining room! My daughter Haley is making her some tea. Daniel is off nosing about somewhere, I'm sure...\"";
       } :else_if (!night1_slept) {
          :print "<Joyce<5>> is doing paperwork behind the check-in desk.";
-      } :else {
+      } :else_if (!day3_awake) {
          :print "<Joyce<5>> is smiling, but clearly distressed. She must have seen the kitchen.";
-      }
-   }
-
-   :if (is_holding "mobile_phone" && !is_at "outside") {
-      :if (!phone_read) {
-         :if (!phone_buzzed) {
-            :set_true "phone_buzzed";
-            :print "Meanwhile, your <mobile phone<5>> buzzes with a notification.";
-         } :else {
-            :print "Also, your <phone<5>> buzzed recently, and you're itching to check it.";
-         }
       } :else {
-         :set_false "phone_buzzed";
+         :print "<Joyce<5>> looks a little dazed but very happy to see you!";
       }
    }
 
-   :if (is_present "nora") {
+   :if (is_holding("phone") && !is_at("outside")) {
+      :if (!phone_message) {
+         :set_true "phone_message";
+         :print "Meanwhile, your <mobile phone<5>> buzzes with a notification.";
+      } :else_if (!phone_message_read) {
+         :print "Also, your <phone<5>> buzzed recently, and you're itching to check it.";
+      }
+   }
+
+   :if (is_present("nora")) {
       :if (!day1_nora_met) {
          :set_true "day1_nora_met";
          :print "An older woman sitting at a table must be <Nora<5>>. \"Oh, hello!\" she says, \"you must be the new guest?\"";
-      } :else_if (!day1_nora_done && is_carried "pamphlet") {
+      } :else_if (!day1_nora_done && is_carried("pamphlet")) {
          :print "<Nora<5>> is visibly excited to see you holding the <pamphlet<5>> from the lobby.";
       } :else_if (!night1_slept) {
          :print "<Nora<5>> waits for her tea.";
-      } :else_if (is_holding "scones") {
+      } :else_if (is_holding("scones")) {
          :print "<Nora<5>> is clearly interested in the <scones<5>> you're holding.";
       } :else_if (!day2_nora_given_scones) {
          :print "<Nora<5>> considers her tea unhappily.";
-      } :else {
+      } :else_if (!day3_awake) {
          :print "<Nora<5>> savors her tea and scones.";
+      } :else {
+         :print "<Nora<5>> is sipping on her tea.";
       }
    }
 }
@@ -438,25 +536,75 @@ on_tick {
    # Progress prompts
    #
 
-   :if (!day1_inventory_prompted && !is_at "outside") {
+   :if (!day1_inventory_prompted && !is_at("outside")) {
       :set_true "day1_inventory_prompted";
       :print "(To look in your inventory, type <INV<5>>.)";
    }
 
-   :if (!day1_slept && phone_read && day1_daniel_done && day1_haley_done && day1_joyce_done && day1_nora_done) {
+   :if (!day1_slept && phone_message_read && day1_daniel_done && day1_haley_done && day1_joyce_done && day1_nora_done) {
       :print "You're feeling sleepy. Maybe you should head to bed?";
    }
 
    :if (night1_awake && !night1_slept) {
-      :if (is_carried "shirt_button" && !is_present "eerie_sound" && !(sound_recorded && !sound_played)) {
+      :if (is_carried("button") && !is_present("sound") && !(night1_sound_recorded && !night1_sound_played)) {
          :print "You're quite tired now. Maybe head back to bed?";
-      } :else_if (sound_recorded && sound_played) {
+      } :else_if (night1_sound_recorded && night1_sound_played) {
          :print "You're seriously exhausted now. Maybe try to get some sleep?";
       }
    }
    
-   :if (day2_daniel_done && day2_haley_done && day2_joyce_done && day2_nora_done && day2_poem_read && !day2_returned) {
+   :if (day2_daniel_done && day2_haley_done && day2_joyce_done && day2_nora_done && !night2_returned) {
       :print "Oh gosh, look at the time! Better head out to Gamecon right away.";
+   }
+   
+   :if (is_holding("clock_paper") && is_holding("hutch_paper") && is_holding("painting_paper") && !night2_papers_found) {
+      :success;
+      :set_true "night2_papers_found";
+      :print "There were three verses on the poem... and now you have three pieces of paper... maybe you should <EXAMINE THE PAPER<5>> again?";
+   }
+
+   :if (day3_haley_done && day3_joyce_done && day3_nora_done) {
+      :print "Oh gosh, look at the time! Better head out to GameCon right away.";
+   }
+
+   #
+   # Action triggers
+   #
+   
+   :if (is_holding("necklace") && is_holding("letter") && is_at("hidden_room") && !is_present("daniel")) {
+      :create "daniel";
+      :set_true "night2_daniel_threatening";
+      :print "There is a rustling behind you and the room seems to darken even more. You whirl around. Standing in the doorway is <Daniel<5>>. He is holding a <gun<5>>.";
+      :press_any_key;
+      :print "\"I can't believe you found it...\" he says incredulously.";
+      :press_any_key;
+      :print "You stare a moment, taking in the scene before you.";
+      :redescribe;
+      :return;
+   }
+   
+   :if (night2_daniel_conked && !night2_letter_unread && is_carried "necklace" && !night2_found) {
+      :set_true "night2_found";
+      :destroy "daniel";
+      :destroy "necklace";
+      :create "haley" target="kitchen";
+      :create "joyce" target="lobby";
+      :create "nora" target="dining_room";
+
+      :print "As you stand in shock, you hear footsteps coming downstairs.";
+      :press_any_key;
+      :print "It's Joyce and Haley. Their eyes widen at the scene.";
+      :print "You take a deep breath. There is a lot of explaining to do.";
+      :press_any_key;
+      :print "The night is a blur.";
+      :print "The police are called. Daniel is arrested. It seems this is not his first offense.";
+      :print "Your statement is taken. When the necklace comes up, Joyce and Haley both gasp. You give the necklace to Joyce. She is shocked beyond words.";
+      :print "You aren't sure how to explain ghostly doors flying open, but the police seem satisfied that Daniel slipped in some water. Joyce steps in though and insists you should get some rest.";
+      :print "You can't help but agree, and gratefully head to your room.";
+      :press_any_key;
+      :goto "hotel_room";
+      :redescribe;
+      :return;
    }
 }
 
@@ -472,11 +620,13 @@ vocabulary {
    :noun / aliases=[dan, daniel]
    :noun / aliases=[hotel, inn]
    :noun / aliases=[noise, sound]
+   :noun / aliases=[letter, note]
    :noun / aliases=[woman, lady]
 
+   :verb / aliases=[adjust, change, set, reset]
    :verb / aliases=[chat, greet, say, speak, talk, tell]
    :verb / aliases=[checkin, register]
-   :verb / aliases=[examine, inspect, look, search, read, check]
+   :verb / aliases=[check, examine, inspect, look, search, read, use]
    :verb / aliases=[move, push, shove, slide]
    :verb / aliases=[play, playback]
 }
@@ -486,7 +636,7 @@ on_command {
    # Special navigation commands
    #
 
-   :if (is_at "outside") {
+   :if (is_at("outside")) {
       :match "enter -" {
          :if (!day1_checkin_done) {
             :print "You pick up your suitcase, and head in.";
@@ -500,38 +650,135 @@ on_command {
       }
    }
    
-   :if (is_at "lobby" && day2_daniel_done && day2_haley_done && day2_joyce_done && day2_nora_done && day2_poem_read && !day2_returned) {
-      :match "exit -;east -" {
-         :print "You head out of the inn and catch your ride to Gamecon.";
-         :press_any_key;
-         :print "The day is filled with panels, costume contests, and far too much money spent on the dealers room. You have a grand time catching up with friends and nerding out, but you can't help but feel eager to get back to the inn. There is clearly something going on, and you feel close to figuring it out!";
-         :press_any_key;
-         :set_true "day2_returned";
-         :destroy "daniel";
-         :destroy "haley";
-         :destroy "joyce";
-         :destroy "nora";
-         :goto "outside";
-         :redescribe;
+   :if (is_at("lobby")) {
+      :if (day2_daniel_done && day2_haley_done && day2_joyce_done && day2_nora_done && !night2_returned) {
+         :match "exit -;east -" {
+            :success;
+            :print "You head out of the inn and catch your ride to Gamecon.";
+            :press_any_key;
+            :print "The day is filled with panels, costume contests, and far too much money spent on the dealers room. You have a grand time catching up with friends and nerding out, but you can't help but feel eager to get back to the inn. There is clearly something going on, and you feel close to figuring it out!";
+            :press_any_key;
+            :set_true "night2_returned";
+            :destroy "daniel";
+            :destroy "haley";
+            :destroy "joyce";
+            :destroy "nora";
+            :goto "outside";
+            :redescribe;
+            :done;
+         }
+      } :else_if (day3_haley_done && day3_joyce_done && day3_nora_done) {
+         :match "exit -;east -" {
+            :print "Despite the craziness of the night, it’s time to get to the convention.";
+            :press_any_key;
+            :print "You can’t wait to tell your friends about your crazy treasure hunt. They will hardly believe that, let alone the entire tale.";
+            :press_any_key;
+            :print "As you jaunt to the door, a cold breeze brushes past your neck. You glance back. For a moment, you could have sworn you saw Nora walking up the stairs. But the Red Soldier Inn is as empty as ever. For now, at least...";
+            :win_game;
+            :done;
+         }
       }
    }
 
    #
-   # Commands for specific objects, locations, scenery, and NPCs
+   # Commands for specific objects, scenery, and NPCs
    #
 
-   :if (is_present "clock") {
-      :match "look clock" {
-          :print "This is a fine old clock, but it seems to have stopped; it currently reads {clock_hour} o'clock.";
-          :done;
+   :if (is_present("brick_wall")) {
+      :if (!night2_papers_found) {
+         :match "look bricks" {
+            :print "The brick wall doesn't seem very interesting.";
+         }
+         :match "push bricks" {
+            :print "That's an odd thing to do.";
+         }
+      } :else_if (!hidden_room_opened) {
+         :match "look bricks" {
+            :print "The brick wall looks exactly like the diagram from the secret slips of paper you combined. The darkened brick looks a little loose; you could <PUSH BRICK<5>>, if you dare...";
+         }
+         :match "push bricks" {
+            :success;
+            :set_true "hidden_room_opened";
+            :print "Hand shaking slightly, you press the brick marked in the diagram. It depresses into the wall. To the <south<14>> of you, a door made of bricks cracks open.";
+         }
+      } :else {
+         :match "look bricks" {
+            :print "The bricks look totally normal... except for the gaping opening in the <south<14>> wall, that is.";
+         }
+         :match "push bricks" {
+            :print "You push various other bricks, but they don't seem to hide any more secrets.";
+         }
       }
    }
 
-   :if (is_present "creepy_message") {
+   :if (is_present("clock")) {
+      :if (!day2_poem_read) {
+         :match "look clock" {
+            :print "This is a fine old clock, but it seems to have stopped.";
+            :done;
+         }
+         :match "set clock" {
+            :print "You have no reason to mess with such a delicate antique.";
+            :done;
+         }
+      } :else_if (!is_carried("clock_paper")) {
+         :match "look clock" {
+            :print "Having read the poem, you wonder if this old clock holds any secrets. It looks like you might be able to <SET CLOCK<5>>...";
+         }
+         :match "set clock" {
+            :ask_string var="clock_time_input" question="What time do you want to set the clock to (H:MM)?";
+            :if (clock_time_input != "1:05" && clock_time_input != "01:05") {
+               :failure;
+               :print "You move the hands, but they just flop back to their previous position.";
+            } :else {
+               :success;
+               :pocket "clock_paper";
+               :print "As you move the hands into place, a compartment pops out of the bottom of the clock. You reach in and take a scrap of <paper<5>>!";
+            }
+            :done;
+         }
+      } :else_if (is_carried("clock_paper")) {
+         :match "look clock" {
+            :print "You got the paper from this clock, but you can't find any other secrets.";
+            :done;
+         }
+         :match "set clock" {
+            :print "You mess with the hands, but the clock doesn't seem to hide any more secrets.";
+            :done;
+         }
+      }
+   }
+
+   :if (is_present("computer")) {
+      :match "look computer" {
+         :if (is_present("daniel")) {
+            :print "You sneak a glimpse at Daniel's computer, but don't see anything interesting.";
+         } :else_if (!night2_returned) {
+            :print "Daniel's computer is powered off.";
+         } :else {
+            :print "Daniel's computer seems to be running some kind of audio editing software.";
+         }
+         :done;
+      }
+   }
+
+   :if (is_present("computer_headphones")) {
+      :match "look headphones;listen headphones;listen -" {
+         :if (!night2_returned) {
+            :print "The computer headphones don't look very interesting.";
+         } :else {
+            :print "You pick up the headphones. It is a similar message from the night before but... it is Daniel's voice.";
+         }
+         :done;
+      }
+   }
+
+   :if (is_present("creepy_message")) {
       :match "look message" {
-         :if (is_beside "shirt_button") {
+         :if (is_beside("button")) {
+            :success;
+            :pocket "button";
             :print "You examine the message more closely. It smells like ketchup. Upon closer inspection, you notice something in one of the pools of ketchup dripping onto the counter. It appears to be a <shirt button<5>>. That's odd. Do ghosts wear button down shirts? Impulsively, you pocket the button.";
-            :pocket "shirt_button";
          } :else {
             :print "The creepy GET OUT message seems to be made of ketchup.";
          }
@@ -539,7 +786,7 @@ on_command {
       }
    }
 
-   :if (is_present "daniel") {
+   :if (is_present("daniel")) {
       :if (!night1_slept) {
          :match "look daniel" {
             :print "Daniel is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
@@ -564,22 +811,23 @@ on_command {
                :print "He never explains what it actually does, but you're starting to think that's just as well.";
             }
 
-            :if (is_holding "pamphlet" && !is_holding "voice_recorder") {
+            :if (is_holding("pamphlet") && !is_holding("voice_recorder")) {
                :add_choice "Show Daniel the pamphlet" {
+                  :success;
                   :set_true "day1_daniel_done";
                   :pocket "voice_recorder";
                   :print "Daniel almost looks annoyed when you show him the pamphlet.";
                   :print "\"She didn't even mention the hauntings here?! That's the most exciting thing about this inn! You would not believe the activity! I mean, you like ghost stories, don't you?\"";
                   :print "You do, and you say as much. Daniel seems pleased with this answer.";
                   :press_any_key;
-                  :print "\"Hey...maybe you could help me out. I usually capture recordings in the Captain's room, where you're staying. I would hate to miss out on any activity. Think you could capture some for me? You can do it using this voice recorder! Any unusual noises, scratches, bumps, that sort of thing. There were rumours that there are voices, but I haven't heard them yet!\"";
+                  :print "\"Hey... maybe you could help me out. I usually capture recordings in the Captain's room, where you're staying. I would hate to miss out on any activity. Think you could capture some for me? You can do it using this voice recorder! Any unusual noises, scratches, bumps, that sort of thing. There were rumours that there are voices, but I haven't heard them yet!\"";
                   :print "He hands you an analogue voice recorder. You take it nervously. You like a good ghost story, but do you want to be in one?";
                }
             }
             :choose "What would you like to talk to Daniel about?";
             :done;
          }
-      } :else {
+      } :else_if (!night2_daniel_threatening && !night2_daniel_conked) {
          :match "look daniel" {
             :print "Daniel looks like his normal self. All buttons accounted for.";
          }
@@ -591,6 +839,7 @@ on_command {
 
             :add_choice "Play the audio recording for Daniel" {
                :if (!day2_daniel_done) {
+                  :success;
                   :set_true "day2_daniel_done";
                   :print "Daniel's eyes light up with glee.";
                   :print "\"No way! You got a recording?! I knew it was a good instinct to give you the recorder! What did you get?!\"";
@@ -605,7 +854,7 @@ on_command {
                }
             }
             
-            :if (is_carried "poem") {
+            :if (is_carried("poem")) {
                :add_choice "Show Daniel the poem" {
                   :print "Daniel is interested in ghosts, not their history. He barely gives the poem a single glance before going back to his equipment.";
                }
@@ -614,16 +863,93 @@ on_command {
             :choose "What would you like to talk to Daniel about?";
             :done;
          }
+      } :else_if (night2_daniel_threatening) {
+         :match "look daniel" {
+            :print "Daniel is still very much Daniel, full of purpose and focus. Only it seems instead of ghosts, he is very much focused on the necklace you are holding.";
+            :done;
+         }
+         
+         :match "look gun" {
+            :print "The gun looks very real. Daniel must have smuggled it across the border.";
+            :done;
+         }
+
+         :match "talk -;talk daniel" {
+            :set_false "night2_daniel_threatening";
+            :set_true "night2_daniel_conked";
+            :print "You ask Daniel what is going on. He sighs.";
+            :press_any_key;
+            :print "\"Well, I guess it's obvious now I'm not a ghost hunter. Now give me the necklace.\" He points the gun a little higher. \"I still can't believe it. I've been in this miserable inn two months looking for that damned necklace, and you find it in under two days! How?!\"";
+            :print "You would explain the poem to him, but he doesn't deserve that. You simply ask him who he is. Perhaps he will keep talking.";
+            :press_any_key;
+            :print "\"I guess the base term for it is treasure hunter. I've wanted this necklace for a long time. I couldn't exactly let anyone know I was looking for it. They might claim it as their own. And since this inn was already rumoured to be haunted, I used that to my advantage. Since I was her only guest, she was more than happy to let me keep looking for ghosts. And it made it easy to scare guests away with \"hauntings\". Which you should have been to! I put a lot of work into that voice recording!\"";
+            :print "You are trying to think fast. Could you slip past Daniel somehow? No. You are trapped in this room.";
+            :press_any_key;
+            :print "He cocks the gun.";
+            :print "\"Now... give me the necklace.\"";
+            :press_any_key;
+            :print "You don't see much choice. Either you don't give him the necklace, and he shoots you now, or you give him the necklace and have a chance to live. The former may wake Joyce up, but it might mean you die.";
+            :ask_bool var="night2_necklace_input" question="Do you give him the necklace?";
+            :if (night2_necklace_input) {
+               :destroy "necklace";
+               :create "necklace";
+               :print "Daniel smiles, and backs up. He places his hand on the brick door.";
+               :press_any_key;
+               :print "\"Sorry to say, but I obviously can't let you leave here. Maybe they'll hear you screaming in the morning. These walls are pretty thick though. You'll have to be awfully loud. And I'll be across the border by then.\"";
+               :press_any_key;
+               :success;
+               :print "Just as he is about to shut the door though, the air suddenly grows even colder. In less than a second, whoosh of air violently blows the door open, knocking Daniel backwards. His head knocks against the sink, and he falls over, unconscious.";
+               :press_any_key;
+               :print "The necklace falls out of his hand.";
+               :redescribe;
+            } :else {
+               :print "Daniel frowns. He steps further into the room.";
+               :print "\"You really have a death wish, don’t you?\"";
+               :print "He raises his gun.";
+               :press_any_key;
+               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots on sitting on it topple forward, directly onto Daniel’s head. He collapses, unconscious.";
+               :press_any_key;
+               :success;
+               :print "The air warms back up. You let out a breath. What on Earth was that? You could have sworn you heard a voice hissing \"No\" as the door blasted open.";
+            }
+            :done;
+         }
+      } :else_if (night2_daniel_conked) {
+         :match "look daniel" {
+            :print "Daniel is sprawled ungracefully on the ground, but he's breathing.";
+            :done;
+         }
+         
+         :match "take gun" {
+            :print "You don't want to touch that!";
+            :done;
+         }
       }
    }
 
-   :if (is_present "eerie_sound") {
+   :if (is_present("sound")) {
       :match "listen sound;listen vent;listen -" {
          :set_sentence "examine eerie sound";
       }
    }
 
-   :if (is_present "haley") {
+   :if (is_present("box")) {
+      :match "take box" {
+         :print "The box is very heavy, or maybe fixed to the table. Either way, you can't take it.";
+         :done;
+      }
+      
+      :match "open box;open lid" {
+         :success;
+         :set_true "night2_box_open";
+         :create "letter";
+         :create "necklace";
+         :print "The box creakily cracks open. You hold your breath. The air seems to have gone cold. Gripping the lid, you slowly lift it open. Inside appears to be an <old letter<5>> and, glinting in the light of your flashlight, a <golden necklace<5>> with a large oval shaped jeweled pendant on the end.";
+         :done;
+      }
+   }
+
+   :if (is_present("haley")) {
       :if (!night1_slept) {
          :match "look haley" {
             :print "Haley wears a button down uniform and a smirk only a teenager can perfect. She's making Nora's tea, which seems like a surprisingly complicated affair.";
@@ -645,8 +971,9 @@ on_command {
                :print "\"But Nora's sweet in her way I guess. Mom said Nora did a ton of research for that historical pamphlet, have you seen it? Don't tell Mom, but I haven't actually read it yet.\"";
             }
 
-            :if (is_holding "pamphlet") {
+            :if (is_holding("pamphlet")) {
                :add_choice "Show Haley the pamphlet" {
+                  :success;
                   :set_true "day1_haley_done";
                   :print "\"So you saw mom's pamphlets! She'll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
                   :press_any_key;
@@ -662,9 +989,12 @@ on_command {
             :choose "What would you like to talk to Haley about?";
             :done;
          }
-      } :else {
+      } :else_if (!night2_found) {
          :match "look haley" {
-            :set_true "day2_haley_button_seen";
+            :if (!day2_haley_button_seen) {
+               :success;
+               :set_true "day2_haley_button_seen";
+            }
             :if (!day2_haley_button_asked) {
                :print "You can't help but notice a button missing off of Haley's uniform.";
             } :else_if (!day2_haley_done) {
@@ -694,6 +1024,7 @@ on_command {
                }
             } :else_if (day2_haley_button_seen && !day2_haley_done) {
                :add_choice "Grill Haley about her missing button" {
+                  :success;
                   :set_true "day2_haley_done";
                   :print "Before Haley can say something sarcastic, you point out the missing button on her uniform and then hold out the missing ketchup covered button to her. She immediately folds with a melodramatic sigh.";
                   :press_any_key;
@@ -714,7 +1045,7 @@ on_command {
                }
             }
 
-            :if (!is_carried "scones" && !day2_nora_given_scones) {
+            :if (!is_carried("scones") && !day2_nora_given_scones) {
                :add_choice "Show Haley the scones recipe" {
                   :if (!day2_haley_shown_recipe) {
                      :set_true "day2_haley_shown_recipe";
@@ -727,14 +1058,16 @@ on_command {
                      :press_any_key;
                   }
 
-                  :ask_int var="day2_cups_sugar" question="How many cups of sugar should we add?";
-                  :ask_int var="day2_cups_flour" question="How many cups of flour should we add?";
-                  :ask_int var="day2_teaspoons_salt" question="How many teaspoons of salt should we add?";
-                  :ask_int var="day2_sticks_butter" question="How many sticks of butter should we add?";
-                  :ask_int var="day2_eggs" question="How many eggs should we add?";
-                  :if (day2_cups_sugar != 1 || day2_cups_flour != 4 || day2_teaspoons_salt != 2 || day2_sticks_butter != 5 || day2_eggs != 3) {
+                  :ask_int var="recipe_sugar_input" question="How many cups of sugar should we add?";
+                  :ask_int var="recipe_flour_input" question="How many cups of flour should we add?";
+                  :ask_int var="recipe_salt_input" question="How many teaspoons of salt should we add?";
+                  :ask_int var="recipe_butter_input" question="How many sticks of butter should we add?";
+                  :ask_int var="recipe_eggs_input" question="How many eggs should we add?";
+                  :if (recipe_sugar_input != 1 || recipe_flour_input != 4 || recipe_salt_input != 2 || recipe_butter_input != 5 || recipe_eggs_input != 3) {
+                     :failure;
                      :print "Haley eyes the mix. \"Hmm, that really doesn't seem right... I dunno, maybe take another look at that recipe?\"";
                   } :else {
+                     :success;
                      :pocket "scones";
                      :print "Success! In what seems like no time you have some delicious, hot <scones<5>>. You have to admit, Captain Sunders clearly knew his stuff. Haley is already chomping on one.";
                      :press_any_key;
@@ -752,20 +1085,40 @@ on_command {
             :choose "What would you like to talk to Haley about?";
             :done;
          }
+      } :else_if (!day3_haley_done) {
+         :match "look haley" {
+            :print "Haley greets you happily!";
+         }
+         
+         :match "talk haley;talk -" {
+            :set_true "day3_haley_done";
+            :print "\"I can't believe you found the secret room! And Daniel! Didn't I say he was weird? Well, turns out he's weird and evil! Now we can figure out what to do with that room. I'm trying to get mom to let me make it into a game space. But I guess that's a bit weird since it attaches to the bathroom.\"";
+            :print "She suddenly gets serious.";
+            :press_any_key;
+            :print "\"Hey... thanks a lot for the help. I talked to Mom. She wasn't exactly happy, but I'm just glad the real source of trouble is gone.\"";
+         }
+      } :else {
+         :match "look haley" {
+            :print "Haley flashes you a smile.";
+         }
+         :match "talk haley;talk -" {
+            :print "\"Wow. Yeah. Thanks again!\"";
+         }
       }
    }
 
-   :if (is_present "hotel_bed") {
+   :if (is_present("hotel_bed")) {
       :match "sleep -;sleep hotel_bed;goto sleep;goto hotel_bed;lie hotel_bed;lie down;use hotel_bed;bed -" {
-         :if (!phone_read) {
+         :if (!phone_message_read) {
             :print "How can you sleep with unread messages on your phone?";
          } :else_if (!day1_daniel_done || !day1_haley_done || !day1_joyce_done || !day1_nora_done) {
             :print "You're not feeling sleepy yet. Maybe explore the hotel and talk to people?";
-         } :else_if (!is_carried "pamphlet") {
+         } :else_if (!is_carried("pamphlet")) {
             :print "You're not feeling sleepy yet. You find yourself a little curious about this place. How can you learn more?";
          } :else_if (!day1_daniel_done || !day1_haley_done || !day1_joyce_done || !day1_nora_done) {
             :print "You're not feeling sleepy yet. Maybe chat with folks a little more?";
          } :else_if (!day1_slept) {
+            :success;
             :set_true "day1_slept";
             :print "Exhausted from the travel today, you flop down on the bed to get some well earned sleep.";
             :press_any_key;
@@ -774,25 +1127,27 @@ on_command {
             :destroy "joyce";
             :destroy "nora";
             :create "creepy_message" target="kitchen";
-            :create "shirt_button" target="kitchen";
+            :create "button" target="kitchen";
             :redescribe;
          } :else_if (!night1_kitchen_visited) {
             :print "You'd try to sleep, but what was that sound you heard? Better go check it out.";
-         } :else_if (!is_carried "shirt_button") {
+         } :else_if (!is_carried("button")) {
             :print "You try to sleep, but something about that message tugs at your memory. Maybe go take a closer look?";
-         } :else_if (!is_present "eerie_sound" && !sound_recorded) {
+         } :else_if (!is_present("sound") && !night1_sound_recorded) {
+            :success;
             :print "You are relieved to escape back to your bed. Your head gratefully hits the pillow.";
             :print "Sleep almost comes when...";
             :press_any_key;
-            :create "eerie_sound" target="hotel_room";
+            :create "sound" target="hotel_room";
             :print "You hear an <eerie sound<5>> coming from the <heating vent<5>>.";
             :press_any_key;
             :print "It sounds like a whisper...";
-         } :else_if (is_present "eerie_sound") {
+         } :else_if (is_present("sound")) {
             :print "There's no way you can sleep with that eerie sound droning on!";
-         } :else_if (sound_recorded && !sound_played) {
+         } :else_if (night1_sound_recorded && !night1_sound_played) {
             :print "The sound stopped, but you can't stop wondering what it was. Maybe listen to the recording?";
          } :else_if (!night1_slept) {
+            :success;
             :set_true "night1_slept";
             :print "You finally manage to fall asleep, although it's an uneasy one.";
             :press_any_key;
@@ -808,8 +1163,8 @@ on_command {
          :done;
       }
    }
-   
-   :if (is_present "hutch") {
+
+   :if (is_present("hutch")) {
       :if (!day2_poem_read) {
          :match "look hutch" {
             :print "The hutch reminds you of something your parents inherited from your grandparents. <Fine china<5>> sits on its shelves.";
@@ -823,7 +1178,7 @@ on_command {
             :print "You have no reason to mess with such a delicate antique.";
             :done;
          }
-      } :else_if (is_present "nora" && !is_carried "hutch_paper") {
+      } :else_if (is_present("nora") && !is_carried("hutch_paper")) {
          :match "look hutch;look china" {
             :print "Having read the poem, you eye the old hutch and its china with interest. You don't see anything obvious, but you don't want to mess with delicate antiques in front of people. Maybe check it out later when no one is around?";
             :done;
@@ -832,33 +1187,35 @@ on_command {
             :print "Messing with delicate antiques in front of people might not be the best idea. Maybe check it out later when no one is around?";
             :done;
          }
-      } :else_if (!is_present "nora" && !is_carried "hutch_paper") {
+      } :else_if (!is_present("nora") && !is_carried("hutch_paper")) {
          :match "look hutch;look china" {
             :print "Having read the poem, you eye the old hutch and its china suspiciously. It looks like you might be able to <PUSH HUTCH<5>> if you dare...";
          }
          :match "push hutch;push china" {
-            :ask_string var="day2_hutch_direction" question="Which direction do you want to push the hutch with the china?";
-            :if (upper(day2_hutch_direction) != "LEFT") {
+            :ask_string var="hutch_direction_input" question="Which direction do you want to push the hutch with the china?";
+            :if (upper(hutch_direction_input) != "LEFT") {
+               :failure;
                :print "You give the hutch a gentle push in that direction, but nothing much happens.";
             } :else {
+               :success;
                :pocket "hutch_paper";
                :print "Feeling a little nervous, you give the hutch a push to the left. It shifts with a slight click, and a small secret compartment opens. You reach in and take a scrap of <paper<5>>!";
             }
             :done;
          }
-      } :else_if (is_carried "hutch_paper") {
+      } :else_if (is_carried("hutch_paper")) {
          :match "look hutch;look china" {
             :print "Having gotten the paper out of the hutch, you have a new appreciation for its design, but you can't find any other secrets.";
             :done;
          }
          :match "push hutch;push china" {
-            :print "Having gotten the paper out of the hutch, you can't find any other hidden mechanisms.";
+            :print "You push and pull, but the hutch doesn't seem hide any more secrets.";
             :done;
          }
       }
    }
 
-   :if (is_present "joyce") {
+   :if (is_present("joyce")) {
       :if (!day1_checkin_done) {
          :match "look joyce" {
             :if (!day1_checkin_attempted) {
@@ -872,14 +1229,16 @@ on_command {
          :match "talk -;talk joyce;check hotel" {
             :if (!day1_checkin_attempted) {
                :set_true "day1_checkin_attempted";
-               :ask_int var="day1_checkin_code" question="You step up to the desk. Joyce says \"Hi! If you're here to check in, what's your confirmation number?\"";
+               :ask_int var="checkin_code_input" question="You step up to the desk. Joyce says \"Hi! If you're here to check in, what's your confirmation number?\"";
             } :else {
-               :ask_int var="day1_checkin_code" question="Joyce looks up. \"Ah, did you find the confirmation number?\"";
+               :ask_int var="checkin_code_input" question="Joyce looks up. \"Ah, did you find the confirmation number?\"";
             }
 
-            :if (day1_checkin_code != 13) {
+            :if (checkin_code_input != 13) {
+               :failure;
                :print "\"Hmm, that doesn't seem quite right. You should have an email with a confirmation number. Do you have your phone with you?\"";
             } :else {
+               :success;
                :set_true "day1_checkin_done";
                :print "\"Perfect! We are always so excited to get guests! Let me just get you your key and I can show you your room!\"";
                :press_any_key;
@@ -887,7 +1246,7 @@ on_command {
                :press_any_key;
                :print "Joyce's cheerful demeanor falters for a moment, replaced with nervous fear. She recovers quickly and turns around, smile back in place. \"Oops! Butterfingers! Now lets' get you upstairs!\"";
                :press_any_key;
-               :print "She laughs, but it's a little shaky. What on earth was that about? You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door.";
+               :print "She laughs, but it's a little shaky. What on Earth was that about? You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door.";
                :press_any_key;
                :print "\"You have the Captain's room, I hope that's okay!\"";
                :press_any_key;
@@ -916,7 +1275,7 @@ on_command {
             :choose "What would you like to talk to Joyce about?";
             :done;
          }
-      } :else {
+      } :else_if (!night2_found) {
          :match "look joyce" {
             :print "Joyce is just as professionally dressed as she was yesterday. Not a thread is out of place.";
          }
@@ -930,12 +1289,17 @@ on_command {
                :print "\"Sorry, I don't really recognize that. But ask around! I would hate to think someone lost a button!\"";
             }
 
-            :if (!day2_joyce_done) {
-               :add_choice "Ask Joyce if the hotel could be haunted" {
+            :add_choice "Ask Joyce if the hotel could be haunted" {
+               :if (!day2_joyce_done) {
                   :print "\"What?! A haunting?! Here? Ridiculous\"";
+               } :else {
+                  :print "\"I don't know. I just don't know any more.\"";
                }
+            }
 
-               :add_choice "Play the audio recording for Joyce" {
+            :add_choice "Play the audio recording for Joyce" {
+               :if (!day2_joyce_done) {
+                  :success;
                   :set_true "day2_joyce_done";
                   :print "Joyce's face suddenly falls.";
                   :print "\"Oh dear... where did you get that?\"";
@@ -951,55 +1315,93 @@ on_command {
                   :print "Sweet! Free food! You thank her.";
                   :press_any_key;
                   :print "\"It's my pleasure! And you should show that to Daniel. At the very least, he will be thrilled to see such conclusive results!\"";
+               } :else {
+                  :print "Joyce listens to the recording again, looks distressed and says \"I just don't know what's going on\".";
                }
             }
 
             :choose "What would you like to talk to Joyce about?";
          }
+      } :else_if (!day3_joyce_done) {
+         :match "look joyce" {
+            :print "Joyce is still reeling from everything that happened.";
+            :done;
+         }
+
+         :match "talk -;talk joyce" {
+            :set_true "day3_joyce_done";
+            :print "\"To think I trusted that awful jerk! All that lying for a single necklace?! Although I guess it is valuable. I feel stupid to be taken in by his lies, although I am relieved those hauntings weren't real!\"";
+            :print "Not all of them, anyway, you think to yourself.";
+            :press_any_key;
+            :print "You ask Joyce about the necklace. What will she do with it? Joyce looks thoughtful.";
+            :press_any_key;
+            :print "\"I'm still trying to take it all in. Obviously it could help the inn if I sell it. But maybe it should stay here.\"";
+            :ask_bool var="day3_necklace_input" question="\"Should I sell the necklace?\"";
+            :if (day3_necklace_input) {
+               :print "Joyce nods. \"You're right. The money could really help me recoup some of my losses.\"";
+            } :else {
+               :print "Joyce nods. \"You're right. This is part of the inn's history. It should stay here, with Captain Sunders watching over it. I'm sure the publicity will improve the popularity of the inn.\"";
+            }
+            :press_any_key;
+            :print "\"You should tell Nora about it. She snuck into the dining room as usual this morning, I haven't had a chance to tell her yet!\"";
+            :done;
+         }
+      } :else_if (day3_necklace_input) {
+         :match "look joyce" {
+            :print "Joyce is on the phone making an appointment to appraise the necklace.";
+         }
+         :match "talk joyce;talk -" {
+            :print "Joyce is on the phone, you don't want to bother her.";
+         }
+      } :else {
+         :match "look joyce" {
+            :print "Joyce is doing her best to compose herself.";
+         }
+         :match "talk joyce;talk -" {
+            :print "\"I just can't believe it!\"";
+         }
       }
    }
 
-   :if (is_holding "mobile_phone") {
-      :match "drop phone" {
-         :print "You would never leave your mobile phone behind!";
+   :if (is_beside("letter")) {
+      :match "look letter" {
+         :print "The letter is folded up in the box. You'll need to take it out to read it.";
          :done;
       }
 
-      :match "look phone;check phone" {
-         :set_false "phone_buzzed";
-         :set_true "phone_read";
-         :print "You see a message from your friend, Claire.";
-         :print "\"Hey! Hope you made it okay to the inn! Sorry the hotel was all booked up. Let me know how it is! I heard some weird stories about it! At any rate, can't wait to see you at Gamecon tomorrow!\"";
-         :if (!day1_checkin_done) {
-            :print "You smile. It was a last minute decision to join your friends for the convention but you are glad you made it. It's too bad you can't hang out at the hotel with your friends, but at least you were able to find somewhere to stay.";
-            :print "Speaking of which, it would be good to check in. What was your confirmation number again? Maybe you should <CHECK EMAIL<5>>.";
+      :match "take letter" {
+         :pocket "letter";
+         :set_true "night2_letter_unread";
+         :print "You pick up the letter, hoping that the years of age won't cause it to crumble.";
+         :done;
+      }
+   } :else_if (is_present("letter")) {
+      :match "look letter" {
+         :set_false "night2_letter_unread";
+         :print "You carefully unfold the letter. It is written in fine cursive:";
+         :print "\"My dearest Nora,";
+         :print "I hope it is you reading this and holding on to my family's most treasured possession rather than enemy hands. I had hoped to give you this necklace myself. But if you have found it, then it means the worst. I was not able to escape.";
+         :print "I wish I could see you one last time, but it seems that our reunion was not meant to be. My only consolation is that the necklace will bring you some security, and that you were able to enjoy one last riddle game from myself. Matching wits with you was one of my greatest pleasures in this life.";
+         :print "I hope you will always remember me. I know I will never forget you.";
+         :print "Love always,";
+         :print "William\"";
+         :done;
+      }
+   }
+
+   :if (is_beside("necklace")) {
+      :match "take necklace" {
+         :pocket "necklace";
+         :if (!is_present("daniel")) {
+            :success;
+            :print "You carefully take the necklace from the box. It is fairly heavy.";
          } :else {
-            :print "You're not sure what she means by 'weird stories', but maybe you'll find out while you're here.";
+            :print "You pick up the necklace and put it in your pocket.";
          }
-         :done;
-      }
-
-      :match "look email;check email" {
-         :add_choice "Scheme Holiday Sale" {
-            :print "Despite your better judgement, you look through the latest Scheme games on sale. It seems like they have sales every month. And every month you buy at least 10 games you will not play for at least a few years.";
-         }
-         :add_choice "Hotel Booking Confirmation" {
-            :print "You look up the hotel confirmation. It's 13. (Have they only had 13 guests this year?)";
-         }
-         :add_choice "Fwd from Mom" {
-            :print "You read your mom's daily forward of quotes from her favourite motivational speaker.";
-         }
-         :choose "Which email would you like to read?";
-         :done;
-      }
-
-      :match "answer phone;talk phone;call phone" {
-         :print "Nobody's calling you on your phone right now, and you're not really excited to make a call either.";
-         :done;
       }
    }
 
-   :if (is_present "nora") {
+   :if (is_present("nora")) {
       :if (!night1_slept) {
          :match "look nora" {
             :print "Nora is a primly dressed older woman, waiting for her tea. (Type <TALK TO NORA<5>> to chat.)";
@@ -1012,15 +1414,16 @@ on_command {
             }
 
             :add_choice "Ask about the inn's history" {
-               :if (!is_holding "pamphlet") {
+               :if (!is_holding("pamphlet")) {
                   :print "\"Oh, I do love history! Why, have you seen the pamphlet in the lobby? I helped write it myself! If you like, bring a copy and I can tell you all about it.\"";
                } :else {
                   :print "\"Oh, I see you have a copy of the history pamphlet! Did you know I helped write it myself?\"";
                }
             }
 
-            :if (is_holding "pamphlet") {
+            :if (is_holding("pamphlet")) {
                :add_choice "Show Nora the pamphlet" {
+                  :success;
                   :set_true "day1_nora_done";
                   :print "Nora's eyes light up. \"Oh! Are you interested in history too? Well, you can't get much more interesting than Captain Sunders. Interesting, and tragic...\"";
                   :press_any_key;
@@ -1035,21 +1438,22 @@ on_command {
             :choose "What would you like to talk to Nora about?";
             :done;
          }
-      } :else {
+      } :else_if (!night2_found) {
          :match "look nora" {
             :print "Nora's outfit is immaculate and fully buttoned up.";
             :done;
          }
 
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
-            :if (!day2_nora_given_scones && !is_holding "scones_recipe") {
+            :if (!day2_nora_given_scones && !is_holding("scones_recipe")) {
                :pocket "scones_recipe";
                :print "You say hello to Nora, but she is uncharacteristically grouchy.";
                :print "\"I'm sorry. Whatever you want to talk to me about, I just can't focus! It's Captain Sunders' birthday today and I always have his special scones. That young cook can never seem to get it right! Here, maybe you can help her! Why work in the Captain's Inn if you can't make his scones?\"";
                :print "She hands you a <recipe<5>>.";
-            } :else_if (!day2_nora_given_scones && !is_holding "scones") {
+            } :else_if (!day2_nora_given_scones && !is_holding("scones")) {
                :print "Apparently Nora needs the Captain's scones to function. I guess you'll just have to make her some.";
-            } :else_if (!day2_nora_given_scones && is_holding "scones") {
+            } :else_if (!day2_nora_given_scones && is_holding("scones")) {
+               :success;
                :set_true "day2_nora_given_scones";
                :destroy "scones";
                :print "Before you can even say anything, Nora exclaims at the sight of the scones.";
@@ -1068,9 +1472,11 @@ on_command {
                   :print "Nora exclaims about the quality of the scones. \"These are wonderful! I do hope Haley can get these right from now on.\"";
                }
 
-               :if (!is_holding "poem") {
-                  :add_choice "Ask Nora about the haunting" {
+               :add_choice "Ask Nora about the haunting" {
+                  :if (!is_holding("poem")) {
                      :print "You tell Nora all about the events of last night. Nora looks at you oddly. \"That is quite a story! Do you have any evidence?\"";
+                  } :else {
+                     :print "\"Wow, that is quite a story.\"";
                   }
                }
 
@@ -1078,8 +1484,9 @@ on_command {
                   :print "You can tell Nora knows her buttons. \"My goodness, this looks just like the buttons on Haley's top, have you checked if she's lost one?\"";
                }
 
-               :if (!is_holding "poem") {
-                  :add_choice "Play the audio recording for Nora" {
+               :add_choice "Play the audio recording for Nora" {
+                  :if (!is_holding("poem")) {
+                     :success;
                      :set_true "day2_nora_done";
                      :pocket "poem";
                      :print "\"Oh, my! Did you record this here, at the inn?\"";
@@ -1088,49 +1495,82 @@ on_command {
                      :print "\"Oh, yes, the legend. I never mentioned that did I? You see, the night Captain Sunders was killed he was actually coming back to the inn to retrieve a gift for his beloved. The rumour was it was a gold necklace that had been in his family for generations. He never made it, though. The only thing found on his body was a poem to his beloved. Would you like to see it? I keep a copy with me. I can't help it! I'm a romantic at heart!\"";
                      :press_any_key;
                      :print "She hands you a <poem<5>>, and looks wistful.";
-                     :print "\"Some say the necklace is still somewhere in this inn...none have found it though. I imagine a soldier took it.\"";
+                     :print "\"Some say the necklace is still somewhere in this inn... none have found it though. I imagine a soldier took it.\"";
+                  } :else {
+                     :print "Nora listens to the recording again and says \"Hmm. Very strange indeed...\"";
                   }
                }
             }
             :choose "What would you like to talk to Nora about?";
             :done;
          }
+      } :else {
+         :match "look nora" {
+            :print "Nora greets you.";
+            :done;
+         }
+
+         :match "talk nora;talk -" {
+            :set_true "day3_nora_done";
+            :destroy "nora";
+            :print "\"Good morning, dear! I heard there was some excitement last night! I'm relieved your recording wasn't real! Didn't I tell you? That certainly would not be how Captain Sunders sounded.\"";
+            :press_any_key;
+            :print "You pull out the letter from the night before. Instantly, Nora’s eyes light up.";
+            :print "\"Oh my, dear... where did you get this?\"";
+            :press_any_key;
+            :print "You explain the events of the night before, then get to the question burning on your mind. You slowly open the letter and hand it to her, pointing out the name of the recipient.";
+            :print "Nora’s eyes mist up.";
+            :press_any_key;
+            :print "\"Goodness...I never thought I would lay eyes on this. My family always swore it never existed. I had always hoped otherwise, searched even, but...thank you, dear. You have no idea what this means to me. Oh, aren’t you late for your conference?\"";
+            :print "Egads! So you are! You gaze down at your phone, and start sending a text to your friends. Nora’s voice softly speaks behind you.";
+            :press_any_key;
+            :print "\"It is so good to see his poetry again…if you’ll excuse me...\"";
+            :press_any_key;
+            :print "You look up.";
+            :press_any_key;
+            :print "Nora is gone.";
+            :press_any_key;
+            :redescribe;
+            :done;
+         }
       }
    }
    
-   :if (is_present "painting") {
+   :if (is_present("painting")) {
       :if (!day2_poem_read) {
          :match "look painting" {
             :print "The painting depicts a soldier in British Army uniform.";
             :done;
          }
-      } :else_if (is_present "joyce" && !is_carried "painting_paper") {
+      } :else_if (is_present("joyce") && !is_carried("painting_paper")) {
          :match "look painting" {
             :print "Having read the poem, you eye the painting with interest. You don't see anything obvious, but you don't want to get too nosy in front of people. Maybe check it out later when no one is around?";
             :done;
          }
-      } :else_if (!is_present "nora" && !is_carried "painting_paper") {
+      } :else_if (!is_present("nora") && !is_carried("painting_paper")) {
          :match "look painting" {
-            :ask_string var="day2_painting_location" question="Is there any particular part of the painting you'd like to inspect?";
-            :if (upper(day2_painting_location) != "RIGHT") {
+            :print "Having read the poem, you resolve to inspect the painting more closely.";
+            :ask_string var="painting_location_input" question="Is there any particular part of the painting you'd like to inspect?";
+            :if (upper(painting_location_input) != "RIGHT" && upper(painting_location_input) != "RIGHT SIDE") {
+               :failure;
                :print "You don't see anything special in that part of the painting.";
             } :else {
-               :pocket "painting_paper";
-               :print "It's a little dim, but using your phone flashlight you see a faint square in the frame. Instinctively, you press it in, and a scrap of <paper<5>> pops out your hand!";
+               :success;
+               :set_true "night2_painting_dim";
+               :print "You look along the right side of the frame. It's a bit dark, though, and hard to make out. Darn it... are you holding a source of light?";
             }
             :done;
          }
-      } :else_if (is_carried "painting_paper") {
+      } :else_if (is_carried("painting_paper")) {
          :match "look painting" {
-            :print "Having gotten the paper out of the painting, you have a new appreciation for its design, but you can't find any other secrets.";
-            :done;
+            :print "You look all over, but the painting of Captain Sunders doesn't seem to hide any more secrets.";
          }
       }
    }
 
-   :if (is_present "pamphlet") {
+   :if (is_present("pamphlet")) {
       :match "take pamphlet" {
-         :if (is_holding "pamphlet") {
+         :if (is_holding("pamphlet")) {
             :print "You already have one pamphlet. Taking more just seems greedy.";
          } :else {
             :pocket "pamphlet";
@@ -1140,30 +1580,106 @@ on_command {
       }
       
       :match "read pamphlet" {
-         :if (!is_holding "pamphlet") {
+         :if (!is_holding("pamphlet")) {
             :print "The pamphlets are folded up in a display case. (Type <TAKE PAMPHLET<5>> to take one to read.)";
             :done;
          }
          // Otherwise, use default "read" (aka "examine") processing.
       }
    }
-   
-   :if (is_present "poem") {
+
+   :if (night2_papers_found) {
+      :match "look paper" {
+         :print "Looking at all the scraps of paper, you can see they form a picture. It appears to be a brick wall. One of the bricks is darkened. You can't help but think these are the same bricks that are in the washroom.";
+         :done;
+      }
+   }
+
+   :if (is_holding("phone")) {
+      :match "drop phone" {
+         :print "You would never leave your mobile phone behind!";
+         :done;
+      }
+
+      :match "check phone" {
+         :set_true "phone_used";
+         :if (!phone_message) {
+            :add_choice "Check Messages (0)" {
+               :print "You don't have any messages right now.";
+            }
+         } :else_if (!phone_message_read) {
+            :add_choice "Check Messages (1 unread)" {
+               :success;
+               :set_true "phone_message_read";
+               :print "You have a message from your friend Claire:";
+               :print "\"Hey! Hope you made it okay to the inn! Sorry the main hotel was all booked up. Let me know what that inn's like! I heard some weird stories about it! Anyway, can't wait to see you at Gamecon tomorrow!\"";
+               :print "You smile. It was a last minute decision to join your friends for the convention but you are glad you made it. It's too bad you can't hang out at the hotel with your friends, but at least you were able to find somewhere to stay.";
+            }
+         } :else {
+            :add_choice "Check Messages (1)" {
+               :print "You have a message from your friend Claire:";
+               :print "\"Hey! Hope you made it okay to the inn! Sorry the main hotel was all booked up. Let me know what that inn's like! I heard some weird stories about it! Anyway, can't wait to see you at Gamecon tomorrow!\"";
+               :print "You're not sure what Claire means by 'weird stories', but maybe you'll find out while you're here.";
+            }
+         }
+
+         :add_choice "Read Email (3)" {
+            :add_choice "Scheme Holiday Sale" {
+               :print "Despite your better judgement, you look through the latest Scheme games on sale. It seems like they have sales every month. And every month you buy at least 10 games you will not play for at least a few years.";
+            }
+            :add_choice "Hotel Booking Confirmation" {
+               :print "You have a booking notice from the Red Soldier Inn. The confirmation number is 13. (Have they only had 13 guests this year?)";
+            }
+            :add_choice "Fwd from Mom" {
+               :print "You read your mom's daily forward of quotes from her favourite motivational speaker.";
+            }
+            :choose "Which email would you like to read?";
+            :done;
+         }
+
+         :add_choice "Use Flashlight" {
+            :if (night2_painting_dim && is_present("painting") && !is_carried("painting_paper")) {
+               :success;
+               :pocket "painting_paper";
+               :print "The flashlight on the phone may drain your batteries, but it's a great source of light. It allows you to notice the faintest of lines forming a square on the frame. Instinctively, you press it in. It pops out! You take a scrap of <paper<5>> from inside.";
+            } :else_if (is_at("hidden_room") && !hidden_room_lit) {
+               :success;
+               :set_true "hidden_room_lit";
+               :print "You use your phone flashlight to reveal the room...";
+               :press_any_key;
+               :redescribe;
+            } :else {
+               :print "You mess with the flashlight a bit, but there's plenty of light here and nothing special to see.";
+            }
+         }
+
+         :choose "What would you like to do on your phone?";
+         :done;
+      }
+
+      :match "answer phone;talk phone;call phone" {
+         :print "Nobody's calling you on your phone right now, and you're not really excited to make a call either.";
+         :done;
+      }
+   }
+
+   :if (is_present("poem")) {
       :match "read poem" {
          :set_true "day2_poem_read";
          :print "^c^^n^One hour with you\nIs worth a lifetime of love\nEven five minutes away\nAnd I am bereft";
          :print "^c^^n^Our love is like fine china,\nBeautiful, but delicate\nEven the slightest push to the left\nRisks everything";
          :print "^c^^n^People may picture me\nStanding tall and proud\nBut without you on my right\nIt will never be complete^m^";
          :print "It's not exactly award winning, but the sentiment is there. Captain Sunders probably should have stuck to his scones.";
+         :done;
       }
    }
    
-   :if (is_present "scones_recipe") {
+   :if (is_present("scones_recipe")) {
       :match "read recipe" {
          :print "This is certainly one of the strangest recipes you've ever seen...it reminds you of your grandma's famously muddled recipes.";
          :print "^c^Captain Sunders Scrumptious Scones\n1 cap swear^n^\n2 tornadoes sent\n3 eyes\n4 cats friar\n5 stages beaver^m^";
          :print "^c^Keep the ends, replace the middle!";
-         :if (!is_carried "scones" && !day2_nora_given_scones) {
+         :if (!is_carried("scones") && !day2_nora_given_scones) {
             :print "...you're not sure what to make of any of that!";
          } :else {
             :print "...you feel clever having solved the Captain's little code.";
@@ -1172,11 +1688,12 @@ on_command {
       }
    }
 
-   :if (is_holding "voice_recorder") {
+   :if (is_holding("voice_recorder")) {
       :match "record sound;record voice;record -;use voice_recorder" {
-         :if (is_present "eerie_sound") {
-            :set_true "sound_recorded";
-            :destroy "eerie_sound";
+         :if (is_present("sound")) {
+            :success;
+            :set_true "night1_sound_recorded";
+            :destroy "sound";
             :print "It takes a full five minutes to psych yourself up, but you grab the voice recorder and gingerly head to the heating vent.";
             :press_any_key;
             :print "You hold the voice recorder out over the vent and press the record button, hoping it's close enough to capture the strange sounds.";
@@ -1184,7 +1701,7 @@ on_command {
             :print "The sounds fade shortly after you press stop.";
          } :else_if (night1_awake && !night1_kitchen_visited) {
             :print "The distant sound is pretty indistinct. Might as well just go see what's causing it.";
-         } :else_if (night1_awake && !night1_slept && is_at "kitchen") {
+         } :else_if (night1_awake && !night1_slept && is_at("kitchen")) {
             :print "You wave the recorder around, but no sound seems to remain.";
          } :else {
             :print "There aren't any unusual sounds to record right now.";
@@ -1193,15 +1710,19 @@ on_command {
       }
 
       :match "listen recorder;play recorder;play sound;play voice;play -" {
-         :if (!sound_recorded) {
+         :if (!night1_sound_recorded) {
             :print "The voice recorder's memory is empty at the moment.";
          } :else {
-            :set_true "sound_played";
+            :if (!night1_sound_played) {
+               :success;
+               :set_true "night1_sound_played";
+            }
             :print "With the recorder able to amplify the voice, you can hear a raspy voice almost wheezing in despair...";
             :print "\"Wheeeeere iiiiis iiiit?\"";
             :press_any_key;
             :print "It's difficult to tell if it's a male or female voice. Either way, it creeps you right out.";
          }
+         :done;
       }
    }
 
@@ -1218,7 +1739,7 @@ on_command {
    # Add some extra hints in the inventory.
    :match "inventory _" {
       :inventory;
-      :if (!phone_read) {
+      :if (!phone_used) {
          :print "Use <CHECK PHONE<5>> to check your phone.";
       }
       :done;
@@ -1230,9 +1751,10 @@ on_command {
 
 #
 # Image mods needed
-# - location outside the hotel?
+# - location outside the hotel (night and day)?
 # - add "GET OUT" message in ketchup
 # - add bricks to the background of the bathroom
+# - hidden room (both dark and light)
 # - change clock times
 # - finale scenes?
 #
