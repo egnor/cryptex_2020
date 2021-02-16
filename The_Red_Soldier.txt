@@ -1,6 +1,6 @@
 ﻿game_information {
    game_name = "The Red Soldier";
-   game_version = "0.3.0";
+   game_version = "0.4.0";
    game_shortname = "CHPuzzleXX";
    written_by = "Manda Whitney and Dan Egnor";
    uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e1";
