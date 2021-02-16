@@ -314,6 +314,8 @@ connections {
 
       washroom, leave, cellar,
       washroom, south, hidden_room,
+
+      hidden_room, leave, washroom,
    ]
 }
 
@@ -338,14 +340,18 @@ barriers {
       message = "You can't go anywhere with Daniel waving that gun at you!";
    }
    
-   do_not_leave_letter_unread :block {
+   do_not_leave_letter_unread :block_path {
+      from = "cellar";
+      to = "cellar_stairs";
       block_when = "night2_letter_unread";
       message = "Before you leave, aren't you curious what the letter says?";
    }
    
-   do_not_leave_necklace_behind :block {
+   do_not_leave_necklace_behind :block_path {
+      from = "cellar";
+      to = "cellar_stairs";
       block_when = "night2_daniel_conked";
-      message = "Are you going to leave the necklace lying there?";
+      message = "Are you going to leave the necklace behind?";
    }
 }
 
@@ -420,7 +426,7 @@ objects {
 
    sound: scenery "an eerie sound" conspicuous="false" msg="The sound is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
 
-   voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humor him. You can use it to <RECORD SOUND<5>> and <PLAY SOUND<5>>.";
+   voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humour him. You can use it to <RECORD SOUND<5>> and <PLAY SOUND<5>>.";
 }
 
 on_render {
@@ -799,7 +805,7 @@ on_command {
                :print "\"Can I help you?\" he asks. \"The washroom's over there if you're looking for it.\"";
                :press_any_key;
                :print "You explain you're staying at the inn, and realization comes over his face.";
-               :print "\"Oh! Yeah, Joyce mentioned there would be another guest. I heard you were in the Captain's room. I had been using it for recordings, but...well, I guess it's good the hotel got new business.\"";
+               :print "\"Oh! Yeah, Joyce mentioned there would be another guest. I heard you were in the Captain's room. I had been using it for recordings, but... well, I guess it's good the hotel got new business.\"";
                :press_any_key;
                :print "He notices your quizzical look.";
                :print "\"Oh! I'm Daniel, by the way. I'm a ghost hunter. Uh, don't mind me, I'm just setting some stuff up for tonight.\"";
@@ -882,7 +888,7 @@ on_command {
             :print "\"Well, I guess it's obvious now I'm not a ghost hunter. Now give me the necklace.\" He points the gun a little higher. \"I still can't believe it. I've been in this miserable inn two months looking for that damned necklace, and you find it in under two days! How?!\"";
             :print "You would explain the poem to him, but he doesn't deserve that. You simply ask him who he is. Perhaps he will keep talking.";
             :press_any_key;
-            :print "\"I guess the base term for it is treasure hunter. I've wanted this necklace for a long time. I couldn't exactly let anyone know I was looking for it. They might claim it as their own. And since this inn was already rumoured to be haunted, I used that to my advantage. Since I was her only guest, she was more than happy to let me keep looking for ghosts. And it made it easy to scare guests away with \"hauntings\". Which you should have been to! I put a lot of work into that voice recording!\"";
+            :print "\"I guess the base term for it is treasure hunter. I've wanted this necklace for a long time. I couldn't exactly let anyone know I was looking for it. They might claim it as their own. And since this inn was already rumoured to be haunted, I used that to my advantage. Since I was her only guest, she was more than happy to let me keep looking for ghosts. And it made it easy to scare guests away with \"haunting\" -- and you should have been scared, too! I put a lot of work into that voice recording!\"";
             :print "You are trying to think fast. Could you slip past Daniel somehow? No. You are trapped in this room.";
             :press_any_key;
             :print "He cocks the gun.";
@@ -891,25 +897,26 @@ on_command {
             :print "You don't see much choice. Either you don't give him the necklace, and he shoots you now, or you give him the necklace and have a chance to live. The former may wake Joyce up, but it might mean you die.";
             :ask_bool var="night2_necklace_input" question="Do you give him the necklace?";
             :if (night2_necklace_input) {
+               :destroy "daniel";
                :destroy "necklace";
-               :create "necklace";
+               :create "daniel" target="washroom";
+               :create "necklace" target="washroom";
                :print "Daniel smiles, and backs up. He places his hand on the brick door.";
                :press_any_key;
                :print "\"Sorry to say, but I obviously can't let you leave here. Maybe they'll hear you screaming in the morning. These walls are pretty thick though. You'll have to be awfully loud. And I'll be across the border by then.\"";
                :press_any_key;
                :success;
-               :print "Just as he is about to shut the door though, the air suddenly grows even colder. In less than a second, whoosh of air violently blows the door open, knocking Daniel backwards. His head knocks against the sink, and he falls over, unconscious.";
+               :print "Just as he is about to shut the door though, the air suddenly grows even colder. In less than a second, whoosh of air violently blows the door open, knocking Daniel back into the washroom. His head knocks against the sink, and he falls over, unconscious.";
                :press_any_key;
-               :print "The necklace falls out of his hand.";
                :redescribe;
             } :else {
                :print "Daniel frowns. He steps further into the room.";
                :print "\"You really have a death wish, don’t you?\"";
                :print "He raises his gun.";
                :press_any_key;
+               :success;
                :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots on sitting on it topple forward, directly onto Daniel’s head. He collapses, unconscious.";
                :press_any_key;
-               :success;
                :print "The air warms back up. You let out a breath. What on Earth was that? You could have sworn you heard a voice hissing \"No\" as the door blasted open.";
             }
             :done;
@@ -929,7 +936,7 @@ on_command {
 
    :if (is_present("sound")) {
       :match "listen sound;listen vent;listen -" {
-         :set_sentence "examine eerie sound";
+         :set_sentence "examine sound";
       }
    }
 
@@ -1013,7 +1020,7 @@ on_command {
 
             :if (!day2_haley_done) {
                :add_choice "Ask Haley why she's cleaning" {
-                  :print "\"Dont ask,\" she says. \"I've been cleaning up all morning. Mom is super upset. What's up?\"";
+                  :print "\"Don't ask,\" she says. \"I've been cleaning up all morning. Mom is super upset. What's up?\"";
                }
             }
 
@@ -1045,7 +1052,7 @@ on_command {
                }
             }
 
-            :if (!is_carried("scones") && !day2_nora_given_scones) {
+            :if (is_carried("scones_recipe") && !is_carried("scones") && !day2_nora_given_scones) {
                :add_choice "Show Haley the scones recipe" {
                   :if (!day2_haley_shown_recipe) {
                      :set_true "day2_haley_shown_recipe";
@@ -1089,7 +1096,7 @@ on_command {
          :match "look haley" {
             :print "Haley greets you happily!";
          }
-         
+
          :match "talk haley;talk -" {
             :set_true "day3_haley_done";
             :print "\"I can't believe you found the secret room! And Daniel! Didn't I say he was weird? Well, turns out he's weird and evil! Now we can figure out what to do with that room. I'm trying to get mom to let me make it into a game space. But I guess that's a bit weird since it attaches to the bathroom.\"";
@@ -1244,7 +1251,7 @@ on_command {
                :press_any_key;
                :print "She turns around to grab the key. Before her hands are anywhere near it, it suddenly seems to wrench itself off its peg and clatters to the floor.";
                :press_any_key;
-               :print "Joyce's cheerful demeanor falters for a moment, replaced with nervous fear. She recovers quickly and turns around, smile back in place. \"Oops! Butterfingers! Now lets' get you upstairs!\"";
+               :print "Joyce's cheerful demeanour falters for a moment, replaced with nervous fear. She recovers quickly and turns around, smile back in place. \"Oops! Butterfingers! Now let's get you upstairs!\"";
                :press_any_key;
                :print "She laughs, but it's a little shaky. What on Earth was that about? You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door.";
                :press_any_key;
@@ -1308,7 +1315,7 @@ on_command {
                   :print "\"I'm so sorry.. I should have been more honest about the inn's reputation...but I hoped this time nothing would happen. It's been terrible...so many guests frightened away. I'm not sure how long we'll last.\"";
                   :press_any_key;
                   :print "You can't help but feel bad for Joyce, and can't help but wonder if you can help her out somehow. You tell her as much and she sighs.";
-                  :print "\"It's so odd. There were always strange sounds and rustlings around the inn. Normally guests enjoy the ghost stories. But recently the hauntings have escalated. I don't normally believe in that sort of thing, but I can't really ignore what's in front of me...and when it hurts business like this...\"";
+                  :print "\"It's so odd. There were always strange sounds and rustlings around the inn. Normally guests enjoy the ghost stories. But recently the haunting has escalated. I don't normally believe in that sort of thing, but I can't really ignore what's in front of me... and when it hurts business like this...\"";
                   :press_any_key;
                   :print "You assure her you have no plans of leaving. She looks very relieved.";
                   :print "\"Thank you very much. It's odd. You know what? Dinner tonight is on the house!\"";
