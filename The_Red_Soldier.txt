@@ -1,11 +1,11 @@
 ﻿game_information {
    game_name = "The Red Soldier";
    game_version = "0.4.0";
-   game_shortname = "CHPuzzleXX";
+   game_shortname = "CHPuzzle11";
    written_by = "Manda Whitney and Dan Egnor";
-   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e1";
-   year_of_release = "2020";
-   short_synopsis = "Part of the 2020 Cryptex Hunt";
+   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e2";
+   year_of_release = "2021";
+   short_synopsis = "Part of the 2021 Cryptex Hunt";
 }
 
 game_settings {
