@@ -185,14 +185,14 @@ locations {
             :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories.";
          } :else_if (day1_slept && !night1_awake) {
             :set_true "night1_awake";
-            :print "A large thump jolts you out of your sleep.";
+            :print "A loud thump jolts you out of your sleep.";
             :print "You think nothing of it, and try to go back to sleep.";
             :press_any_key;
             :print "There is another thump. And then another. It seems to be coming from downstairs. Maybe you should check it out?";
          } :else_if (night1_slept && !day2_awake) {
             :set_true "day2_awake";
             :print "You wake up. In the daylight the room is back to its cheery coziness.";
-            :print "You have some time before the convention begins. Time to get some answers. Who does this button belong to? You should examine the staff and show them it. And what does this recording mean? You're sure people would be interested in hearing it.";
+            :print "You have some time before the convention begins. Time to get some answers. Who does this button belong to? You should examine the staff and show it to them. And what does this recording mean? You're sure people would be interested in hearing it.";
          } :else_if (night2_found && !day3_awake) {
             :set_false "night2_daniel_conked";
             :set_true "day3_awake";
@@ -915,7 +915,7 @@ on_command {
                :print "He raises his gun.";
                :press_any_key;
                :success;
-               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots on sitting on it topple forward, directly onto Daniel’s head. He collapses, unconscious.";
+               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots sitting on it topple forward, directly onto Daniel’s head. He collapses, unconscious.";
                :press_any_key;
                :print "The air warms back up. You let out a breath. What on Earth was that? You could have sworn you heard a voice hissing \"No\" as the door blasted open.";
             }
@@ -935,7 +935,7 @@ on_command {
    }
 
    :if (is_present("sound")) {
-      :match "listen sound;listen vent;listen -" {
+      :match "listen sound;listen vent;listen -;check sound" {
          :set_sentence "examine sound";
       }
    }
@@ -969,7 +969,7 @@ on_command {
                :print "\"Finally! We get a new guest! And one that isn't a total weirdo! Have you met Daniel by the way? He's a total weirdo. He's into all sorts of weird ghost stuff. Anyway, what brings you to town?\"";
                :press_any_key;
                :print "You explain that you are here for the local gaming convention. Haley's eyes grow even bigger.";
-               :print "\"No way! You go to Gamecon! Aw man, I wish I could go, but I have to help mom out with the inn. It's not fair. If it weren't for Nora out there always needing scones, I could probably go!\"";
+               :print "\"No way! You go to Gamecon! Aw man, I wish I could go, but I have to help Mom out with the inn. It's not fair. If it weren't for Nora out there always needing scones, I could probably go!\"";
             }
 
             :add_choice "Ask Haley about Nora" {
@@ -982,13 +982,13 @@ on_command {
                :add_choice "Show Haley the pamphlet" {
                   :success;
                   :set_true "day1_haley_done";
-                  :print "\"So you saw mom's pamphlets! She'll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
+                  :print "\"So you saw Mom's pamphlets! She'll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
                   :press_any_key;
                   :print "She sees you raise your eyes.";
                   :print "\"What? You don't know about the ghost? I thought that's the only reason people would come here. And also the reason this place stays empty. If it wasn't for Daniel, we would be out of business. He's been here two months! Seriously, how is a bunch of knocks worth staying here two months?! If there is a ghost, it should be a proper ghost, like--\"";
                   :print "She makes a woooing sound and waves her arms around, then stops suddenly, looking worried.";
                   :press_any_key;
-                  :print "\"Oh, crap. Hey, don't tell mom I told you about the ghost, okay? It stresses her out. You won't leave, right?\"";
+                  :print "\"Oh, crap. Hey, don't tell Mom I told you about the ghost, okay? It stresses her out. You won't leave, right?\"";
                   :print "You assure her you won't.";
                }
             }
@@ -1035,7 +1035,7 @@ on_command {
                   :set_true "day2_haley_done";
                   :print "Before Haley can say something sarcastic, you point out the missing button on her uniform and then hold out the missing ketchup covered button to her. She immediately folds with a melodramatic sigh.";
                   :press_any_key;
-                  :print "\"Okay, okay! Fine... I did it. I made all the noise and mess last night hoping it would be my mom to come check it out. But you came down before I could get out and... look, I'm sorry I scared you. I'm just... worried about my mom and the business, but she's so determined to make this work. I thought if the hauntings got bad enough, maybe she would... I don't know, sell. Okay, it doesn't make sense when I say it out loud, but this has been stressful, okay?!\"";
+                  :print "\"Okay, okay! Fine... I did it. I made all the noise and mess last night hoping it would be Mom to come check it out. But you came down before I could get out and... look, I'm sorry I scared you. I'm just... worried about Mom and the business, but she's so determined to make this work. I thought if the hauntings got bad enough, maybe she would... I don't know, sell. Okay, it doesn't make sense when I say it out loud, but this has been stressful, okay?!\"";
                   :print "You can... sort of relate? Okay, not really. Teenagers. Faking a haunting is more desirable than actually talking to their parents. It makes you feel old, but you point this out to Haley. She sighs. It's far too logical to disagree.";
                   :press_any_key;
                   :print "\"Okay... I'll talk to her. I GUESS that makes more sense. Ugh. This is going to be awful.\"";
@@ -1099,7 +1099,7 @@ on_command {
 
          :match "talk haley;talk -" {
             :set_true "day3_haley_done";
-            :print "\"I can't believe you found the secret room! And Daniel! Didn't I say he was weird? Well, turns out he's weird and evil! Now we can figure out what to do with that room. I'm trying to get mom to let me make it into a game space. But I guess that's a bit weird since it attaches to the bathroom.\"";
+            :print "\"I can't believe you found the secret room! And Daniel! Didn't I say he was weird? Well, turns out he's weird and evil! Now we can figure out what to do with that room. I'm trying to get Mom to let me make it into a game space. But I guess that's a bit weird since it attaches to the bathroom.\"";
             :print "She suddenly gets serious.";
             :press_any_key;
             :print "\"Hey... thanks a lot for the help. I talked to Mom. She wasn't exactly happy, but I'm just glad the real source of trouble is gone.\"";
@@ -1638,7 +1638,7 @@ on_command {
                :print "You have a booking notice from the Red Soldier Inn. The confirmation number is 13. (Have they only had 13 guests this year?)";
             }
             :add_choice "Fwd from Mom" {
-               :print "You read your mom's daily forward of quotes from her favourite motivational speaker.";
+               :print "You read your Mom's daily forward of quotes from her favourite motivational speaker.";
             }
             :choose "Which email would you like to read?";
             :done;
