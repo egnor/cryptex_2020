@@ -360,6 +360,8 @@ barriers {
 #
 
 objects {
+   bed: scenery "hotel bed" at="hotel_room" conspicuous="false" msg="The bed looks soft and comfortable.";
+
    box: scenery "an elaborate box" at="hidden_room" conspicuous="false" msg="The box is quite dusty, ornately carved, and apparently very old. It has a hinged lid.";
 
    brick_wall: scenery "brick wall" at="washroom" conspicuous="false" msg="The brick wall of the washroom doesn't seem very special.";
@@ -389,8 +391,6 @@ objects {
    haley: scenery "Haley" at="kitchen" conspicuous="false";
 
    heating_vent: scenery "a heating vent" at="hotel_room" conspicuous="false" msg="The heating vent looks totally ordinary, and you have no way to remove it.";
-
-   hotel_bed: scenery "hotel bed" at="hotel_room" conspicuous="false" msg="The bed looks soft and comfortable.";
 
    hutch: scenery "an antique hutch" at="dining_room" conspicuous="false";
 
@@ -1114,8 +1114,8 @@ on_command {
       }
    }
 
-   :if (is_present("hotel_bed")) {
-      :match "sleep -;sleep hotel_bed;goto sleep;goto hotel_bed;lie hotel_bed;lie down;use hotel_bed;bed -" {
+   :if (is_present("bed")) {
+      :match "sleep -;sleep bed;goto sleep;goto bed;lie bed;lie down;use bed;bed -" {
          :if (!phone_message_read) {
             :print "How can you sleep with unread messages on your phone?";
          } :else_if (!day1_daniel_done || !day1_haley_done || !day1_joyce_done || !day1_nora_done) {
@@ -1673,8 +1673,8 @@ on_command {
    :if (is_present("poem")) {
       :match "read poem" {
          :set_true "day2_poem_read";
-         :print "^c^^n^One hour with you\nIs worth a lifetime of love\nEven five minutes away\nAnd I am bereft";
-         :print "^c^^n^Our love is like fine china,\nBeautiful, but delicate\nEven the slightest push to the left\nRisks everything";
+         :print "^c^^n^One hour with you\nIs worth a lifetime of love\nEven five minutes away\nAnd I am bereft^m^";
+         :print "^c^^n^Our love is like fine china,\nBeautiful, but delicate\nEven the slightest push to the left\nRisks everything^m^";
          :print "^c^^n^People may picture me\nStanding tall and proud\nBut without you on my right\nIt will never be complete^m^";
          :print "It's not exactly award winning, but the sentiment is there. Captain Sunders probably should have stuck to his scones.";
          :done;
