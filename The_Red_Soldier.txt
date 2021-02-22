@@ -3,12 +3,13 @@
    game_version = "0.4.0";
    game_shortname = "CHPuzzle11";
    written_by = "Manda Whitney and Dan Egnor";
-   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e5";
+   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e6";
    year_of_release = "2021";
    short_synopsis = "Part of the 2021 Cryptex Hunt";
 }
 
 game_settings {
+   experimental_new_scroll = "true";
    inventory_items_limit_var = "inventory_limit";
 }
 
@@ -279,7 +280,7 @@ locations {
             :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>> with a <plaque<5>> under it. There are some <pamphlets<4>> on the lobby desk.";
 
             :if (day1_checkin_done) {
-               :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, and some rickety steps <up<14>> to the guest rooms. You could go back outside to the <east<14>>, but why would you?";
+               :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, some rickety steps <up<14>> to the guest rooms, and the hotel exit to the <east<14>>.";
             }
          } :else {
             :print "The lobby seems far less inviting at night. You can still make out the <oil painting<5>>, <plaque<5>> and <pamphlets<4>>. You could make your way <west<14>> to the dining room, <north<14>> to the kitchen, or back <up<14>> to the guest rooms.";
@@ -417,7 +418,7 @@ objects {
 
    brick_wall: scenery "brick wall" at="washroom" conspicuous="false" msg="The brick wall of the washroom doesn't seem very special.";
 
-   button: object "a shirt button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes.";
+   button: object "a shirt button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes. (<EXAMINE<14>> everyone when you can!)";
 
    clock: scenery "wall clock" at="hallway_east" conspicuous="false";
    
@@ -502,12 +503,20 @@ on_render {
        :if (is_at("lobby")) {:overlay "lobby_night";}
    }
 
+   :if (day1_slept && !night1_slept) {
+       :if (is_at("kitchen")) {:overlay "kitchen_getout";}
+   }
+
    :if (is_at("cellar") && is_present("daniel")) {:overlay "cellar_daniel";}
    :if (is_at("dining_room") && is_present("nora")) {:overlay "dining_room_nora";}
    :if (is_at("hallway_east") && !is_carried("clock_paper")) {:overlay "clock_hour3";}
-   :if (is_at("hallway_east") && is_carried("clock_paper")) {:overlay "clock_hour12";}
-   :if (is_at("kitchen") && is_present("haley")) {:overlay "kitchen_haley";}
+   :if (is_at("hallway_east") && is_carried("clock_paper")) {:overlay "clock105";}
+   :if (is_at("hidden_room") && !hidden_room_lit) {:overlay "hidden_room_dark";}
+   :if (is_at("hidden_room") && is_present("daniel") && night2_daniel_threatening) {:overlay "hidden_room_daniel_gun";}
+   :if (is_at("kitchen") && is_present("haley") && !(day2_awake && !day3_awake)) {:overlay "kitchen_haley";}
+   :if (is_at("kitchen") && is_present("haley") && day2_awake && !day3_awake) {:overlay "kitchen_haley_nobutton";}
    :if (is_at("lobby") && is_present("joyce")) {:overlay "lobby_joyce";}
+   :if (is_at("washroom") && is_present("daniel") && night2_daniel_conked) {:overlay "washroom_daniel_down";}
 }
 
 on_describe {
@@ -527,7 +536,7 @@ on_describe {
          :print "<Daniel<5>> is holding a <gun<5>>, with a hint of a smirk on his lips.";
       } :else_if (night2_daniel_conked) {
          :if (is_beside("necklace")) {
-            :print "<Daniel<5>> lies unconscious on the floor, a <golden necklace<4>> lies spilled from his hands.";
+            :print "<Daniel<5>> lies unconscious on the floor, a <golden necklace<4>> spilled from his hands.";
          } :else {
             :print "<Daniel<5>> lies unconscious on the floor.";
          }
@@ -601,8 +610,8 @@ on_describe {
       :print "Oh gosh, look at the time! Better head out to Gamecon right away.";
    }
 
-   :if (day3_haley_done && day3_joyce_done && day3_nora_done) {
-      :print "Oh gosh, look at the time! Better head out to GameCon right away.";
+   :if (day3_haley_done && day3_joyce_done && day3_nora_done && (!is_carried("stolen_keys") || is_carried("old_messages"))) {
+      :print "Oh gosh, look at the time! Better head out to Gamecon right away.";
    }
 }
 
@@ -640,12 +649,11 @@ on_tick {
    :if (is_holding("necklace") && is_holding("old_letter") && is_at("hidden_room") && !is_present("daniel")) {
       :create "daniel";
       :set_true "night2_daniel_threatening";
-      :print "There is a rustling behind you and the room seems to darken even more. You whirl around. Standing in the doorway is <Daniel<5>>. He is holding a <gun<5>>.";
+      :update_graphic;
+      :print "There is a rustling behind you and the room seems to darken even more. <Daniel<5>> appears! He is holding a <gun<5>>.";
       :press_any_key;
       :print "\"I can't believe you found it...\" he says incredulously.";
       :press_any_key;
-      :print "You stare a moment, taking in the scene before you.";
-      :redescribe;
       :return;
    }
    
@@ -762,7 +770,7 @@ on_command {
          }
       } :else_if (!hidden_room_opened) {
          :match "look bricks" {
-            :print "The brick wall looks exactly like the diagram from the secret slips of paper you combined. The darkened brick looks a little loose; you could <PUSH BRICK<14>>, if you dare...";
+            :print "The brick wall looks exactly like the diagram from the secret slips of paper you combined. The indicated brick looks a little loose; you could <PUSH BRICK<14>>, if you dare...";
          }
          :match "push bricks" {
             :success;
@@ -806,6 +814,7 @@ on_command {
                :success;
                :pocket "clock_paper";
                :print "As you move the hands into place, a compartment pops out of the bottom of the clock. You reach in and take a scrap of <paper<4>>!";
+               :update_graphic;
             }
             :done;
          }
@@ -866,37 +875,45 @@ on_command {
          }
 
          :match "talk -;talk daniel" {
-            :add_choice "Say hello" {
-               :print "You say hello, startling the man out of his work.";
-               :print "\"Can I help you?\" he asks. \"The washroom's over there if you're looking for it.\"";
-               :press_any_key;
-               :print "You explain you're staying at the inn, and realization comes over his face.";
-               :print "\"Oh! Yeah, Joyce mentioned there would be another guest. I heard you were in the Captain's room. I had been using it for recordings, but... well, I guess it's good the hotel got new business.\"";
-               :press_any_key;
-               :print "He notices your quizzical look.";
-               :print "\"Oh! I'm Daniel, by the way. I'm a ghost hunter. Uh, don't mind me, I'm just setting some stuff up for tonight.\"";
-               :print "He goes back to his equipment.";
-            }
-
-            :add_choice "Ask Daniel about the equipment" {
-               :print "\"Oh, this junk? This is kid stuff, but they wouldn't let me cross the border with the real gear.\"";
-               :print "He never explains what it actually does, but you're starting to think that's just as well.";
-            }
-
-            :if (is_holding("pamphlet") && !is_holding("voice_recorder")) {
-               :add_choice "Show Daniel the pamphlet" {
-                  :success;
-                  :set_true "day1_daniel_done";
-                  :pocket "voice_recorder";
-                  :print "Daniel almost looks annoyed when you show him the pamphlet.";
-                  :print "\"She didn't even mention the hauntings here?! That's the most exciting thing about this inn! You would not believe the activity! I mean, you like ghost stories, don't you?\"";
-                  :print "You do, and you say as much. Daniel seems pleased with this answer.";
+            :while (true) {
+               :add_choice "Say hello to Daniel" {
+                  :print "You say hello, startling the man out of his work.";
+                  :print "\"Can I help you?\" he asks. \"The washroom's over there if you're looking for it.\"";
                   :press_any_key;
-                  :print "\"Hey... maybe you could help me out. I usually capture recordings in the Captain's room, where you're staying. I would hate to miss out on any activity. Think you could capture some for me? You can do it using this voice recorder! Any unusual noises, scratches, bumps, that sort of thing. There were rumours that there are voices, but I haven't heard them yet!\"";
-                  :print "He hands you an analogue <voice recorder<4>>. You take it nervously. You like a good ghost story, but do you want to be in one?";
+                  :print "You explain you're staying at the inn, and realization comes over his face.";
+                  :print "\"Oh! Yeah, Joyce mentioned there would be another guest. I heard you were in the Captain's room. I had been using it for recordings, but... well, I guess it's good the hotel got new business.\"";
+                  :press_any_key;
+                  :print "He notices your quizzical look.";
+                  :print "\"Oh! I'm Daniel, by the way. I'm a ghost hunter. Uh, don't mind me, I'm just setting some stuff up for tonight.\"";
                }
+   
+               :add_choice "Ask Daniel about the equipment" {
+                  :print "\"Oh, this junk? This is kid stuff, but they wouldn't let me cross the border with the real gear.\"";
+                  :print "He never explains what it actually does, but you're starting to think that's just as well.";
+               }
+   
+               :if (is_holding("pamphlet") && !is_holding("voice_recorder")) {
+                  :add_choice "Show Daniel the pamphlet" {
+                     :success;
+                     :set_true "day1_daniel_done";
+                     :pocket "voice_recorder";
+                     :print "Daniel almost looks annoyed when you show him the pamphlet.";
+                     :print "\"She didn't even mention the hauntings here?! That's the most exciting thing about this inn! You would not believe the activity! I mean, you like ghost stories, don't you?\"";
+                     :print "You do, and you say as much. Daniel seems pleased with this answer.";
+                     :press_any_key;
+                     :print "\"Hey... maybe you could help me out. I usually capture recordings in the Captain's room, where you're staying. I would hate to miss out on any activity. Think you could capture some for me? You can do it using this voice recorder! Any unusual noises, scratches, bumps, that sort of thing. There were rumours that there are voices, but I haven't heard them yet!\"";
+                     :print "He hands you an analogue <voice recorder<4>>. You take it nervously. You like a good ghost story, but do you want to be in one?";
+                  }
+               }
+               
+               :add_choice "Done talking" {
+                  :print "Daniel shrugs and goes back to his equipment.";
+                  :break;
+               }
+
+               :choose;
+               :press_any_key;
             }
-            :choose "What would you like to talk to Daniel about?";
             :done;
          }
       } :else_if (!night2_daniel_threatening && !night2_daniel_conked) {
@@ -905,34 +922,42 @@ on_command {
          }
          
          :match "talk -;talk daniel" {
-            :add_choice "Show Daniel the button" {
-               :print "Daniel is completely uninterested in the button.";
-            }
-
-            :add_choice "Play the audio recording for Daniel" {
-               :if (!day2_daniel_done) {
-                  :success;
-                  :set_true "day2_daniel_done";
-                  :print "Daniel's eyes light up with glee.";
-                  :print "\"No way! You got a recording?! I knew it was a good instinct to give you the recorder! What did you get?!\"";
-                  :press_any_key;
-                  :print "He plays the recording. His eyes practically bulge out of his head.";
-                  :print "\"This is incredible... audio manifestation... it's very difficult to get. This spirit must be very strong... which might mean...\"";
-                  :press_any_key;
-                  :print "He looks suddenly worried.";
-                  :print "\"Strong spirits usually mean strong emotions. And more often than not that emotion is anger... Captain Sunders died under violent circumstances. It would not surprise me that he's vengeful. And you are staying in his room. I would find somewhere else to stay. But that's just me.\"";
-               } :else {
-                  :print "Daniel listens to the recording again and repeats \"I'd be careful if I were you\".";
+            :while (true) {
+               :add_choice "Show Daniel the button" {
+                  :print "Daniel is completely uninterested in the button.";
                }
-            }
-            
-            :if (is_carried("poem")) {
-               :add_choice "Show Daniel the poem" {
-                  :print "Daniel is interested in ghosts, not their history. He barely gives the poem a single glance before going back to his equipment.";
+   
+               :add_choice "Play the audio recording for Daniel" {
+                  :if (!day2_daniel_done) {
+                     :success;
+                     :set_true "day2_daniel_done";
+                     :print "Daniel's eyes light up with glee.";
+                     :print "\"No way! You got a recording?! I knew it was a good instinct to give you the recorder! What did you get?!\"";
+                     :press_any_key;
+                     :print "He plays the recording. His eyes practically bulge out of his head.";
+                     :print "\"This is incredible... audio manifestation... it's very difficult to get. This spirit must be very strong... which might mean...\"";
+                     :press_any_key;
+                     :print "He looks suddenly worried.";
+                     :print "\"Strong spirits usually mean strong emotions. And more often than not that emotion is anger... Captain Sunders died under violent circumstances. It would not surprise me that he's vengeful. And you are staying in his room. I would find somewhere else to stay. But that's just me.\"";
+                  } :else {
+                     :print "Daniel listens to the recording again and repeats \"I'd be careful if I were you\".";
+                  }
                }
+               
+               :if (is_carried("poem")) {
+                  :add_choice "Show Daniel the poem" {
+                     :print "Daniel is interested in ghosts, not their history. He barely gives the poem a single glance.";
+                  }
+               }
+               
+               :add_choice "Done talking" {
+                  :print "Daniel goes back to his equipment.";
+                  :break;
+               }
+               
+               :choose;
+               :press_any_key;
             }
-            
-            :choose "What would you like to talk to Daniel about?";
             :done;
          }
       } :else_if (night2_daniel_threatening) {
@@ -972,16 +997,18 @@ on_command {
                :print "\"Sorry to say, but I obviously can't let you leave here. Maybe they'll hear you screaming in the morning. These walls are pretty thick though. You'll have to be awfully loud. And I'll be across the border by then.\"";
                :press_any_key;
                :success;
-               :print "Just as he is about to shut the door, though, the air suddenly grows even colder. In less than a second, a whoosh of air violently blows the door open, knocking Daniel back into the washroom. His head knocks against the sink, and he falls over, unconscious.";
+               :print "Just as he is about to shut the door, though, the air suddenly grows even colder. In less than a second, a whoosh of air violently blows the door open. Daniel topples into the washroom, where his head knocks against the sink. He lies there (to the <north<14>>), unconscious.";
                :press_any_key;
-               :redescribe;
+               :update_graphic;
             } :else {
-               :print "Daniel frowns. He steps further into the room.";
+               :destroy "daniel";
+               :create "daniel" target="washroom";
+               :print "Daniel frowns.";
                :print "\"You really have a death wish, don’t you?\"";
                :print "He raises his gun.";
                :press_any_key;
                :success;
-               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots sitting on it topple forward, directly onto Daniel’s head. He collapses, unconscious.";
+               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots sitting on it roll forward, directly onto Daniel’s head. He topples into the washroom, unconscious.";
                :press_any_key;
                :print "The air warms back up. You let out a breath. What on Earth was that? You could have sworn you heard a voice hissing \"No\" as the door blasted open.";
             }
@@ -1034,37 +1061,45 @@ on_command {
          }
 
          :match "talk -;talk haley" {
-            :add_choice "Say hello" {
-               :print "You greet Haley. She responds with a perky smile. She seems overly excited to see you here.";
-               :print "\"Finally! We get a new guest! And one that isn't a total weirdo! Have you met Daniel, by the way? He's a total weirdo. He's into all sorts of weird ghost stuff. Anyway, what brings you to town?\"";
-               :press_any_key;
-               :print "You explain that you are here for the local gaming convention. Haley's eyes grow even bigger.";
-               :print "\"No way! You go to Gamecon! Aw man, I wish I could go, but I have to help Mom out with the inn. It's not fair. If it weren't for Nora out there always needing scones, I could probably go!\"";
-               :print "\"Also, I love your purple hat!\"";
-            }
-
-            :add_choice "Ask Haley about Nora" {
-               :print "\"Nora comes over every single day and always orders the exact same thing and if I don't make her tea scones perfectly she complains to Mom and I have to do them all over again!\" Haley rolls her eyes.";
-               :press_any_key;
-               :print "\"But Nora's sweet in her way, I guess. Mom said Nora did a ton of research for that historical pamphlet, have you seen it? Don't tell Mom, but I haven't actually read it yet.\"";
-            }
-
-            :if (is_holding("pamphlet")) {
-               :add_choice "Show Haley the pamphlet" {
-                  :success;
-                  :set_true "day1_haley_done";
-                  :print "\"So you saw Mom's pamphlets! She'll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
+            :while (true) {
+               :add_choice "Say hello to Haley" {
+                  :print "You greet Haley. She responds with a perky smile. She seems overly excited to see you here.";
+                  :print "\"Finally! We get a new guest! And one that isn't a total weirdo! Have you met Daniel, by the way? He's a total weirdo. He's into all sorts of weird ghost stuff. Anyway, what brings you to town?\"";
                   :press_any_key;
-                  :print "She sees you raise your eyes.";
-                  :print "\"What? You don't know about the ghost? I thought that's the only reason people would come here. And also the reason this place stays empty. If it wasn't for Daniel, we would be out of business. He's been here two months! Seriously, how is a bunch of knocks worth staying here two months?! If there is a ghost, it should be a proper ghost, like--\"";
-                  :print "She makes a woooing sound and waves her arms around, then stops suddenly, looking worried.";
-                  :press_any_key;
-                  :print "\"Oh, crap. Hey, don't tell Mom I told you about the ghost, okay? It stresses her out. You won't leave, right?\"";
-                  :print "You assure her you won't.";
+                  :print "You explain that you are here for the local gaming convention. Haley's eyes grow even bigger.";
+                  :print "\"No way! You go to Gamecon! Aw man, I wish I could go, but I have to help Mom out with the inn. It's not fair. If it weren't for Nora out there always needing scones, I could probably go!\"";
+                  :print "\"Also, I love your hat!\"";
                }
-            }
+   
+               :add_choice "Ask Haley about Nora" {
+                  :print "\"Nora comes over every single day and always orders the exact same thing and if I don't make her tea scones perfectly she complains to Mom and I have to do them all over again!\" Haley rolls her eyes.";
+                  :press_any_key;
+                  :print "\"But Nora's sweet in her way, I guess. Mom said Nora did a ton of research for that historical pamphlet, have you seen it? Don't tell Mom, but I haven't actually read it yet.\"";
+               }
+   
+               :if (is_holding("pamphlet")) {
+                  :add_choice "Show Haley the pamphlet" {
+                     :success;
+                     :set_true "day1_haley_done";
+                     :print "\"So you saw Mom's pamphlets! She'll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
+                     :press_any_key;
+                     :print "She sees you raise your eyes.";
+                     :print "\"What? You don't know about the ghost? I thought that's the only reason people would come here. And also the reason this place stays empty. If it wasn't for Daniel, we would be out of business. He's been here two months! Seriously, how is a bunch of knocks worth staying here two months?! If there is a ghost, it should be a proper ghost, like--\"";
+                     :print "She makes a woooing sound and waves her arms around, then stops suddenly, looking worried.";
+                     :press_any_key;
+                     :print "\"Oh, crap. Hey, don't tell Mom I told you about the ghost, okay? It stresses her out. You won't leave, right?\"";
+                     :print "You assure her you won't.";
+                  }
+               }
 
-            :choose "What would you like to talk to Haley about?";
+               :add_choice "Done talking" {
+                  :print "\"See ya 'round!\"";
+                  :break;
+               }
+   
+               :choose;
+               :press_any_key;
+            }
             :done;
          }
       } :else_if (!night2_found) {
@@ -1084,83 +1119,91 @@ on_command {
          }
 
          :match "talk -;talk haley" {
-            :add_choice "Play the audio recording for Haley" {
-               :print "You play the recording for Haley. She looks shocked.";
-               :print "\"Holy crap! Did you show Mom this?! That is so creepy! Huh... I wonder what he's looking for. I bet it has to do with the old legend. You should ask Nora about this!\"";
-            }
-
-            :if (!day2_haley_done) {
-               :add_choice "Ask Haley why she's cleaning" {
-                  :print "\"Don't ask,\" she says. \"I've been cleaning up all morning. Mom is super upset. What's up?\"";
+            :while (true) {
+               :add_choice "Play the audio recording for Haley" {
+                  :print "You play the recording for Haley. She looks shocked.";
+                  :print "\"Holy crap! Did you show Mom this?! That is so creepy! Huh... I wonder what he's looking for. I bet it has to do with the old legend. You should ask Nora about this!\"";
                }
-            }
-
-            :if (!day2_haley_button_seen) {
-               :add_choice "Show Haley the button" {
-                  :set_true "day2_haley_button_asked";
-                  :print "\"Yeah? It's a button. So what? Do you have a collection or something?\"";
-               }
-            } :else_if (day2_haley_button_seen && !day2_haley_done) {
-               :add_choice "Grill Haley about her missing button" {
-                  :success;
-                  :set_true "day2_haley_done";
-                  :print "Before Haley can say something sarcastic, you point out the missing button on her uniform and then hold out the missing ketchup-covered button to her. She immediately folds with a melodramatic sigh.";
-                  :press_any_key;
-                  :print "\"Okay, okay! Fine... I did it. I made all the noise and mess last night hoping it would be Mom to come check it out. But you came down before I could get out and... look, I'm sorry I scared you. I'm just... worried about Mom and the business, but she's so determined to make this work. I thought if the hauntings got bad enough, maybe she would... I don't know, sell. Okay, it doesn't make sense when I say it out loud, but this has been stressful, okay?!\"";
-                  :print "You can... sort of relate? Okay, not really. Teenagers. Faking a haunting is more desirable than actually talking to their parents. It makes you feel old, but you point this out to Haley. She sighs. It's far too logical to disagree.";
-                  :press_any_key;
-                  :print "\"Okay... I'll talk to her. I GUESS that makes more sense. Ugh. This is going to be awful.\"";
-                  :press_any_key;
-                  :print "Something's bothering you though. Where did Haley hide? You decide to ask her.";
-                  :print "Haley gives a sly smile. \"Oh, right. Check this out.\"";
-                  :press_any_key;
-                  :print "She heads to the back of the kitchen and wiggles something. A trap door opens! Haley opens it to reveal a person-sized niche.";
-                  :print "\"There are a couple of these in the inn. We think they might have been hiding spots for when enemy soldiers invaded. Unfortunately the Captain didn't quite make it. Now, they just make great hiding places for when I want to avoid Mom... or fake a haunting.\"";
-               }
-            } :else_if (day2_haley_done) {
-               :add_choice "Tease Haley about the fake haunting" {
-                  :print "\"Don't you have something better to do? I gotta clean this up.\"";
-               }
-            }
-
-            :if (is_carried("scones_recipe") && !is_carried("scones") && !day2_nora_given_scones) {
-               :add_choice "Show Haley the scones recipe" {
-                  :if (!day2_haley_shown_recipe) {
-                     :set_true "day2_haley_shown_recipe";
-                     :print "Haley rolls her eyes. \"Uuugh. Did Nora not like my scones?! That lady is never satisfied! Ugh. Mom usually sets up the ingredients, but she's kinda mad right now, so... can you make any sense of that old recipe?\"";
-                     :print "You agree to try. Why not?";
-                     :press_any_key;
-                  } :else {
-                     :print "Haley sighs. \"Figure out that weird recipe yet?\"";
-                     :print "You decide to give it another go.";
-                     :press_any_key;
+   
+               :if (!day2_haley_done) {
+                  :add_choice "Ask Haley why she's cleaning" {
+                     :print "\"Don't ask,\" she says. \"I've been cleaning up all morning. Mom is super upset. What's up?\"";
                   }
-
-                  :ask_int var="recipe_sugar_input" question="How many cups of sugar should we add?";
-                  :ask_int var="recipe_flour_input" question="How many cups of flour should we add?";
-                  :ask_int var="recipe_salt_input" question="How many teaspoons of salt should we add?";
-                  :ask_int var="recipe_butter_input" question="How many sticks of butter should we add?";
-                  :ask_int var="recipe_eggs_input" question="How many eggs should we add?";
-                  :if (recipe_sugar_input != 1 || recipe_flour_input != 4 || recipe_salt_input != 2 || recipe_butter_input != 5 || recipe_eggs_input != 3) {
-                     :failure;
-                     :print "Haley eyes the mix. \"Hmm, that really doesn't seem right... I dunno, maybe take another look at that recipe?\"";
-                  } :else {
+               }
+   
+               :if (!day2_haley_button_seen) {
+                  :add_choice "Show Haley the button" {
+                     :set_true "day2_haley_button_asked";
+                     :print "\"Yeah? It's a button. So what? Do you have a collection or something?\"";
+                  }
+               } :else_if (day2_haley_button_seen && !day2_haley_done) {
+                  :add_choice "Grill Haley about her missing button" {
                      :success;
-                     :pocket "scones";
-                     :print "Success! In what seems like no time you have some delicious, hot <scones<4>>. You have to admit, Captain Sunders clearly knew his stuff. Haley is already chomping on one.";
+                     :set_true "day2_haley_done";
+                     :print "Before Haley can say something sarcastic, you point out the missing button on her uniform and then hold out the missing ketchup-covered button to her. She immediately folds with a melodramatic sigh.";
                      :press_any_key;
-                     :print "\"Hey, you should work here! These are amazing! I guess I can see why Nora gets so grumpy without them. Can you take them to her? I really need to get back to this clean-up. Ugh.\"";
+                     :print "\"Okay, okay! Fine... I did it. I made all the noise and mess last night hoping it would be Mom to come check it out. But you came down before I could get out and... look, I'm sorry I scared you. I'm just... worried about Mom and the business, but she's so determined to make this work. I thought if the hauntings got bad enough, maybe she would... I don't know, sell. Okay, it doesn't make sense when I say it out loud, but this has been stressful, okay?!\"";
+                     :print "You can... sort of relate? Okay, not really. Teenagers. Faking a haunting is more desirable than actually talking to their parents. It makes you feel old, but you point this out to Haley. She sighs. It's far too logical to disagree.";
+                     :press_any_key;
+                     :print "\"Okay... I'll talk to her. I GUESS that makes more sense. Ugh. This is going to be awful.\"";
+                     :press_any_key;
+                     :print "Something's bothering you though. Where did Haley hide? You decide to ask her.";
+                     :print "Haley gives a sly smile. \"Oh, right. Check this out.\"";
+                     :press_any_key;
+                     :print "She heads to the back of the kitchen and wiggles something. A trap door opens! Haley opens it to reveal a person-sized niche.";
+                     :print "\"There are a couple of these in the inn. We think they might have been hiding spots for when enemy soldiers invaded. Unfortunately the Captain didn't quite make it. Now, they just make great hiding places for when I want to avoid Mom... or fake a haunting.\"";
+                  }
+               } :else_if (day2_haley_done) {
+                  :add_choice "Tease Haley about the fake haunting" {
+                     :print "\"Don't you have something better to do? I gotta clean this up.\"";
                   }
                }
-            }
-
-            :if (day2_nora_given_scones) {
-               :add_choice "Give Haley a high five because Nora loved the scones" {
-                  :print "Haley rolls her eyes a bit but you can tell she's pleased and she returns your high five.";
+   
+               :if (is_carried("scones_recipe") && !is_carried("scones") && !day2_nora_given_scones) {
+                  :add_choice "Show Haley the scones recipe" {
+                     :if (!day2_haley_shown_recipe) {
+                        :set_true "day2_haley_shown_recipe";
+                        :print "Haley rolls her eyes. \"Uuugh. Did Nora not like my scones?! That lady is never satisfied! Ugh. Mom usually sets up the ingredients, but she's kinda mad right now, so... can you make any sense of that old recipe?\"";
+                        :print "You agree to try. Why not?";
+                        :press_any_key;
+                     } :else {
+                        :print "Haley sighs. \"Figure out that weird recipe yet?\"";
+                        :print "You decide to give it another go.";
+                        :press_any_key;
+                     }
+   
+                     :ask_int var="recipe_sugar_input" question="How many cups of sugar should we add?";
+                     :ask_int var="recipe_flour_input" question="How many cups of flour should we add?";
+                     :ask_int var="recipe_salt_input" question="How many teaspoons of salt should we add?";
+                     :ask_int var="recipe_butter_input" question="How many sticks of butter should we add?";
+                     :ask_int var="recipe_eggs_input" question="How many eggs should we add?";
+                     :if (recipe_sugar_input != 1 || recipe_flour_input != 4 || recipe_salt_input != 2 || recipe_butter_input != 5 || recipe_eggs_input != 3) {
+                        :failure;
+                        :print "Haley eyes the mix. \"Hmm, that really doesn't seem right... I dunno, maybe take another look at that recipe?\"";
+                     } :else {
+                        :success;
+                        :pocket "scones";
+                        :print "Success! In what seems like no time you have some delicious, hot <scones<4>>. You have to admit, Captain Sunders clearly knew his stuff. Haley is already chomping on one.";
+                        :press_any_key;
+                        :print "\"Hey, you should work here! These are amazing! I guess I can see why Nora gets so grumpy without them. Can you take them to her? I really need to get back to this clean-up. Ugh.\"";
+                     }
+                  }
                }
+   
+               :if (day2_nora_given_scones) {
+                  :add_choice "Give Haley a high five because Nora loved the scones" {
+                     :print "Haley rolls her eyes a bit but you can tell she's pleased and she returns your high five.";
+                  }
+               }
+               
+               :add_choice "Done talking" {
+                  :print "\"Laterz!\"";
+                  :break;
+               }
+   
+               :choose;
+               :press_any_key;
             }
-
-            :choose "What would you like to talk to Haley about?";
             :done;
          }
       } :else_if (!day3_haley_done) {
@@ -1193,7 +1236,7 @@ on_command {
    }
 
    :if (is_present("bed")) {
-      :match "sleep -;sleep bed;goto sleep;goto bed;lie bed;lie down;use bed;bed -" {
+      :match "sleep -;sleep bed;go sleep;go bed;goto sleep;goto bed;lie bed;lie down;use bed;bed -" {
          :if (!phone_message_read) {
             :print "How can you sleep with unread messages on your phone?";
          } :else_if (!day1_daniel_done || !day1_haley_done || !day1_joyce_done || !day1_nora_done) {
@@ -1347,13 +1390,20 @@ on_command {
          }
    
          :match "talk -;talk joyce" {
-            :add_choice "Say hello" {
-               :print "Joyce is friendly but preoccupied. She encourages you to explore the hotel.";
+            :while (true) {
+               :add_choice "Say hello to Joyce" {
+                  :print "Joyce is friendly but preoccupied. She encourages you to explore the hotel.";
+               }
+               :add_choice "Ask Joyce about the pamphlet" {
+                  :print "Joyce seems excited you have taken an interest in the pamphlet. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
+               }
+               :add_choice "Done talking" {
+                  :print "\"Enjoy your stay!\"";
+                  :break;
+               }
+               :choose;
+               :press_any_key;
             }
-            :add_choice "Ask about the pamphlet" {
-               :print "Joyce seems excited you have taken an interest in the pamphlet. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
-            }
-            :choose "What would you like to talk to Joyce about?";
             :done;
          }
       } :else_if (!night2_found) {
@@ -1362,46 +1412,55 @@ on_command {
          }
          
          :match "talk -;talk joyce" {
-            :add_choice "Say good morning" {
-               :print "Joyce smiles and says hello, but she seems a little distracted.";
-            }
-
-            :add_choice "Show Joyce the button" {
-               :print "\"Sorry, I don't really recognize that. But ask around! I would hate to think someone lost a button!\"";
-            }
-
-            :add_choice "Ask Joyce if the hotel could be haunted" {
-               :if (!day2_joyce_done) {
-                  :print "\"What?! A haunting?! Here? Ridiculous.\"";
-               } :else {
-                  :print "\"I don't know. I just don't know any more.\"";
+            :while (true) {
+               :add_choice "Say good morning to Joyce" {
+                  :print "Joyce smiles and says hello, but she seems a little distracted.";
                }
-            }
-
-            :add_choice "Play the audio recording for Joyce" {
-               :if (!day2_joyce_done) {
-                  :success;
-                  :set_true "day2_joyce_done";
-                  :print "Joyce's face suddenly falls.";
-                  :print "\"Oh dear... where did you get that?\"";
-                  :press_any_key;
-                  :print "You explain the events of the prior night. Joyce is immediately stressed.";
-                  :print "\"I'm so sorry. I should have been more honest about the inn's reputation... but I hoped this time nothing would happen. It's been terrible... so many guests frightened away. I'm not sure how long we'll last.\"";
-                  :press_any_key;
-                  :print "You can't help but feel bad for Joyce, and can't help but wonder if you can help her out somehow. You tell her as much and she sighs.";
-                  :print "\"It's so odd. There were always strange sounds and rustlings around the inn. Normally guests enjoy the ghost stories. But recently the haunting has escalated. I don't normally believe in that sort of thing, but I can't really ignore what's in front of me... and when it hurts business like this...\"";
-                  :press_any_key;
-                  :print "You assure her you have no plans of leaving. She looks very relieved.";
-                  :print "\"Thank you very much. It's odd. You know what? Dinner tonight is on the house!\"";
-                  :print "Sweet! Free food! You thank her.";
-                  :press_any_key;
-                  :print "\"It's my pleasure! And you should show that to Daniel. At the very least, he will be thrilled to see such conclusive results!\"";
-               } :else {
-                  :print "Joyce listens to the recording again, looks distressed and says \"I just don't know what's going on\".";
+   
+               :add_choice "Show Joyce the button" {
+                  :print "\"Sorry, I don't really recognize that. But ask around! I would hate to think someone lost a button!\"";
                }
-            }
+   
+               :add_choice "Ask Joyce if the hotel could be haunted" {
+                  :if (!day2_joyce_done) {
+                     :print "\"What?! A haunting?! Here? Ridiculous.\"";
+                  } :else {
+                     :print "\"I don't know. I just don't know any more.\"";
+                  }
+               }
+   
+               :add_choice "Play the audio recording for Joyce" {
+                  :if (!day2_joyce_done) {
+                     :success;
+                     :set_true "day2_joyce_done";
+                     :print "Joyce's face suddenly falls.";
+                     :print "\"Oh dear... where did you get that?\"";
+                     :press_any_key;
+                     :print "You explain the events of the prior night. Joyce is immediately stressed.";
+                     :print "\"I'm so sorry. I should have been more honest about the inn's reputation... but I hoped this time nothing would happen. It's been terrible... so many guests frightened away. I'm not sure how long we'll last.\"";
+                     :press_any_key;
+                     :print "You can't help but feel bad for Joyce, and can't help but wonder if you can help her out somehow. You tell her as much and she sighs.";
+                     :print "\"It's so odd. There were always strange sounds and rustlings around the inn. Normally guests enjoy the ghost stories. But recently the haunting has escalated. I don't normally believe in that sort of thing, but I can't really ignore what's in front of me... and when it hurts business like this...\"";
+                     :press_any_key;
+                     :print "You assure her you have no plans of leaving. She looks very relieved.";
+                     :print "\"Thank you very much. It's odd. You know what? Dinner tonight is on the house!\"";
+                     :print "Sweet! Free food! You thank her.";
+                     :press_any_key;
+                     :print "\"It's my pleasure! And you should show that to Daniel. At the very least, he will be thrilled to see such conclusive results!\"";
+                  } :else {
+                     :print "Joyce listens to the recording again, looks distressed and says \"I just don't know what's going on\".";
+                  }
+               }
+               
+               :add_choice "Done talking" {
+                  :print "\"Have a nice day!\"";
+                  :break;
+               }
 
-            :choose "What would you like to talk to Joyce about?";
+               :choose;
+               :press_any_key;
+            }
+            :done;
          }
       } :else_if (!day3_joyce_done) {
          :match "look joyce" {
@@ -1473,31 +1532,40 @@ on_command {
    :if (is_present("log_book")) {
       :match "look book;look log" {
          :print "You can't help yourself and gingerly open Daniel's log book. There's a lot of data, but a few entries stand out...";
-         :add_choice "\"It's here, I just know it\"" {
-            :print "\"Checked into the inn today. It's here, I just know it. The Americans never found it, and a rat like Sunders would surely keep a hidey-hole in his flea-trap inn. The owners are 100%% sold on the ghost thing so that's a perfect cover.\"";
+         
+         :while (true) {
+            :add_choice "\"It's here, I just know it\"" {
+               :print "\"Checked into the inn today. It's here, I just know it. The Americans never found it, and a rat like Sunders would surely keep a hidey-hole in his flea-trap inn. The owners are 100%% sold on the ghost thing so that's a perfect cover.\"";
+            }
+   
+            :add_choice "\"The old bat only cares about the story\"" {
+               :print "\"Another evening wasted plying N with scones. If she knows about the necklace she's not saying. The old bat only cares about the story. Blah, blah, why did he stay, why did he get killed, whatever. Eyes on the prize, Danny boy.\"";
+               :print "You're offended on behalf of Nora.";
+            }
+   
+            :add_choice "\"Spying for decades\"" {
+               :print "\"This place is chock full of hiding spots, but every single one is empty! The old boy was spying for decades, maybe even since the Culper ring? He kept all kinds of secrets, but then he emptied things out for some reason. Whatever, that blasted necklace is still here somewhere.\"";
+               :print "He wasn't wrong...";
+            }
+   
+            :add_choice "\"Idiot tourist\"" { 
+               :print "\"Another guest! Bad timing, I was just set to scan that room. I'll have to shoo the idiot tourist away.\"";
+               :print "That's you! You bristle at being called an \"idiot tourist\" but are pleased to have put a monkeywrench in his plans.";
+            }
+   
+            :add_choice "\"Absolutely worth it\"" {
+               :print "\"I was skeptical but the new scanner is absolutely worth it. A cavity in the wall of this very room! It must open from the next room over. I'll go there in the morning and start knocking on the wall.\"";
+               :print "Much like the old Captain, seems like Daniel's plans got interrupted...";
+            }
+            
+            :add_choice "Done with book" {
+               :print "You put the book back exactly as you found it.";
+               :break;
+            }
+   
+            :choose;
+            :press_any_key;
          }
-
-         :add_choice "\"The old bat only cares about the story\"" {
-            :print "\"Another evening wasted plying N with scones. If she knows about the necklace she's not saying. The old bat only cares about the story. Blah, blah, why did he stay, why did he get killed, whatever. Eyes on the prize, Danny boy.\"";
-            :print "You're offended on behalf of Nora.";
-         }
-
-         :add_choice "\"Mrs. Piggle-Wiggle situation\"" {
-            :print "\"This place is chock full of hiding spots, but every single one is empty! It's a regular Mrs. Piggle-Wiggle situation. The old boy was spying for decades, maybe even since the Culper ring? He kept all kinds of secrets, but then he emptied things out for some reason. Whatever, That blasted necklace is still here somewhere.\"";
-            :print "He wasn't wrong...";
-         }
-
-         :add_choice "\"Idiot tourist\"" { 
-            :print "\"Another guest! Bad timing, I was just set to scan that room. I'll have to shoo the idiot tourist away.\"";
-            :print "That's you! You bristle at being called an \"idiot tourist\" but are pleased to have put a monkeywrench in his plans.";
-         }
-
-         :add_choice "\"Absolutely worth it\"" {
-            :print "\"I was skeptical but the new scanner is absolutely worth it. A cavity in the wall of this very room! It must open from the next room over. I'll go there in the morning and start knocking on the wall.\"";
-            :print "Much like the old Captain, seems like Daniel's plans got interrupted...";
-         }
-
-         :choose "Which entry do you want to read?";
          :done;
       }
 
@@ -1508,36 +1576,44 @@ on_command {
    }
    
    :if (is_present("old_messages")) {
-      :match "look messages" {
+      :match "look messages;read message" {
          :print "You found three neatly folded message papers, addressed but apparently never sent.";
-
-         :add_choice "To Nora" {
-            :print "\"My dearest Nora, if you are reading this, I am safely gone.";
-            :print "As you have surely suspected, I have been living a double life for many decades since the Revolution in the States and the Culper affair. But no longer! I am starting a new life, a life free of these horrid armies with their vicious secrets and marauding ways.";
-            :print "I know your family and your town are precious to you! But, if you find it in your heart to join a simple country farmer, I can think of no greater joy than to spend my days in your company.";
-            :print "If you wish to follow me, look for an inn guest with a purple cap. They will know our secret word, from that delightful summer day on the lake those years ago. Ask, and they will show the way, and we can have many more together.";
-            :print "Love always and forever,";
-            :print "William\"";
-         }
-
-         :add_choice "To 721" {
-            :print "This message was addressed only to \"721\"; the contents are mysterious:";
-            :print "\"634. 721.,";
-            :print "284. 681. 379. 268. 634. 613. 684. 707., 52. 280. 447. 708. 635. 662. 125. 634. 379. 88. 5. 486..";
-            :print "637., 280. 570. 4. 627. 633..";
-            :print "-- 708. 199. 23.\"";
-         }
-
-         :add_choice "To 355" {
-            :print "This message was addressed only to \"355\"; the contents are mysterious:";
-            :print "\"634. 379. 188., 1. 353. 561..";
-            :print "475. 222. <Pqle.<14>> 634. 625. 184. 668. 561..";
-            :print "625. 355. 683. 345. 707. 50. 708. 250. 92. 5. 1. 596. 342. 600.: 1. <i.<14>> 356. 534. 431., 633. 341. 634. 154..";
-            :print "636., 625. 86.\"";
-            :print "The \"Pqle.\" is underlined, and the \"i.\" is underlined twice. How odd.";
-         }
          
-         :choose "Which message do you want to read?";
+         :while (true) {
+            :add_choice "To Nora" {
+               :print "\"My dearest Nora, if you are reading this, I am safely gone.";
+               :print "As you have surely suspected, I have been living a double life for many decades since the Revolution in the States and the Culper affair. But no longer! I am starting a new life, a life free of these horrid armies with their vicious secrets and marauding ways.";
+               :print "I know your family and your town are precious to you! But, if you find it in your heart to join a simple country farmer, I can think of no greater joy than to spend my days in your company.";
+               :print "If you wish to follow me, look for an inn guest with a purple cap. They will know our secret word, from that delightful summer day on the lake those years ago. Ask, and they will show the way, and we can have many more together.";
+               :print "Love always and forever,";
+               :print "William\"";
+            }
+   
+            :add_choice "To 721" {
+               :print "This message was addressed only to \"721\"; the contents are mysterious:";
+               :print "\"634. 721.,";
+               :print "284. 681. 379. 268. 634. 613. 684. 707., 52. 280. 447. 708. 635. 662. 125. 634. 379. 88. 5. 486..";
+               :print "637., 280. 570. 4. 627. 633..";
+               :print "-- 708. 199. 23.\"";
+            }
+   
+            :add_choice "To 355" {
+               :print "This message was addressed only to \"355\"; the contents are mysterious:";
+               :print "\"634. 379. 188., 1. 353. 561..";
+               :print "475. 222. <Pqle.<14>> 634. 625. 184. 668. 561..";
+               :print "625. 355. 683. 345. 707. 50. 708. 250. 92. 5. 1. 596. 342. 600.: 1. <i.<14>> 356. 534. 431. 633., 341. 634. 154..";
+               :print "636., 625. 86.\"";
+               :print "The \"Pqle.\" is underlined, and the \"i.\" is underlined twice. How odd.";
+            }
+            
+            :add_choice "Done with messages" {
+               :print "You fold the messages back up.";
+               :break;
+            }
+  
+            :choose;
+            :press_any_key;
+         }
          :done;
       }
    }
@@ -1562,33 +1638,42 @@ on_command {
          }
 
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
-            :add_choice "Say hello" {
-               :print "The old woman seems excited to see another guest. \"I love this old inn. In fact, I come here every day for tea. I just love surrounding myself with all this history. And really, you just can't beat the tea scones here!\"";
-            }
-
-            :add_choice "Ask about the inn's history" {
-               :if (!is_holding("pamphlet")) {
-                  :print "\"Oh, I do love history! Why, have you seen the pamphlet in the lobby? I helped write it myself! If you like, bring a copy and I can tell you all about it.\"";
-               } :else {
-                  :print "\"Oh, I see you have a copy of the history pamphlet! Did you know I helped write it myself?\"";
+            :while (true) {
+               :add_choice "Say hello to Nora" {
+                  :print "The old woman seems excited to see another guest. \"I love this old inn. In fact, I come here every day for tea. I just love surrounding myself with all this history. And really, you just can't beat the tea scones here!\"";
                }
-            }
-
-            :if (is_holding("pamphlet")) {
-               :add_choice "Show Nora the pamphlet" {
-                  :success;
-                  :set_true "day1_nora_done";
-                  :print "Nora's eyes light up. \"Oh! Are you interested in history too? Well, you can't get much more interesting than Captain Sunders. Interesting, and tragic...\"";
-                  :press_any_key;
-                  :print "She barely gives you the chance to ask what she means before she barrels on.";
-                  :press_any_key;
-                  :print "\"You see, Captain Sunders had a sweetheart. They were deeply in love and had plans to marry... but it would never come to pass. He was killed by his own side. You see... he was a British officer who was an American spy. When the Americans invaded in the War of 1812, his British superiors ordered a retreat. But he refused to leave, for some reason. He tried to see his beloved one last time...\"";
-                  :press_any_key;
-                  :print "\"Unfortunately, they were never able to meet up. The Americans found him in his inn. Something went wrong, and the Americans killed him on the spot. Such a shame... but you must admit, it does make a captivating story!\"";
-                  :print "You're surprised to find yourself agreeing with her, but you've always been a fan of true crime, and this one seems extra true!";
+   
+               :add_choice "Ask about the inn's history" {
+                  :if (!is_holding("pamphlet")) {
+                     :print "\"Oh, I do love history! Why, have you seen the pamphlet in the lobby? I helped write it myself! If you like, bring a copy and I can tell you all about it.\"";
+                  } :else {
+                     :print "\"Oh, I see you have a copy of the history pamphlet! Did you know I helped write it myself?\"";
+                  }
                }
+   
+               :if (is_holding("pamphlet")) {
+                  :add_choice "Show Nora the pamphlet" {
+                     :success;
+                     :set_true "day1_nora_done";
+                     :print "Nora's eyes light up. \"Oh! Are you interested in history too? Well, you can't get much more interesting than Captain Sunders. Interesting, and tragic...\"";
+                     :press_any_key;
+                     :print "She barely gives you the chance to ask what she means before she barrels on.";
+                     :press_any_key;
+                     :print "\"You see, Captain Sunders had a sweetheart. They were deeply in love and had plans to marry... but it would never come to pass. He was killed by his own side. You see... he was a British officer who was an American spy. When the Americans invaded in the War of 1812, his British superiors ordered a retreat. But he refused to leave, for some reason. He tried to see his beloved one last time...\"";
+                     :press_any_key;
+                     :print "\"Unfortunately, they were never able to meet up. The Americans found him in his inn. Something went wrong, and the Americans killed him on the spot. Such a shame... but you must admit, it does make a captivating story!\"";
+                     :print "You're surprised to find yourself agreeing with her, but you've always been a fan of true crime, and this one seems extra true!";
+                  }
+               }
+
+               :add_choice "Done talking" {
+                  :print "\"Nice talking to you!\"";
+                  :break;
+               }
+
+               :choose;
+               :press_any_key;
             }
-            :choose "What would you like to talk to Nora about?";
             :done;
          }
       } :else_if (!night2_found) {
@@ -1621,40 +1706,49 @@ on_command {
             }
 
             :if (day2_nora_given_scones) {
-               :add_choice "Ask Nora about the scones" {
-                  :print "Nora exclaims about the quality of the scones. \"These are wonderful! I do hope Haley can get these right from now on.\"";
-               }
-
-               :add_choice "Ask Nora about the haunting" {
-                  :if (!is_holding("poem")) {
-                     :print "You tell Nora all about the events of last night. Nora looks at you oddly. \"That is quite a story! Do you have any evidence?\"";
-                  } :else {
-                     :print "\"Wow, that is quite a story.\"";
+               :while (true) {
+                  :add_choice "Ask Nora about the scones" {
+                     :print "Nora exclaims about the quality of the scones. \"These are wonderful! I do hope Haley can get these right from now on.\"";
                   }
-               }
-
-               :add_choice "Show Nora the button" {
-                  :print "You can tell Nora knows her buttons. \"My goodness, this looks just like the buttons on Haley's top. Have you checked if she's lost one?\"";
-               }
-
-               :add_choice "Play the audio recording for Nora" {
-                  :if (!is_holding("poem")) {
-                     :success;
-                     :set_true "day2_nora_done";
-                     :pocket "poem";
-                     :print "\"Oh, my! Did you record this here, at the inn?\"";
-                     :print "You quickly tell her about the events of last night and that Haley mentioned something about a legend. She nods, as if confirming something in her head.";
-                     :press_any_key;
-                     :print "\"Oh, yes, the legend. I never mentioned that, did I? You see, the night Captain Sunders was killed he was actually coming back to the inn to retrieve a gift for his beloved. The rumour was it was a gold necklace that had been in his family for generations. He never made it, though. The only thing found on his body was a poem to his beloved. Would you like to see it? I keep a copy with me. I can't help it! I'm a romantic at heart!\"";
-                     :press_any_key;
-                     :print "She hands you a <poem<4>>, and looks wistful.";
-                     :print "\"Some say the necklace is still somewhere in this inn... none have found it though. I imagine a soldier took it.\"";
-                  } :else {
-                     :print "Nora listens to the recording again and says \"Hmm. Very strange indeed...\"";
+   
+                  :add_choice "Ask Nora about the haunting" {
+                     :if (!is_holding("poem")) {
+                        :print "You tell Nora all about the events of last night. Nora looks at you oddly. \"That is quite a story! Do you have any evidence?\"";
+                     } :else {
+                        :print "\"Wow, that is quite a story.\"";
+                     }
                   }
+   
+                  :add_choice "Show Nora the button" {
+                     :print "You can tell Nora knows her buttons. \"My goodness, this looks just like the buttons on Haley's top. Have you checked if she's lost one?\"";
+                  }
+   
+                  :add_choice "Play the audio recording for Nora" {
+                     :if (!is_holding("poem")) {
+                        :success;
+                        :set_true "day2_nora_done";
+                        :pocket "poem";
+                        :print "\"Oh, my! Did you record this here, at the inn?\"";
+                        :print "You quickly tell her about the events of last night and that Haley mentioned something about a legend. She nods, as if confirming something in her head.";
+                        :press_any_key;
+                        :print "\"Oh, yes, the legend. I never mentioned that, did I? You see, the night Captain Sunders was killed he was actually coming back to the inn to retrieve a gift for his beloved. The rumour was it was a gold necklace that had been in his family for generations. He never made it, though. The only thing found on his body was a poem to his beloved. Would you like to see it? I keep a copy with me. I can't help it! I'm a romantic at heart!\"";
+                        :press_any_key;
+                        :print "She hands you a <poem<4>>, and looks wistful.";
+                        :print "\"Some say the necklace is still somewhere in this inn... none have found it though. I imagine a soldier took it.\"";
+                     } :else {
+                        :print "Nora listens to the recording again and says \"Hmm. Very strange indeed...\"";
+                     }
+                  }
+                  
+                  :add_choice "Done talking" {
+                     :print "\"Thanks again for the perfect scones!\"";
+                     :break;
+                  }
+
+                  :choose;
+                  :press_any_key;
                }
             }
-            :choose "What would you like to talk to Nora about?";
             :done;
          }
       } :else {
@@ -1742,7 +1836,7 @@ on_command {
 
    :if (night2_papers_found) {
       :match "look paper" {
-         :print "Looking at all the scraps of paper, you can see they form a picture. It appears to be a brick wall. One of the bricks is darkened. You can't help but think these are the same bricks that are in the washroom.";
+         :print "Looking at all the scraps of paper, you can see they form a picture. It appears to be a brick wall. One of the bricks is indicated. You can't help but think these are the same bricks that are in the washroom.";
          :done;
       }
    }
@@ -1755,57 +1849,68 @@ on_command {
 
       :match "check phone" {
          :set_true "phone_used";
-         :if (!phone_message) {
-            :add_choice "Check Messages (0)" {
-               :print "You don't have any messages right now.";
-            }
-         } :else_if (!phone_message_read) {
-            :add_choice "Check Messages (1 unread)" {
-               :success;
-               :set_true "phone_message_read";
-               :print "You have a message from your friend Claire:";
-               :print "\"Hey! Hope you made it okay to the inn! Sorry the main hotel was all booked up. Let me know what that inn's like! I heard some weird stories about it! Anyway, can't wait to see you at Gamecon tomorrow!\"";
-               :print "You smile. It was a last-minute decision to join your friends for the convention but you are glad you made it. It's too bad you can't hang out at the hotel with your friends, but at least you were able to find somewhere to stay.";
-            }
-         } :else {
-            :add_choice "Check Messages (1)" {
-               :print "You have a message from your friend Claire:";
-               :print "\"Hey! Hope you made it okay to the inn! Sorry the main hotel was all booked up. Let me know what that inn's like! I heard some weird stories about it! Anyway, can't wait to see you at Gamecon tomorrow!\"";
-               :print "You're not sure what Claire means by 'weird stories', but maybe you'll find out while you're here.";
-            }
-         }
-
-         :add_choice "Read Email (3)" {
-            :add_choice "Scheme Holiday Sale" {
-               :print "Despite your better judgement, you look through the latest Scheme games on sale. It seems like they have sales every month. And every month you buy at least 10 games you will not play for at least a few years.";
-            }
-            :add_choice "Hotel Booking Confirmation" {
-               :print "You have a booking notice from the Red Soldier Inn. The confirmation number is 13. (Have they only had 13 guests this year?)";
-            }
-            :add_choice "Fwd from Mom" {
-               :print "You read your Mom's daily forward of quotes from her favourite motivational speaker.";
-            }
-            :choose "Which email would you like to read?";
-            :done;
-         }
-
-         :add_choice "Use Flashlight" {
-            :if (night2_painting_dim && is_present("painting") && !is_carried("painting_paper")) {
-               :success;
-               :pocket "painting_paper";
-               :print "The flashlight on the phone may drain your batteries, but it's a great source of light. You see a faint square on the picture frame. Instinctively, you press it in. It pops out! You take a scrap of <paper<4>> from inside.";
-            } :else_if (is_at("hidden_room") && !hidden_room_lit) {
-               :success;
-               :set_true "hidden_room_lit";
-               :print "You use your phone flashlight to reveal the room...";
-               :press_any_key;
-               :redescribe;
+         :while (true) {
+            :if (!phone_message) {
+               :add_choice "Check Messages (0)" {
+                  :print "You don't have any messages right now.";
+               }
+            } :else_if (!phone_message_read) {
+               :add_choice "Check Messages (1 unread)" {
+                  :success;
+                  :set_true "phone_message_read";
+                  :print "You have a message from your friend Claire:";
+                  :print "\"Hey! Hope you made it okay to the inn! Sorry the main hotel was all booked up. Let me know what that inn's like! I heard some weird stories about it! Anyway, can't wait to see you at Gamecon tomorrow!\"";
+                  :print "You smile. It was a last-minute decision to join your friends for the convention but you are glad you made it. It's too bad you can't hang out at the hotel with your friends, but at least you were able to find somewhere to stay.";
+               }
             } :else {
-               :print "You mess with the flashlight a bit, but there's plenty of light here and nothing special to see.";
+               :add_choice "Check Messages (1)" {
+                  :print "You have a message from your friend Claire:";
+                  :print "\"Hey! Hope you made it okay to the inn! Sorry the main hotel was all booked up. Let me know what that inn's like! I heard some weird stories about it! Anyway, can't wait to see you at Gamecon tomorrow!\"";
+                  :print "You're not sure what Claire means by 'weird stories', but maybe you'll find out while you're here.";
+               }
             }
-         }
+   
+            :add_choice "Read Email (3)" {
+               :add_choice "\"Scheme Holiday Sale\"" {
+                  :print "Despite your better judgement, you look through the latest Scheme games on sale. It seems like they have sales every month. And every month you buy at least 10 games you will not play for at least a few years.";
+               }
 
-         :choose "What would you like to do on your phone?";
+               :add_choice "\"Red Soldier Booking\"" {
+                  :print "You have a booking notice from the Red Soldier Inn. The confirmation number is 13. (Have they only had 13 guests this year?)";
+               }
+
+               :add_choice "\"FW: RE: Re: PLEASE READ\"" {
+                  :print "You read your Mom's daily forward of quotes from her favourite motivational speaker.";
+               }
+               :choose;
+            }
+   
+            :add_choice "Use Flashlight" {
+               :if (night2_painting_dim && is_present("painting") && !is_carried("painting_paper")) {
+                  :success;
+                  :pocket "painting_paper";
+                  :print "The flashlight on the phone is a great source of light. You see a faint square on the picture frame. Instinctively, you press it in. It pops out! You take a scrap of <paper<4>> from inside.";
+                  :break;
+               } :else_if (is_at("hidden_room") && !hidden_room_lit) {
+                  :success;
+                  :set_true "hidden_room_lit";
+                  :print "You use your phone flashlight to reveal the room...";
+                  :press_any_key;
+                  :redescribe;
+                  :break;
+               } :else {
+                  :print "You mess with the flashlight a bit, but there's plenty of light here and nothing special to see.";
+               }
+            }
+            
+            :add_choice "Done with phone" {
+               :print "You put your phone down.";
+               :break;
+            }
+   
+            :choose;
+            :press_any_key;
+         }
          :done;
       }
 
@@ -1867,7 +1972,7 @@ on_command {
          :done;
       }
 
-      :match "listen recorder;play recorder;play sound;play voice;play -" {
+      :match "listen recorder;listen recording;play recorder;play sound;play voice;play -" {
          :if (!night1_sound_recorded) {
             :print "The voice recorder's memory is empty at the moment.";
          } :else {
@@ -1892,50 +1997,58 @@ on_command {
       :if ((is_present("daniel") && !night2_daniel_conked) || is_present("haley") || is_present("joyce") || is_present("nora")) {
          :print "You don't want to get too nosy in front of people.";
       } :else {
-         :add_choice "North wall" {
-            :print "You rap carefully on the wall...";
-            :press_any_key;
-            :failure;
-            :print "You can't find anything unusual.";
-         }
-
-         :add_choice "South wall" {
-            :print "You rap carefully on the wall...";
-            :press_any_key;
-            :failure;
-            :print "You can't find anything unusual.";
-         }
-
-         :add_choice "East wall" {
-            :if (!is_at("guest_room_2")) {
+         :while (true) {
+            :add_choice "Knock on north wall" {
                :print "You rap carefully on the wall...";
                :press_any_key;
                :failure;
                :print "You can't find anything unusual.";
-            } :else_if (!is_present("old_messages")) {
-               :pocket "old_messages";
+            }
+   
+            :add_choice "Knock on south wall" {
                :print "You rap carefully on the wall...";
                :press_any_key;
-               :print "One area sounds a little hollow!";
-               :press_any_key;
-               :success;
-               :print "You feel around and find a hidden catch. Inside is a small compartment with a stash of <old messages<4>>. You take the message papers, and carefully close up the compartment.";
-            } :else {
-               :print "You rap some more on the wall...";
+               :failure;
+               :print "You can't find anything unusual.";
+            }
+   
+            :add_choice "Knock on east wall" {
+               :if (!is_at("guest_room_2")) {
+                  :print "You rap carefully on the wall...";
+                  :press_any_key;
+                  :failure;
+                  :print "You can't find anything unusual.";
+               } :else_if (!is_present("old_messages")) {
+                  :pocket "old_messages";
+                  :print "You rap carefully on the wall...";
+                  :press_any_key;
+                  :print "One area sounds a little hollow!";
+                  :press_any_key;
+                  :success;
+                  :print "You feel around and discover a hidden compartment! Inside is a stash of <old messages<4>>. You take the message papers, and carefully close up the compartment.";
+               } :else {
+                  :print "You rap some more on the wall...";
+                  :press_any_key;
+                  :failure;
+                  :print "You don't find any other compartments.";
+               }
+            }
+   
+            :add_choice "Knock on west wall" {
+               :print "You rap carefully on the wall...";
                :press_any_key;
                :failure;
-               :print "You don't find any other compartments.";
+               :print "You can't find anything unusual.";
             }
-         }
 
-         :add_choice "West wall" {
-            :print "You rap carefully on the wall...";
+            :add_choice "Done knocking" {
+               :print "Okay!";
+               :break;
+            }
+
+            :choose;
             :press_any_key;
-            :failure;
-            :print "You can't find anything unusual.";
          }
-
-         :choose "Which wall would you like to knock on?";
       }
    }
 
@@ -1948,12 +2061,12 @@ on_command {
       :print "There's no need to put that down.";
       :done;
    }
-   
+
    :match "unwear *" {
       :print "There's no need to take that off.";
       :done;
    }
-   
+
    # Add some extra hints in the inventory.
    :match "inventory _" {
       :inventory;
@@ -2002,5 +2115,14 @@ assets {
       lobby_joyce: base64_png "iVBORw0KGgoAAAANSUhEUgAAAL8AAABGCAMAAACqqbXlAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAbFBMVEWaNRv////34JFZRSnxym0AAADXiTrEm0PXsIMkHBw6Kiy8u8Tv8Ox7RHloOWeaNRsAAAD34JHxym2PgHJpUTlZRSnqs1CQdVnXsIPXiTo6Kiw2LCX///+3sLQ+SCS8u8QkHBzv8OxoOWd7RHm/RkGSAAAAD3RSTlMAAAAAAAAAAAAAAAAAAAAnp8O0AAAAAWJLR0QB/wIt3gAAAAd0SU1FB+QLDw82MiQlVbsAAAKKSURBVGje7dZvk5owEAZwlaK9O21XehgJHvnD9/+O3U0EErV9eZendWccZsAXvyfZLKx+rtbItVo9/V/q/2rA/+HfkFS12SD5v81FdJTiBNcbUH6i5hjrF1GN5pe1b46SIPwIzE9NrON0JSj/xE+KgPwP+Ej+R/wQ4On/DP/Cf88DVBD+ZPVbbP972/whAIa/aVtY/0n0CtBPp1jsPysJcAL1t2cuDnCaC8ff8S/4OUCL6Y98CXBq0fwJX85AK3c6KL/ue8H3clHi50Lx81prdbmE1Q8XxduB5O86dfkYlGL+x3BB8wtfXYbhLP4Bzl9T9Cvxq2FQiP6zNI8K0yf0f4fjXwd/mJzzCA3jp+sw/LwB6P5upqd+qiD864oo97fiJ9qi+KuKsuXvg36L4ucAYQNU+HoI/I5q8c//KNsvZ2AZntPqb7fL8+L99XQEVK96qrmldrsdjv/7FID50Z8/L90fd4DpwjfGvtw8Ld8vAUQvfEj/2oo++u8CAPit6Se+855ewfzkjbm2j3N+HAnJT0TeS9vMfA6QJijaT8Tc4NdW+NEvCeYmKtdPQR/91tqEPyZNVKyfzKT1xmoOkPI5wHUQleons3Ct1pwg44/eWSy/tjnfxQAAfm+Ff+930kK4fhMClO8X/p3fCL9gPxmX+rX40/Mb3gYl+5dpH09v7vfQfu8R/Ev73PtN9HOAMv15+z/yu7L9bFteXrd+rQH8yfL/I/4x8bvi/eONP3l9Fe+X4zsfVhu+nhO+X/zOFu/naWNt/unstSvc7xK/gMen/7P9/i9+X3r/5+s/ovnf9vv92+GwDMyb8+vHov21+PeHKQDPy6yDfHIAyvQLf//jEBP44Pe5f36B/QZf7/g6KgKJmwAAAABJRU5ErkJggg==";      
       lobby_night: base64_png "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";
       washroom: base64_gif "R0lGODlhQAFgAMQAAJw1GzJMTGpjbC8sLRIdHR0lLv///wsKC6Hh052RjRYcJA8UFgwPEB4aGyk+PrewtPaWecTfm/f39/3GiW3P9v/3mUwPB3CtpfWYnf+ICCchItTP1M7Guj05OKOdohQREiH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDYuMC1jMDAyIDc5LjE2NDQ4OCwgMjAyMC8wNy8xMC0yMjowNjo1MyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4YzVkYTUwNy1mOTRkLTQ5ZTQtYWM3ZS1kOGRiYzFkZmRlMWMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RTJFN0FGMDQxRkREMTFFQjlDMkZBMEEwMzlBNzBBQ0MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RTJFN0FGMDMxRkREMTFFQjlDMkZBMEEwMzlBNzBBQ0MiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDphMmQ1YTczYi1kMjk2LTRmNGUtODRiZS05Y2ZkYzYzZjg5NTMiIHN0UmVmOmRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDo3NDQ4OGUwNy01OGM3LTE5NDYtOTY1YS1hZWM1OWJiOTY4ODkiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQE8AAAACwAAAAAQAFgAAAF/yAgjmRpnmiqrmzrvnAsz3R61Hiur1IPHMCgcEgsGoGMpHLJbDqXyKd0Sq1alcesdsvt3nqSH2BCLpvP6LR6zW6732lROOytD5OLvH7P7/v3QH+Cg4SFhoR4ewwHDHlQjQuQkXaUQQBzYhMPm5ydnp+goaKjpKWmnhNyPpV2eQSvsLGys7QERrW4ubq7vL0Eka99s5OsdperYw8VDxjNGA8R0dLT1NXW19jZ2tvRzM7KD6mX48Verr69H+pB6O3u7+e58b8LwYvldeN0ycvOz9wAAwocSM1bM3DiMOHjMu/dLHUQ2TmcSDHWAkbyItWDFe/iwi76MoHzB42gyZMoI/8YfLYsIbmPWRpWhEhTYsWbuzbCWqRTlkadDSPhgZkl5A1N/b6lXMpU20qEcl4SLSJzIs2rNnFqHeazZ7BXWfm8SkJvqhGj/E6pXcu2bamWUemYJVL13dW7Wbfi1GPR69h6Hg945cNIz1wiaJGGewChsePHkCNLnky5suXLkxfDNXpYSN12d0Pn1duuY6NYZGcxCMYoEC1HjBp1FpIYIWPMuHPr3t3YggUIvx1rDhf3x+xAft2FXp7kAGl5E10l/6WELy2eeY4Dqd3yNu/v4L/7Bv54uEu5xz/zUlDAgfsAAQzIny8/gPsC+AtEX/28lpDTv7ADYEbafUFOWppA5lv/cAsCN55kDTrYm2MRNmjhgwqOxyB5HCpYnmLnGZfedLzg9x58KKaoonsO4NffayTy8l+Ao+GSnXbcLeYhecFx2COFj23Y44Y+AtlhkL39pqSSFC74o3nFFaheLiY6oOKVWN5XgAKvlabLgO7AJlh1MXZVYI4JBvngmhNGxiaPRhK5JoY7LsnjkE5+CBVnI75TJZaArtjilr3UhV9dZRaKXaKxbHnPcWh61yaTk1JGKaVFZqopkkUS6SCdEEDJ52xT0vJnoKjCpyWXMHLE3yyHvlpLqRn5qcCjs0Va56e8uonhnEsyqKGGbap56aaghgpilNrR2mh7VqYqrZZc7aTL/6Ev7uScrbh2pmt44IZrWbKiKtQso7CcKu20g7L6lS/YZvuus684eqZCCEoq7r7i5qnnZub22Yu667LroqsblRmvT3oB4469OOILor78VmxxuVKRii7BBRusXzDnkFjPoehOBMnDt9574MRutezyy6jsGbDGJULb8c32tagAYOiQTEB+QAct9NBEF230xxBDKrFtYDTt9NNQRy311FRXTTXG6NF8rc0433wfzzvFiO2WCpRtdtlDn4320Wzjp/bIKUe8sm301W333XjnrffefPctAdYiao2LugMUbvjhiCeueOEoUstRYYMXADd7ZJud9tltt632zj/HrfTc3fUt+v/opJe+N+BSis01fANgecHrFyAg++y0yy7A7be33niL0k05NuVb5gc80JhnzvbmcHd7WKSmN+/883ijfm7kJ6Koe4qwx1779gjgnnvjA7jnbqK/C2/+5cMbTzTynSs/F/PQxy8/6dILDOvq1mMfAOzccy+A7QK4ngNa57hdlE9oawtaAtW3PvYlLVdLC938JkjBu9VPcM+qXooGIAD48E97/avd/2wnQCuxyEXqOSACL8dAo1nObMlT2T4mVsEa1vCCnZEJx6wngAvs73UhDCIJd7c7R8nqfiMrWvrO18IGVi6Gcpsh3WxIRfnh8DAN2SEPPyjE/hmge9e7kvh+QSX/yf1MietrohIpVzYofk6KEqyiHJt3xbnMQ4tbBCIIuzi7L4IxRQO0j6oacLBaHEoDCyReGtWYNuFx7oHeiuBi5kjJ0tXRLPHAYx5jt0c++vGPRATfoN71rAV8IJFMVCAjG+m2R3oOgqCbZCVnybdLTuUcmrQeAoC4Sz72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";
+      kitchen_haley_nobutton : base64_png "iVBORw0KGgoAAAANSUhEUgAAAKoAAABgCAMAAAC62xliAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACc1BMVEWaNRv39/c7Mi46MzALCQdcZGgIBgUdGRc6SVI/SE5JUlhnZ2dAQEAnJycuMjQRDQqIk5pVa3ldanNseYKHkpqYmJhfX186OjpESUxlXFmViIPKubKml5KEe3YXEg65yNFsh5p0kqR+kJ2TpbCltL/Ozs6BgYFPT09XSUR3ZF11ZmE5OSlUVD1yclNYWD5ERDNeXleKioG8vK+8vLCltb9eXlg2IBk3IRmEhGsRDg64x9EQDg4PDg4sLB9BQS1ZWT9XVz5cY2gLCwgREQwXFxBJSTQODwp1XUCHblGQfWejmIqOfGaAakx/akyAak1uWD1tVjxOPisvJhp1XECQfmeOfGVtVzxNPioKCAYPDAkREQ8REAwODQkPDw0SDgsQDQgVEQ4VEg0WFROGblCNe2WCaU5tVzsTExMSEhIOCgjLua8VEA0TEhB2XUGGblGQfWajl4qBaU6BaE1/aExuVz1tVjtMPSkaGhoNCggVDQoPDgwMDAkUDwsLCAYYEA0TDgvY2NgMCQcWDguCgoKmpqazoJmlpaXZ2dm3UCkUDAlMDwcEAgIMCwgSDQlxGw2kk4wTDgrHx8cMCQYLCgkSDwoQDwuve1UMCAgWDgyGf3mMWzIKCQYNDAkQCwcPDgoSDQcRDAgbExATDwyvr6+xsbGwsLAyMiREREQyMiUiIhlXV1e7u66WlYotKSKaNRs3MjP/rgD/1n2lcADFhwDXsIPqtkUdJSf19fV/qEc+SCT2rImQdVnngYL4+Pg4NDj////U09hxanKWkZDQx8aDenq0rq7t7e82MTI6NjwoJSVTTlSEgIC3t7dua2obGRk4NTlBPT26ZWTFAAAArnRSTlMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABRvfGH98vAAAAAWJLR0S/09uzVQAAAAd0SU1FB+UCFQoEKbwTDOIAAAjaSURBVHja7duHdxtVFgdgx0nANs2EuiTIsiwpOIltkLOLFwKhilBCt+k1YSWyu4EFllCyiykGgwETSug19HZjSTiAGRVDxC6wgT+J++q80bw3RdiWOGd/ORmNZuSnz1dXo6eZpOXzlt9PFi1a1NJKs3jJ0v32b13cKrJfW1t7xxL7/uIlbSLtHUtl2jvagmw/4MCDDg7zeNd2pOKfJYewdHYe4sihy2ruiyw7rLPz8E6WZYcdGmT7EUcedXSYx7u2s6r+4Zjly1esODbSFTl2xYrlLOR+tOZ+N0801tMlEo/1dAfZnkiuXBrm8a7trKqtx/X29q6K4I7Iql6RVZFoNOa4L0dShoorT+G5nVMDP961XTRAhCQWi0XUaO6L9IReR2p7vT9Lw6ir1/Q5098XJqZHDwwM9LDEenqQ2iHWZZzr3qMz6vEnpNQMDvb3pXTRbjY/GqlL2csY64kitY2+kLGeeFy8vLg9Kl52pHqOrqemQlFTYalruxRqtw815U31rOrgYD1V7VaoXQq124/qXdWUV1UH9Zvd1aiL6jE6o/6xhsp+k0H9T9VW1fzoeqpqHt2jqn/S/4IhNoeiAot5dA/qiUPanwqxOTgVjbtZ3Fgxugf1z3pTiM1m6klOKkztlpmqxYrRF4YaV6iaz3eYmpranaNOGtCOviDUuELVfL4D9eVIZXHpsi4UtT3AHABoNRFJ6pojtw2hdsgPeKQmlNiTAP6GyolmJSugGX2+qW3yoJlIquFvMTIhcFFzjaeutKNQ19rUnLQ2nCqPXAmFCnl2PM3ZlW1eKrFCgZB5ZZuaCoUCuc3l8nnCzeXBPXpTUPOcms8D5L9AbRNToTA9TaxEDLlmpqKwUCBWmMZAY6lRhRpXqFGbSqzTdAXr2jhqVKHGFWpUUEk1KZfcgqOoCz4HoLx23XoMsKh7vvxqD1qnyW2jqI45QIduHScBBdjzFRIx9BZyEJJ6st4UYrM9te5yva3kejyO1MIeKi2QW3B0qj26B3Wd3hRicyDq2q4ubIGvvy4UZpCKtzrquqagkiU7BMywwtZBHdKbQmwOSS0IKmhHD3/KIsTm0NQZE5WkOajM+s03ute/2ah2C9ApgQf1lFP7a9K3fn1//3qyOI0sfGJ4NFJPD0ClJwWAYoFK9aMbTgXPSZSqxl1zALnOfxeYIaeBZmYIVT8co55x5llznH4HNR53zQHkOpeikgbfVIYh55saYA5AA8yKN3kwXAyYb2qAOQCIMCqL5oLBwjSA+W2FKouEUamS3i8Wi8oFA3rxwE09ew4SmAqlkiWpoFCtUqloU+nFg8ZQ0zzAoSizyuUy4F/LTlH+bNecUR3X4fyp6XQymUwkEkmw1JQrlUrJsaUYhJrWxSh1Xoj1o3IoBixOq2AxoVJxWEtBqeds2LDh3HPPO//8CzZeuPHCiy66+JJL0+aqqhdig1SVjw4Wt6K0wqMpqw/1Mhzs8svPGx6+AKUbR0ZGrvCi1naATU3oIkZHqqDpoMLqoF551dXXXHvd9TfccONNN7OX/5xNmzbhYJs330KqOjLyF6QaW8DVAQqVn/rLZDOZrDgPyEcnrVqxpVCyLCP1JEFtvbV3y5bev5LF31CKv/Pft27dettttw8P/+OOO++48667/nnF3RijtaYDVOo2cjo1k7SXyWSajU7fVRUmBUufoj1P4NR7iPJesriPUd296kk1NwClCiO/5b1Ky0hLa4ISa7yGej9RbudU0gC6Xq2vATg1m83aVDY6BSpdYLA65wCt/yLKf5PFA/wIoOlVjwOrTwNk0Dk6SrWsqqxXS4xZwc+qspdVnQO0PkiUDylUd686qY5jbcS/AR5+ZHR0lFY1Y/dqiTWrP1WZA2Cvjo0hFReiqt7H1fTYFpoxgvX6CKDUzMOPjpI89lgmmR3PJJXjKqOWdVIQW4vqHIBRH1eoPsdVSR3bkvb8COBVfYL9my4izcpetam6wISsdVF9Wz1JlE+pVfXuVbuqlOrTANknnm4ZbxkfH2/JjlMqH92LConExITDKqmTk73PkEWwXq2heh8BpHScLLOyV28Hfvg3UBErmqBYQ92uUP16dXKMZpI2gM8RgFCZlCSbdPaqWla7ZSGZ3EFnNLaVU58lyqcUql+vCio9Bvg0gFJVKrV7lR0CyhVOnBXzVZy6TmB27JiQdYUJTn2OKJ8nixeC9eokT/ps/yMAq2qLlMpe3fytoLLMlkVgJ8nEjomdO+E7ai3u5NQXifIlhep7XH2ZJq39BNC9rWiYVPbqMHtflYVVUmfhFRKk4hJYfwCjvvra69sjz7zx5ptvvf2O4whvnFqbPwKc1KwuckRKxe8plfIshlJn6RqjvkKl+JsoVNc5q98eMvXdlfCJTQUQZaWlVc5aiQMWmM5Z/eZgRQd2JX2C1L179+qochwp7Z+3c1ZBqbyqSrOShTxtJaXinNVqY1UH+vrr2sWoK31CqHuh7DoEVGVV+UwW8MkE1dRy+JC6dnFqgAYoQxWp1bKdatX6XjQql6YWgopvnncT77373q6a0E18cl2tEJ8NtUr/cVDhkwWhvu8V8T2gUi1LLEqtEj0CyPNZn6Y01HUiQy5PuF12A/j1KqVaxEmtVabDwQC/HAJ99VM6ampIxF26ULts6jaP2FTLIi98tVrlzTk0xM62gJk65w3gS9V+D4QU8JMY/HKrQh0whX48ht8ViAriJKWLWsLtjPqZfLKGVhX4S6z5Ikj+aQirqnyyJqYWQL78jaeiFfj3K9d3VmoF9ckaTrV0rWqVGNXxZE1K5d1qqOo6s6eOXcGo28CbOgN66pDZE35XGKrhlAUUZkxVbQjVWFR6fSj1e6HWPFljqezLqIFagqaiWh5Uqymp+vOr/6eaqR+Yw8+bGE4FO6wLQvX7bu1x1cJEHTJ76tgV6Mt1aOqi+ZsD+H23rlTqqOoJhny4pr5daz7EJI/yzn9/oCE3P/7kyP/YDseT8aqecrwhH9W5a/VHmI8POtAz+/b9jPmFLnXZ53iyhv4n+s/94nj0r915b4WbeXssAAAAAElFTkSuQmCC";
+   
+      clock105       : base64_png "iVBORw0KGgoAAAANSUhEUgAAAKUAAAAVBAMAAADVzzOcAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAG1BMVEWaNRv39/cAAAB5eXn///82GweaNRs2Gwf///+Qvxi1AAAABnRSTlMAAAAAAABupgeRAAAAAWJLR0QEj2jZUQAAAAd0SU1FB+UCFQk4MkfDAqgAAAA/SURBVDjLY0hgoD5gFGRSoi5QYGBkZDKmLjAAudOA6n5nHDVz1MxRM0fNJBM40MBM9wIamBlAfTPLaWBmaQAAHnoh1qKst1UAAAAASUVORK5CYII=" ;
+      kitchen_getout : base64_png "iVBORw0KGgoAAAANSUhEUgAAANYAAABCCAYAAAArFCh7AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH5QIVCTkUjNW2FAAAGb5JREFUeNrtnVuQHNWZ53/nnLxUVd+vGAk1SEgI2cjCksdYAoTE2MF4xsY4diZMxM68TYTngUUbuw/74ph58du+DAoivJ5Xxzw4dthBcnBx4EGyQkI2RlrWAgFCVqMWCFBfq6qr69JVmfuQl86qzqrKrKq+CNefaFSVefLLU6fOv77L+c6X4l/+bKsNCLrooouOQQPE35256h/4+eGd/ONkPrSxjWB2foHtu3Zz7cr7JBMmvakkNgKB3fRm03MLjG69GwCJhaZpfDr1ESNDg5Gu9+4/smWiaVtPfsI0Iw3EYi6HpmmUylak9uslP5fNcMfYKOl0mqWlJSZ27KS/f4C+gUFSPT3ouoFSihuffEoqlWQhV6BcXqa4lGMxs0Aht4hlWXXl3+7jE5T/4fuX2XrPdm5+NIlh6BRLy5FkgaNZbARb77mHTz6a5M5td/vyr334PqMDPWiaWrm/0gBQukl5uQhApbxyP8178fPDO/EINjOfRspwJSalYGhklAMHH+HtN99gLh2980pJ5j+7wV33PYDC4vqVy0gpmE+nI8uQUtDTP9D8XlgYuk5PT0/EzmkYuk5+uRKt+TrJt8plRkZGqFSc67Zum2B0bJzh0TH6BgYxzQSaphBmLwOD/Xw6n6VcKrGUzZCcnyEzN0upVADbDpV/u49Prfy+wUFswK5EIyh4pAKw6RscRAjo7R/w5Yurgp6kgaFrK/fXHULriRSlggRguSQBweJSYYVYQa21c8c9jAwNMT46AkA6kwUgm8vxzuX3GB0b59QrJ9n3wFfocz/YQH9f3Y7XXp/s6efa//tty9f3Dgw3HKhKuYypCZIJk4H+/qYDWygUKNtOe1UoN22/nvJLhTzj4+MUi0Vs22bHrt1suWuCL23ZyuDQEGYiwcJClnxFY3RsBOPWAqVikVxmgfnpzzCTKbILc9iW5XPrizQ+Qfl/+dRf8+rJf+Oho3/O70/9R1M5HjxiPXT0z/ndqf/gK984XCVfSkFfysQ0Df8azUgCYPb0k190jpWLknTOsfZCNdbC/DzLhQK5zIomsYXkyrVJjn7nSQCOfudJTr1ykvt2bEfYFnMz0w07712/Y983Adhz4CDvXDgf+/pdBx5pOuhxUCgUYrXfCPlCCIQQSCkxzQSGaaDrOkop5ubSSCmDjVFKoek6hplAN0yU0liulL6w4xPEXzz517zy4r+xa+9XAbjx4QdNnYyJXbv5+OoV3nRJFQs2iIBxJ9xwhRbWdmY+zVw6gwp+YS4+u1VNgCvXJmP1w9REW9drNDYVtBr5tf293eQv5nIASCkRQjB5/QYLuRI3by2QTKVQml4Veeq1lymzjJQWZQUFXVJUAoSFbdtfuPEJk/+1Q49x8Y3fRL7nlUt/AGD/ocdWnfPkv3f9ViRZlmU74xx2cmS0j56eBL29yVXnyotT/utdu7fWvUEuV6CnJ9Hy9fUQvL4ZsovxZGcX6/e7U/JnZ7P++3t276/bNl9wHGJN03xtJaVkcGiQkZEhhkZHSSZTKPf89PQsQghGx0Yol5cpLCXRlcCulKgsF1EZQcWq+L6WJz+ZiBZc8Nqv1fjncgXKEcc9ivyvfnV7LFlhn82Tf//92xr2OzhfFhfz5HKFcGL1948wPDzIqOtjtYL3378EwLZtu1qW0Uh2T09izWSvZb+DaOR/5AvOL2WxVPZJJaVkoWBhL5XJpwsYRZBCghCk3OtGBgepVCqktnyJ+dkBehI6phJM6xrFgNnlyV9YdI4pTaMRgmcbjE3z0O4Gjft6zZeZmVmUWkC2I7SL9YGUEqWU86fraJrjXwmXVFUQMDY2glIahmmQSCQwTNPVfOHym5Gqi/jojugmhwhoKyklmq475p9Uoav6oyPD2LbtBDA0Hd0wMU0TXTccEtaG3W9jUk2fOwNAfrnCxJGjHZE5dfoUSV2Fhv3j3OP2HdU/EQQjglJKlKYjleZEAkNUkHDJI5V0tJZhYCaSjtZSGmV7uZZba4qwidouCTxCAb7c6XNnGHs4ZkTP7V8takmV1JXfNmrfu8TazHCJ45mBDrkUUqnGSWhCIIVE0zVMM4GZSGCaJkrTKJejL+i3g+lzZ/wJGpyoSV21TAJPblBmJzSVR5wgarXg9Lkzoe3qYd18rN+fOduV3QqEExn0iKXc10I0/uqEdDSWpuuYpun6WTp1Ha0Ojk1Qo0wcOer/eRMzCqnCZE+dPkV+udI2qYKygzLGHj7M2MOHQ83AqD8EH/zhHWCdiHXr1idd2S1AuP/5gQul0A0DqbQmCss1H5VEd4Mdum6gaRpSyE5yq+4Yhfk9cbVUPdkeUdei351ALpdZP1MwXYy3Iv+nIDsShEDTNIcUno9Vx7/yYNu2kxGA45tpmoZu6E5kUErsSrR8vFbHplG+X1Ry1ZPtEarWN4pDtFrZYw8frtKy7SC3XCFF18falPDSfIRwXCkv3O6ZgrXqqpBbIpWstv+FdDSW0jR0w0DXDXTD0VqL2WzEnjiolMurMh5aQVigIK7mCZPhHe9UZLAT6K5jbTL4pAKXWcLXVl7wIuhfFXJLq2QIV5tJ4WgrwzCdAEYiQam0jJTRnfC4uX9BhGmVpK6qggD1iBIFQf+tk6SqpxXjmLJdjbWBaJRHJwAhJJrA9ZMccvWwjGGtmIK1murcb99yXtg2lm2zXCqytJglPT/H3MwtFjJZCksrZIybm9cuPLNr4sjRtknV6X41Q5xoZpdYG4iGeXpCUCgUMQwDw3Cy2aWUPPXYAXRd97XSKuxZ2QRqWRa/+cNVcqkEuhJglbEry0jhbMrLF4qRcwVhJV+w6edyNVJ+uRJqogUnZxyCBMlYj5QTR462Fc4P+xytoEusDUS2wd4jKSWmcqJ7husb7du3j5dffhmlon3hFy5cYMdjP6BUKJJdKpMuWmRLFrlShfJyGU+KaTj7jBKJxkmwXn5hM9QGA9rRTLVoNNk9IkPrC8YePILWfq6o6BJrE0MIgXCjekop3n33XQzDqK+tAti/f797vUAqhWYYaIaOZhhIqVZlXzQjVStI6oqxhw93JGhRi9pJXruA2wmNVYuuKXibQwhArOzB8vwrIQT9Y3fWDbXf+PgmqVSKibGBgCyBlMoJ2esGmqYjNYWQAtzd62tBqqDW6qQ/1Cg07k364Pnpc2dgZKhj9/bQLArZjQpuUgTzAz1TUHiMiyMH4SbyOkm5mq6jlLNQ/KeAtdBcXv5jI/xpjO7tBiGqCGG62z6kjPZ1/ehHP6qWJZz1LE3XHa2l6wgpv1A179aCQO3I7JqCmxXSMeE8jeXkBwr+9u//oa6Pde63b/H7M69VHRPg+1lKc3wsTTeQSmGvTz7uumMtSBYXXWJtMjjZFq6WUY4v5BWO8XIA4woUQa2l6W5alKLSyaTBEKzVBF9r4tT6cGF5j83KtHVNwc0I4WRNeJsc45iBq+CG/1a2nGhINz1KbEJjsFM5e61g6vSpqm0p3l9Y6L0ZusTaZLDd5NlKpeLmByoMw2hKrJmZufATrrbCJapyE3oty4oVB4lbpiwOgpO2k9ooDhm8cH3ttpQ4W12C6JqCmwxCOqQydcMvH+2tXdUzA+uSKijXrTeoNA2rYqNpOuWIOYPtkqrZOtbYw4eZrSm0U4uoGxy9dt7eqqgIyg32t1Wid4m1gajN0xMAtkDTdZKmhtIcs800TT/bws8FjIiUVQTbpkIFnTJIm3JvAjtvki45O5Hj1v6Lg+DCbdAv8SZvkCCJqU+hTiUlb4I3C3W3Wv+i07mHXWJtIMLy9KRS6LpBb18/mq77i7ueKTg2Vr8k3fT07KpjY2Mj2LaNbVkUi0VSSRNN2tiVEouZNNhW7NqCUVGv2EtQIwQXWgsTd3ZsbIOaq9OIQsJ1I9Za1i+5XWXX1hUUApTSSCRTDA0PM5/Nu9WWNN8MvO/e+oUow4h1373bHWLZNqVikWwmzUxfioQmufnxx1iVZQzVWq5glLEJ0yD1SBbUWO2OeyNCrcd86QYvNhm8FCbdcBZypUusdmUKQCqnfJpuGE4NDN1w93eJNUlriouoGiuYbBtElIyIdjB97gxTp09VJfrWQ5dYmwmBWhVeloSUsvE2kRiQ7tqYYZokkkl/n1cixtaROPB8qk5mtwcRDI/HraLUCEldhZp7tVqwkVZcN2Lt29f58r63u+wgvIVh6RaN0ZQWKHkmnToWbd7AyZR3CssYhqOxnK3+oqUCM83Gpp7J1+hYM9lhE94rtRYMlbfT7zAEE4obrWvde6/zPIJ18bHGx+M//OCLLjsMXkhdc/P6nMwL6We2twspaovL6FiajhI25Ra24EcZH28S1jPf6mmZRrKDMmuJFCWw0Mr3Gsycb6SpBgdHsayFblRwM8FZa9JQmo5hmCitiOxQ2pEQzsNopXLrYJgJNEPHqugoLCqV8ppWyA0LuXdCZicLdzZDdz/WbQpvEVfXdcyE6fhWHdJWHqR0FokNdwGaShlhLVMqra7r3ikEf+3rmXJx90wFa2esF9reQTwz8zm53DwzMzfb7swHHzgr6t53Fpwjwe/ROx71u83lCqsei9NJrFW/68I1A5Wm/HJlWoeCFiu38ExN3b8HVhnKTmCjQnNt0s64j1AdSZt1yRRcmYsz7sOER+ZmQ0jarN8js/NV76O0nT53xun7LHyw5GSnLC0VyedL4cQyDI1Ewoj8ALZGSKU2Poy7WfqdyzVODfI3JCqN3FLBD4VHIVeUtCbbtpGuVsxkF53AhWWAdO4trErdHwgvramdOVHoWQmnJ6Y+ZWR23gmxz7qTdRYSRA+712s3MvVpw/O1SIS0b/RI8uDn8K735otl2VQqVjixZmezzM8volQ3Gt8OtmwZiTQRhZvN7hXmzBeKDAxrSBXNH4lCKuc+jp81N7eAUhq6biCxEBWnPnylzgMTgrmCfaO7/IXtU7862db47DUlH374SdNjrcgFIsvZa0ouFS1o8b7BPlcqFpZld32sjUQwR09JhW6aZJeKDAxXKAudgcHhVdoqbq7gqva2TcWqUCoUnFxEdD66cYNMep5ifilSVoLX7z1fO9i0bTJh1k+Fuvy71TLCjsWVf/l3lL/8EHtitK93z4b9D7m+UlwiPT/fJdZGws/Rc0PsiWSK/sEBRkdHGB0fo2ytvqaVXMEgvLzBUqlIPr8E0mZwaBDbWkZJsBrUdW/1ucV12+8/jL4G8pfryKgrv6YfsfvjXh8kYJdYGwjPpBJSoGs6vf39jI7fwZat27hz6128f/X6qmtayRWsRaVSYblU4uOpjxHSpr+vl1I+h6lrlJfr79f3cgXj1iGM017ff7h9+Ue+W7f9+VPVpQu+PuCQ5q10uFY6ePTbLdVd7BJrg+FZel7gQinlpDNpnY0IBiGluztZSSTOdv3+/n4W5mbDnqYairi5hZuh/dvnz/CtB1d+aBYmnaj34PYtfKvONb8+9RpHnvir2P3pEmuDYdugAlvwdU1H13SUploqdwZw5Ogj/utTp1+r2862bSzL+bMtC8vGZ9W3/vKputdtBpK02j6TzVS9l6O9q4612x/oEms1rBauaSN46iklj1hO1rmTJxg3ge+f/+m/APDf/9v/8I9973vf81//8pe/9I+Vy2VyuRwvvPACCwsLzM/Pk8lkKBaL3Lp1i1+//CLQmGC3Gx48eJg3z6+se319wOTNP842vObg0W+3dK81I1al0soMbYw1D/9b8MCX99DX46xiDPT31W2azjjPmMrmcrxz+b32yOXn7znbOQwz4ZiCMWT8zRMH6xIq7JhH5CeeeIKbN2/6f+l0GsuyGB0dZWZmhl+//OIXilwAO+4eor/PhBvzPPjAl0LbZLJFrl2fjyl5BWuqsfbcPY5pGis3M5IAmD39FHKO+i0Vcu5ZgbNNTFAsuo6kDdl8kcWlItl8aS276kDCO5ff474d2xG2xdxM4y3rtpBcuTbZ9h4BLzlW150cQcMwkDF/RP73r87zN084Id9vfmWCi7/595VxTzg/FKm+YXIZZ82rmM9QsWzKZYtMNkehVKZYKpMrlMgvlcjmne/gi0Sqt11tVUWY9GcNrzl/6jX+4vv/Kfa9NtAUDHrIK6SqOr5B1bmuXJuMd4FFS+RKSMspyKlBry4YNCWjSckdKclgAp56bD9PPbYfcLSNo3Hqh8NPnzrr+FcNgw/eSWeriJBeOWvnLzjk3/3uk3i28cWLFxnecvfaDvwa4tUTL/iaqr83Wjg/s1gkky3y6okXqsh16pX6C+MVq9ECsW2DBZZwXtu27ZY9tv19Qc5TAW2EUCBWzL6oJqCfC+ZIpZpcdTrtyl5rk3A9zcG33nrLr8SUSqXo6ekhlUphGAbnzp3Dtm0/OmjbNo8++mhTmft2fomhoUH/fWrwDgBGttzLrRsfcu7iu+5jw20340M4WtN9gqT3FVy8eHFNx/l2xKlXTjacH7dmZpmtt0A8OjTI3EKaPdvvZvsOJzw5eW2S9699xJ57t1cfm7zu+9iVisWD993lyykW65hvdrVf7pFrhWQr7QB6kgY9yRWT8rO5NUy3WmdzUAjB559/zvj4uL/vyrIsLly4wEMPPbSq/dmzZ9m7d29jmdREE71fMXfcHznwFbKzn2NZFqVymTMXrzjaSlRfmUwmSafTGIZBXMQtmdZq++C6VCsmW1wc/c6TnHrlZN35kc0tkcvn65uCodZEyAKHZduouDab8P8XIFJQc208YpuDLSC4TuXlCSqluHz5ciipAPbu3culS5caksv5kaq6U+Afd9yFhS1tpJLs3jbKO5Of++SSWvjmw09vfMSOXbubfq71IpWHB8fHAcfc8xAkWW37M7+9ThTUC2xA/fnR2BSshyZzXinJ21c+9t/vuXu8QevoPlYuX6oKXqypKbiOkcHgdvv777+fsbExhoeHuXr1KkeOHEEIwXPPPee3OXbsGACXLl3i6NHwfUgX/++bq38Vq763lZNCSISoIIRgx51DZHIFMoEM/D179jA1NcXMzEyVuLh1CNei/duBsPnbt24BKwSDFZI9eDB8D9X3v1M/jH712ke8+8GHoX1678L51k1BILTGQtiDX2SNlvEmfTNfqxUfa12y7TcqMhh4ciPA8ePHAYdMP/zhDwE4dOhQNGGCapM62F/3sLQlFWH5gQulJJqS9CZ08sXGjyHpWK5gm+2DRAoiXSyyfWCAyXS6oayr1z4CYOeOe6peN/rM+x8+wsVzp1s3BcMK5tudqsgW08dqFc3IHUpU95KNNAXBIZQQgp07d/pt3njjDX7xi1/4pPNw/Phxnn322arxbORjeUMrLYFt2ygh0aRCSYmKkO2xlrmCcdpHQW3txiCCJKpHqOBnTiQSfkSwdVPQHdv8Un71AIQci4V18LEqFYvHDx0kmUqGns8v5Xn9jfNAgGDtmIEtwLMKhBB+KbKf/exnHDt2jJ07d3LgwIFV1zz99NM8/fTTHDp0iGeffZbnnnuOfz18B38bIFdkH0uAsAVCglTCDZ5IsCy/X7WYmvwju3bviTXpT//qpdiBhajyJw5Wb/eYOn8+0nUnXnktUrtgf5pFBCGCKRiGzpZE2Ph1LI94L/36dYdcGxAR9P5NpVIkEgmeeeYZjh8/zgRFdo+E/yi8NmtVkeo/n/nc979WDe2qcQz4WAhsYfv6TSmBlM0zqaJOes8PeuoHP+DFf38hMrniaqqzZ88C8Mgjj0Rqf/ib0dbjMovVGe/NIoLQYlSwk7xqxcfqNF5/4zx/9a3HVx1frwXioMZKJBIYhsHzzz/PoUqOgrvVe6DPJJ0tMtC34it8myLPP//P/OvhOlGrGD4WCETAx3IWidv7DrzAwf4DB5iYmABWyAXrExZfSzSaH5GjgqXA/hzvl6y03OYzNtfJx2oV67lA7JFL0zR++tOf8rC1xK5egz1betm2tZ8bn2TY9uXRmqv6ePyTlYxspaoHKo6PZeH5WDa6UmhK0mJSfRWhPExNTVWRC+gowdLpdOjrtURbUcE1xTqtY5WWl2Gp/rnHD4Vsx15nc9BbFDZNc5VPc+OTDNu2hjvf3vEXb2RX9ymOj4WTaaE0iaFraO4jWbGJVX331RMvVBEqiKmpKe666y7/iSlBgt1u2qvtBeIwbfFF87FWBS9gXaOCgP/w7lQqteqcr7HqkOvFG1n+z1SOZ575r9Un4vhYbpqaAHRNopSI/D0HF2QBLl64ULetd+7J738fgJMnToTK+PqAyQzhO3o7RcLMYrFpvmCtf+WhY1HBZscsoJVS9OvlYzUzW2tJtZ5RQQDLsvwinQCfaDoFS/JpusTjZFaRK6ihQknlDGr0dSyCIX+BqWtEscFfPfFC1W7cqDh54oRPrnrXL0zeDD1XmwwLkL58mQl3iSJ9+XLT+2eyRfr7zLrEqW0bREeigiJkbGWnJv06+FhKSc7+/i0e3PtA6Pm3L72zeh1rAxaHLcvyTcBjx445mRalEmRLvA6QdrMe0ivZDwN9Zn1SEd/HWiGXjaFrjAz0MJOuY0MH0GznbTvXtyu78X3jPUDPQ9tRwZn5BYQUXL56DXltEiEktm1hAe/98Rr88RoAmlINyfbe9VtrNjhR8fald2Jfs15m4EsvvQRAT09PVerSddvgehEo1tkiMrMEVKc7BfG/Tv6uo/3zoJRieXmZvfu+1rLMb9w7wskTJ/jGvfWrTcnR3oYyvNw/L5WpGbz27WxcDCJKVFD8y59t5e/OXOXnh3f6//7PhQTDw4OMjo7EuF0XYXj99dNV7x999Ai9vdUT58c//vFGd3MVfvKTn/ivp6dv+EpvYKBhjfUNiuNuHszMzDI3t8D/B4zo12VYH7GcAAAAAElFTkSuQmCC";      
+      hidden_room_daniel_gun     : base64_png "iVBORw0KGgoAAAANSUhEUgAAAGEAAABfCAYAAAD4dql+AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH5QIVCiwHPZivhwAAGTZJREFUeNrtnXl4HdV99z/nzMydu2mXrMW2FlvYeIvZQwiBGBvbmCV5k7yhbUpJU2iTspYl0HTxmzxPkzTtS/ISSEhCSEp4eaAQ0lCCF3BtjLEBg1m8YbCRZRt5k2RtV3ebmdM/5s7oXulKliwXYYnf8+i5d86cWe7ve85vP0fi5+dOVoDgJNBfbv7gZNxmwpEOiGvW7/YbfnNRI/e0WGP9XhOKdO/Lby5qJBuMsoLIWL/bhCEfhGwAPJpUWDDW7zchSHpffnNR41i/y4QlPV/j4c4OOnt7ONjRNtbvNyEoLwiBcDEO4ASCI7xd51j/nlOS9MFORMIRCqLRsX6/CUFy9Lf4mEZLH4PwEaCPQfgI0McgfAToYxA+AqSP/hbjh6QIKO+7o1JisLaTTRMehGwml5YV+u1CCBWNRunu7gagsLCQvU0H/kcAmbAgSBFQCpuS0gKE6OOnUi6f29qO0dp6jLKyYv9cfcMU/7sHyMkAY0KC4AEA0N7eMURPRVvbMUDQ3tY16L1GC8QJgeCNluwRdCqRwqa0tNg/HhoIgehnv/SbEaN+nxMC4VRkfrbsLyktGJLxCz97IQCaphE0Tf7z2TU557MZX98wZdS6YsKII485QmgqHwAe48Ed+5omCQaD1E6ZzB23/BVSSnRd57v/8uOc6zxARiOSJpSfIITWZwlliaNsANyOoOsG1VVVBAIBdF3HMAxKS0p4+5W1eCn5bLGUPdNGSsMGQSnl64JTlZSyhVJ2zogdAAAui3VdwzB0AoEA0WiU6qpKrlq2lIrycna+vj6nv6NSYjQzYVjiyLZtUukUhm6gadopqRP6U3+RtGbdhqwjwZc+twxD1/n+//0JQmiZ1v/DsQ920tvbC4iTopRhGDNBKYXjOK6NIOW4AKA/rVm3gUWLLqG08bOoyFSuuupyykpLiUQibNv+BvZp1/LJG9dwtO0AJZNno+ka4uRUCQHDBEEIQSAQQMrxoUKUskVZUZEvirzPtoN7QEhM0yRgBjBNE9M0QehsXP0ohmHQ0bKToGny1itrmD294cNx1oQQ40YEZVNxQSECgSKj56w0Sy88nXA4zIG3X6N28WUYhs5P7/g6h194BNM0kb0dIAXBYJCCaISi6MmpRjnu0BZCjDsANCkM97f1tSkUwrE4sHUL515yKVJKLMvic9+4le9e/yekjh3u4weCVCpNLN6LlNIY7ftMGD8hm2xHpQEU8OYbWznjzHkAKMdh8ulzeGXNanRNI6BrvPn8Cv7+X3+UMxi//KVr+ME9/4TjODiOkx7t+5xw2MJRDlKML0XtOA7pdJqpsz9BMBgkGDSZO2uWa5jkThss6+SVio4IBMdxiPXGsG0bXdcxAyYIkEKeckp79/69orOnS5111idwsvwfIQRFhYWEQ0FM00RI4c8Cz096+NFf8MUv/Clvv/fOCY9Az+CBEYIghMAMmFi2hSY1NE3LOXeqUVG00FUMHggZI+T559aiSw0hBSEzyMWfvsC/xrYdeuNxLNs+4ef2d3pHDEIgEMBQhn98qpPwP10/yDAMrvrcMkLBIIZhMGVyTU5/y7aI9cRIpVMn9Lx8UYeTEkXNnlqnAklhKHAtIp8pAnRNp7S4GF3PZYtnotu2g+M4JFMpbNtGEwGlUDgqfdwfP1TI56RYR47jnDI6QQhNXbLwYoQQxHsTvPHG28w/Yx4oFxQEvnhyHAfbthECP1pgWTY333gnV197LZ9PJ0ml0nz/u/+s7CGctuPF3E4K504FZ04KQwmhqUWLFvht+/e1+OpAobAsi5fWPEcymcK2XYvIcRz+7Xvfdi0nK01PTw+2bfP8qheRUhAKmfzo3n9FE0Gly9AJRTgnhJ8ghaEWXbogKyPotu87sJeFCxfw5mtbOOPMeTiOw5QZs3jxuZUUR0JomkZhKMj37vspsd5eYj0xvva1G/iLW/6a66+7gUuWXEA4HKaqqpoNG9dSXV3NadPmqLQTG9GIHPcgSGGoSy9d4AUnEEL4onPRogU8//zaXCBsm4Y5n6C+rpZwKERhYSFtx47R3tHBzTd9k+tu+jrXX3cD/7j8LoQQFBQUUFJSQmVlJcXFxRzrPEhJUbVKOzEx3ND/uAZBCkMtXrLQzYVk9JamacyePRshBFu3bvX7nnHOWbz52hY3ViYlW9/cjpQSKQQP//pRpBD86XVfpbW1FVDYtkLX3XxDIBAgkUjQ2dmJaZocad3HpPJaJTIy+nhgjFsQhND6AMhYb5rUmDVrFpomkVJjzuw5rFr1POmEhRHUOeu8czAMg8mVU/nlQz8H4Ia/voWCkhBCCHpiMWKdSfcBni5RDolEgpc3vYxlW0QiEc466yw+OPQ+k6umqS9dfZX49re/zfLlywd911PDpDkBABYtugTbtnEch+amfRiGwcqVzxEIBNA03Y8OL1u2hPUvbSCdtJFSMKWyll/++mHqGuZS1zCX+x/4Gd3tvdi2TXd7L/fe/2Pu/ts7fC/aMNyZcP113yCVSvHEY0+x5fUtHDp0mENH9/Hk40+rSxcsYteGXRMLhP40/bRprHh2Nd+863bfinMchaZrzJkzl9tuu4X1G14kFbf5xa9+iVJp9u7dyd69O1EqzX0P/IRYR4L7HvgJd919O0JIyDjaroUU4p13t3HrzXeyZNkiWttaee+992hvbwfAjIYJVgY5uu7IxADBmwUAzXv3oWkaK1as4vY7bgWyc+WuiNJ1jUAgwG233cLa9es47+zzWLBgIQoHgJtuvI2vfPnPsgAQeLLIti0cR/l56AMtTdx0w98Agqee/E/a2tvZ17KHT537GeUIG702kPedx6VOyA62aZrmF29JKX3H0psRnr6QUrJkyaVYVprenh7/XvFYFzX1Zdx5521+m3dNtm8UCoXcZyMpKy9DORaHDx+iorwcgISdxjHyR17H1UyQwlBXXnm5ywwhmN44jWefXcltt9+CYQwe7/KYahg6Uko2vbIJECgkD/7qQdeq0mUOuOAC7JXDSCmJRqN09rTy59dcz6IllxCP9ZJOpznWeYj5s89WdjB/0G9cgUAmFrS3qRlN01i5cjU333zjkNFej7FSShobG/24Uf2005nWOHPANV5fL5gZDocJhUI+EIZhcOBgE3913U1YtsPvf7sCkfFLxCChnXEjjqQw1Oe/eCXxWNz9YbqOQGCapg/CUIFGTyR5jlzz+4NbM0q5PkIoFKK4uJhoNJoDZjgcBhQFUXdrCk3T6EwepcisUCm7Z8ALjBsQABzLjXI2TKvnmWee5aabbvCZOlSQ0csnW5bli5v6htORUvL+nh199++nTzyFbJomuq7jOA6apmGaJm0dhygrrqbt2EHXHLa1Qd97fIGQsVqUci0by7Lc1KQUx43yOo5Dc3MzjuNeG44Ec8QY4N8jW+l7XrgHjqMcX08AxOLdCCnQAoOzehzpBIWyrYwJ6rYcPXrUzQUPI4STSdr7xzu2vcnWt14ftL8HSH/xJoXbnk6ncZTF6lXP093djVSD1wOMGxAUCtvyw3QAJJNJUqlUDnPzXptVZ+uZtPXTZ9HQODtv//5WUr46XbcQQNHR2UkymQRlDvr8YYMQ62g/7t9YkRS6uuKKZVi25TtiAGkrzcGDB4ddGSGE4A9/WMHsufMpiIaJRkLMm3823//ev+T0y/Yt8oHgOA6ptBtjsi2L7u5uuru76O5tI6BFB8zLEemEa772l0OeX/6df/yw+e8yAUU6nWZvUzN19bV9zHEcUqkUqVTKt+n7kzdLckXRW0M/LwOCx/z+s8CLS4HAcSy2b9/OY4/8lr9b/s289xsRCEdbWseEycMh5Sjq6mtp3ruP6Y3TEAiEkNi2zf79+6mtrXVLGaWGpkm/0NlT3tmzpaJqMpFIgRsjApp278h5lgeypmkopUinbGzb7lPOjleTJVFK8NQTT/Pdf/4ODFKgMWLrqKKmfKz5ncsQYagrrryMVCrp/kjljuqlly1mxYpVLF68iFQqxf79+6murvbNSYCNG14mFutBKTf+U1k9CYBgQCcSDiJlrnX08sZXARBCEggEqK+vRymFpuc6c+l0mqqKWn7+4P0cPnwEpRwXdJlfLJ6QifqLh34w1rwf+EN0Hdt2y1A8e13gBugsyyaZTHLgwAGCwSClpaUA1EypIpFI+MzzRNK+fU0Imgc84/wLzgPwQxTZjM/xqjPGcjqdRtMkgYBJKBRCk/kdxZPmJzQd6GHUlbEnSK6SdH9gXUMtzU37mH7atAwgfaPTtm3S6TSJRCJTOeGOTK9QwQOhsmoqoXCBL3ayxZGnCzzFnC3KPJFkW+51gUCATRteZfl3/p5IJOLnts+YN583t/bpnZMGQsOUKBzoGf2NToDcUdynHOsaalm5cjWLFy/Ctmy/wstxnJwRv7epGSklZ519Jpqm0dHRAUBJSQmGERg02PfKptcIBAL82Vdr/TpVx3EwDMMFyXLYtnMLc06fz89+cT/BYNBd+2a44i0bgFGB0HSgx2V81vHYzIQ+BdvctI+6hlr/jG/xZBkvHghSSqbWTcXQNd56820MI+Da88CundsGPMXTByA4/4JziEQKsG2b3t5e4vE40WgUpdyyGaErpJ88cujt7SWZTGKa4by/4IRByAbAPx6DmaBQPvM8UTSs65Ty67zq6mt9MbPznZ3UNsxA0/pY07R7h68PgIz56TI8mUySTqd9M9i1kPBnZjKZZNeuXZSVlWGaYXqTHQS0aE4g74Q95qZ+DG8aAwCkMNSyZUv9482b11PXUMt7e3azcOElg17XPzTtiSnP3o+EQ0QjfX/9yQtxpDLlkKlUyg1TZNo90fTkU49z6823k0gkiMfjgH3yalHhozETFA62bREIBFi//jmUCrBz5yYEkuEWBHpKNhQK+ZbSzu1DO2verLFt1+pKJBI+IIAf5q6pqQaED0I8Hsc0BwrtUc+E/p9jQW+99QLXXv11nnjkMT6/9GvUTDZHdL0ntz0dUjdtJg2Ns/2//uSlNj1dZFkWtt3nsGmaRigU8s1Yy7J4//33SSaT2PZAX+GEQAhSzKwpUwZ8jgWtWvU8AJdfsZjPffkLXH7FYgDWPL9uWNf395wBwqHgkOLII28mpNPpHCC85E4wGOTR//8It958hx/ahoF5hRGLo6MtrSxd+oW85+578N4PjfkuA20hhaE6O1P84ZnVbHllCw/c7xZtHXj5caacfzULF312WEBkR0aHEkdeP29pVTqdJh6Pk0gkMs6ZG8ro7e0lkUjQ0FCHEJJZs2YRDAYRQpBId3mBPDFiEFaufOpDZfJwKBIV/PkXr+RXjz/Af6x8CIBXf/uwy1ycYd8n2+utmzYzJ2SR7ax5/byyeU8neJ+2bROPx2ltbWXP7t10dnahlEM8HqeoqChvwG9EICxd+gWOtB4Z9PzuA499qAAUFATUzPKqzA8xiXVCWVERtuMw7dPXsmTJpb6yzMt4RyHyhBIi4dCArFo22baNcpQfoU0mkySTSeLxOD09PTQ1NfHQgw/zyU+dzbfu/ge+/4N/YteuXRQUFPj+RDaNOqnz77/7cBnfny64+Fw2vrCZa77o6oJDHR1M+/S1XHbFQr8EcjDa17yf5qZ9fp/Vq1394mXVvD/Azym8vPFVXtm0mZc3bfZHfU9PD11dXXR3d9PW1sZDDz7M+Rec4z/HE1nxeDxnUMyf+wlgFCbqxteeAWDK1CgbeWbMQNj4wmYfiLKiItY98f+YdvEf91k6GQcu25P2KF9bxaQaItHiATlpTyR5TpsXe0qn08RiMTo7OwHFzx/4FZ+5+FOEQiEaGhoAMAzD1xWlRVX+PXfs2KMAccIz4YJzrhjy+MOg7u6U2NV6yAfislnTOP3Sa4HcJE1d/dTMaD9+stk0A0QjudZRtoWk+oVALMsikUjQ3d3Ffff+jHPPOxNd15k/fz6RcAQQbNrwKs+tXItpmhzrOkwscYx4qpNjh9owZESNKoA3FozPCwSHFC9s5unHfsTfAlPOv9rPJSilQAjqGmozSjX3ek8UebPiwP69fLB/cBH2yiY3hnT+Bef5ICSTKVKpNJ+95ELC4TAVFRWUlJQwd/aZPPLor0mn0zQ2NhKJRLj3ngf45rduBaCkqoy0ExPjouTFA2Lmoj8i1uOuppTCUKZpkkwm/VmRLyrqMd9TluUV1UQLPHHU179p9w5s286JIXnXSelW4zU2NlJeXk5BQYFfm6ppOrqu88Rj/0FRUTHf+oc7BrzHKW+iZgPRv+1YWycFRZFh7VrWV9BlYKXjlBSXDShbzGcxeTEky7KQUhKJRCgqKuLeH/4UcBNAT//uD9z1rduZOnWqf13Q6NsINy8IURWnWNmUqawF00XHZ8Tuk7MR1qhJCENFKhewYeNaZs5oRCk3/zycNWQtH7iiKJ9IyldG6cWQEokEHR0dPPnvvyccCnPPvT+kYubt/O8v/wlP//7JzOIUjUiwBICZM+srtu3c3jooCADTa8qoKy9kJLR6+0cEBUApG7NwBrvefcfdpctbpwzUN9TlBWThwktYs+a/KCuvQmoa0WgRQkiadu/gzrvuzBsUdByH9eteypQ/Blmx4lkcASW1X0E5SQRkNivpq+irq6uq27pjW+sJ7W1x6pDDpBKHD1ocAgUzEMC7u9/NnJN9m00pqGvwRIRACFi4cAFr1qyltraBSDjEtq1vcNddtyNkpsQyc93LGzf7caING1/CtbwEkfJPI/UIjt3DuWfM5dn34LkV69j04ut+gUEwGMyJdo5TENx61JpM9QRAS4ZJLiC7IU9Io67BTe4sW7aUFc+uBpq5++47MjeEjS+94uce+hgPwcI57nepM+O0WqJFVZhmQabwQPHDH92Dq+Tdka/1y/gPCsKeljY6umJjzctRUWlhnyItLqimo9tlfEuGeYFwHe/t+S/6A6LpOjfe/A00TWPD+o0+szds7PtuFs72r5sytRpNM6iqCFFdU0lp2SSihaW8tf0oAMv/5itMaazn0oX/i9KSYgorZ7SSZXrlBaFHhFAiQvLQEWafXu2373jnYM7xqURSCB+U0sIa2rtsIEGqd7rf57097/nf39m1i/7OnVk0B5QDymFyTQUyw/iSkgo0TUdqOkJKkskkWm83luWmXbtjMdo7oLWtjXB4YGh83Iqj41HfLKn021oynwJBaVkVCjjWdgSEQAiN2trJbgelqCwPUlI6CV030HQdKbVMiNsm3ttNKpUgGY+DgmQqTXdPjLe2bqO0tGTAuwwJQk1VMXVZ2xl3VMVzjscDZYusooJqOjMiS6AQUqOgbiqaFqC+tpyAYSCkRABS09zRL/s2V/E+3bxzgmQiDigSiRTxeC+Hm94m+cnz6Dj4zonnE8YLtXfZOcz3SMuILKlp6LpBIBCkoKgUwwig64bvRbu8dlOczS0p6mpyl8YqHNLpFKlkD6DoisURR/by8uvb2friFu5/4smc/iMG4a33D441D0dNLQcPU1pYM/CEACk1AgGT0rIq9Czm9w9jeLR12y7qaublNmY8dCudABSJZJIdb+ygJBLm7+79MaWTZ5G9E8yIQTgsSoc4O/bOWvbO8PnIzqrU6/8v2YWQGAGTiklT0PSAX8Gd4SueonZTnH1b9qQthaHn3Cmz4t/t/7tVL/HVLy3hnHkzmHPOAiynNwfNcbNSJ5vqZ1yYV9wAdPY4zJ1Z47EqhzRNo2LSZAJmMJMD8NijcGyLVCpBOp3EcWwfgCsWz6PlSO5SKG8zk6oKkxnzlgDwb0+u5qblPxkAAIxTEAYl4YqibO7v3NPNltdecAevkL6izV7xb1kW8UQv7W2HeerxB1j1Qp9IFsIVSdkhDSEEuqYTjhSgaW6VhaOsQbf3n1iKOY+gmjW9gPauC9my+QUq6y5iUmUaS0g0zcFRCstKk04leXP7QVr2rGbGvKXMmjFQJPcPRUlNwzRDmMHj76c9cUDI7AtSU12ZWyAMlBRqMONC9r67nk02mMEgwXAZKEUy0UEikaR1/1qmz1rApLIAWtayK6Vg3lxv5X/2FqtuEZimB477ahMHhAxz+usKAWzb5bpp9RkgACbVXgxCcKR5HQANMz/DgQ+OcOhomssn1+fcwzNR+88GV7wdv1Z94oAwBNVUu15zy8HDTJp6AeGQZO+7LwAuML1xh5aWw9TW1VFcWouUGlK6C1CGIiEEUtPJZ9pm08QAIcOD9s78Tlp2CKPl4GEya0WAjCIHpkyuobwkQHWVSb7NAZpbUtRPHjgj3CKyoUGYMNaREH0MzUetx9x6oJrqSn9meMeTa6rR9AAJuxIhdRxn4CzobyGNhCYGCMoNfmYz1yNvx3g5eMEdUmoUFk8mYAYQUuYszfJo3tyZmfVxI389Xxxds373WLPqf5zyiSI5jOHrLhJ0g3W6lr9///jRSMgH4TcXNQ4Aoq0nQXNrV85xtxi7dQjDIQXEY8fo6jfJu2MOBZHBJ3481idfhBDefjEkejvdiKluomkGh4aoEjrSZjGpVM9RAZ3t1nELkwedCbHeGEKlONDW7bd19KaIiY94tk0pEvFOhHIZXlZejQD2fXCY8rKB4qit1fV+E4k+RnW07aO06ixAcXD/G5RWNLg7BEgNMcS+Rbv3HEZOr8zxCbu67ePKqP8GisBjuHy+poIAAAAASUVORK5CYII=";
+      washroom_daniel_down    : base64_png "iVBORw0KGgoAAAANSUhEUgAAAG4AAABfCAMAAAA+owLBAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACi1BMVEWaNRv///8FAgsEBAwFAgwGAgsFAwwFAwsGAwwGAwsGAwoEAwwAAAAFAQwGAgwFAQsEAguaNRsFAgs6N0F2dHmBgISOjZCTkpabmp2goKOioaSjo6ahoaSdnKCXlpqSkZaOjZE+PENAPURFQklQTVNeXGI4ND5oZmtpZ21ram9zcXZ6eH2AfoKDgoaHhYqMi4+RkJSZl5uenaGenqGgn6KenaCVlJg/PENIRUxcWWA2MzxgXWNXVVtVU1laWF9hX2VkYmdqaG5xb3V4dnuIh4qPjZEjIClGQ0oxLjdRTlROS1JMSlFHRUxFQ0pIRkxJR05LSU9OTFNUUlhYVlxfXWNmZGlycHUDAwoQGU4QGUwkISpEQUhCQEdBP0Y/PURBPkVDQEdDQEhHREtKR05QT1QEAwsOFUBMT2dOUGdOUWlQU2wPF0cPGElbXnlhZYJkaYZma4hobIlnbIpqb41uc5JAPkUEAgsLEDE5Ok06PE88PVE8PlI/QVZBQ1gOEz1PUWlYW3ZeYX1fY39dYXxbX3pdYHxgZIBhZoJiZoJjaIRpbYt0epoKDSwwMUMxMkQxMUMyMkQzM0Y0NUg3OEsNETcNFUJTVnBISmFISmBMTmVPUWpQUmtTVm9ZXHZiZ4NscY9vdJNzeZh4fZ92fJwKDSsuLkAvMEEvL0AvL0E1NUcMEDQOFD8+PlM4Ok06O089PlI+QFVAQVZER1xNUGdRU2xfYn5kaIUSHVhucpBtcpAwMEILDi40NEcxMUQyMkUzM0UyM0U1NUg4OUw7PVFAQlcPFkZUV3FWWXJVWXJXW3VeYn1laoZpb4wSHVkSHl0uL0E1Nkg6O045O045Ok4+P1RcX3pqbo10epn///+FtEMbAAAAEXRSTlMAAAAAAAAAAAAAAAAAAAAAAMMdze4AAAABYktHRAH/Ai3eAAAAB3RJTUUH5QIVCjMYfcqs7AAAAiFJREFUaN5jEGRgpCNgYBjW1tHTslHrRq0btW7UulHrRq0btW7UulHrRq0btW7UulHrRq0btW7UulHrRq0btW7UulHrRq0btW7UulHrRq0btW5oWcdEGRi1btS6UetGrRtQ65hHraOTdSxMrCysQJqVlZUuvmNjZ+dg4+Ti4GRjB1nKwkJL69iFUAA3OxulvuPBtA7JAmERUTFxCUkpaRlZOXkFIV6gC1hZ+YCeZAEFNMW+g1iiCARKyiqqauoamlraOrp6+gaGRsYmpmZC/EDLONnZ2YH2sfCxMoFsJds6mE0gYK5kYWllZW1ja2Onau/g6OSs4+IqDlLAxA7yFhsbGzsXKxsH0KfkW6eo6AazTlHJ3cPTy9vH193Czz8gMCg4JDQsPCIiEjkqBZhYgAmJbOsUka1zi4pWjolViouLi41PSIxOSk5JTUvPyMzKzsnNyy8oLCouAVvJTn5gItum6GauZB5nbg4KV1DQlsaWlVdUVlXX1NbVNzQ2Nbe0trV3dHZ1w3xKqXUYQKint69/wsRJk6dMnTYtc/qMmbNmz5k7r2t+yYKFi4QWCxFrHSNx1gktWbp06bLly1f0r1y1evqatZPXrd+wcdPmLXPmbt22fcdOmB9JsQ6v50DWQcCu3Xsm7Nrbv2//gYOHDq8/kn702PETJ0+dPnP2nBBpviPKtqVLz58HoRVLz69Y1ts74cKhyRcvXb4y7WrbtetCAKZGzQOwYPniAAAAAElFTkSuQmCC";      
+
+      hidden_room       : base64_png "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";      
+      hidden_room_dark  : base64_png "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";
    }
 }
