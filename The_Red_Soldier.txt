@@ -190,7 +190,7 @@ locations {
    }
    
    guest_room_1: location {
-      header = "Guest Room 1";
+      header = "Guest Room 1 (Daniel's)";
       on_describe {
          :if (is_first_entered()) {
             :success;
@@ -202,7 +202,7 @@ locations {
    }
    
    guest_room_2: location {
-      header = "Guest Room 2";
+      header = "Guest Room 2 (Empty)";
       on_describe {
          :if (is_first_entered()) {
             :success;
