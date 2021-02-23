@@ -3,7 +3,7 @@
    game_version = "0.4.0";
    game_shortname = "CHPuzzle11";
    written_by = "Manda Whitney and Dan Egnor";
-   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e7";
+   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e8";
    year_of_release = "2021";
    short_synopsis = "Part of the 2021 Cryptex Hunt";
 }
@@ -64,8 +64,9 @@ booleans {
    night2_daniel_conked: boolean "false";
    night2_daniel_threatening: boolean "false";
    night2_found: boolean "false";
-   night2_necklace_input: boolean "false";
    night2_letter_unread: boolean "false";
+   night2_necklace_dropped: boolean "false";
+   night2_necklace_input: boolean "false";
    night2_returned: boolean "false";
    night2_painting_dim: boolean "false";
    night2_papers_found: boolean "false";
@@ -208,7 +209,7 @@ locations {
             :success;
             :print "You use Daniel's stolen keys to sneak into the room.";
          }
-         
+
          :print "This is a guest room just like yours, but unoccupied; a <speaker<5>> is has been placed near a <heating vent<5>>.";
       }
    }
@@ -229,7 +230,6 @@ locations {
             :print "You wake up. In the daylight the room is back to its cheery coziness.";
             :print "You have some time before the convention begins. Time to get some answers. Who does this button belong to? You should examine the staff and show it to them. And what does this recording mean? You're sure people would be interested in hearing it.";
          } :else_if (night2_found && !day3_awake) {
-            :set_false "night2_daniel_conked";
             :set_true "day3_awake";
             :print "You wake up several hours later. You figure you should talk to Joyce about last night.";
          } :else {
@@ -389,10 +389,10 @@ barriers {
    do_not_leave_necklace_behind :block_path {
       from = "washroom";
       to = "cellar";
-      block_when = "night2_daniel_conked";
+      block_when = "night2_necklace_dropped";
       message = "Are you going to leave the necklace behind?";
    }
-   
+
    guest_room_1_locked :block {
       location = "guest_room_1";
       block_when_not_carried = "stolen_keys";
@@ -413,7 +413,7 @@ barriers {
 objects {
    bed: scenery "hotel bed" at="guest_room_3" conspicuous="false" msg="The bed looks soft and comfortable.";
 
-   box: scenery "an elaborate box" at="hidden_room" conspicuous="false" msg="The box is quite dusty, ornately carved, and apparently very old. It has a hinged lid.";
+   box: scenery "an elaborate box" conspicuous="false" msg="The box is quite dusty, ornately carved, and apparently very old. It has a hinged lid.";
 
    brick_wall: scenery "brick wall" at="washroom" conspicuous="false" msg="The brick wall of the washroom doesn't seem very special.";
 
@@ -645,7 +645,7 @@ on_tick {
    # Action triggers
    #
    
-   :if (is_holding("necklace") && is_holding("old_letter") && is_at("hidden_room") && !is_present("daniel")) {
+   :if (is_at("hidden_room") && is_holding("necklace") && is_holding("old_letter") && !night2_daniel_threatening && !night2_daniel_conked && !night2_found) {
       :create "daniel";
       :set_true "night2_daniel_threatening";
       :update_graphic;
@@ -655,9 +655,10 @@ on_tick {
       :press_any_key;
       :return;
    }
-   
-   :if (night2_daniel_conked && !night2_letter_unread && is_carried "necklace" && !night2_found) {
+
+   :if (is_at("cellar") && night2_daniel_conked && !night2_found) {
       :set_true "night2_found";
+      :set_false "night2_daniel_conked";
       :destroy "daniel";
       :destroy "necklace";
       :create "haley" target="kitchen";
@@ -987,6 +988,7 @@ on_command {
             :print "You don't see much choice. Either you don't give him the necklace, and he shoots you now, or you give him the necklace and have a chance to live. The former may wake Joyce up, but it might mean you die.";
             :ask_bool var="night2_necklace_input" question="Do you give him the necklace?";
             :if (night2_necklace_input) {
+               :set_true "night2_necklace_dropped";
                :destroy "daniel";
                :destroy "necklace";
                :create "daniel" target="washroom";
@@ -997,7 +999,6 @@ on_command {
                :press_any_key;
                :success;
                :print "Just as he is about to shut the door, though, the air suddenly grows even colder. In less than a second, a whoosh of air violently blows the door open. Daniel topples into the washroom, where his head knocks against the sink. He lies there (to the <north<14>>), unconscious.";
-               :press_any_key;
                :update_graphic;
             } :else {
                :destroy "daniel";
@@ -1010,6 +1011,7 @@ on_command {
                :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots sitting on it roll forward, directly onto Daniel’s head. He topples into the washroom, unconscious.";
                :press_any_key;
                :print "The air warms back up. You let out a breath. What on Earth was that? You could have sworn you heard a voice hissing \"No\" as the door blasted open.";
+               :update_graphic;
             }
             :done;
          }
@@ -1185,6 +1187,7 @@ on_command {
                         :print "Success! In what seems like no time you have some delicious, hot <scones<4>>. You have to admit, Captain Sunders clearly knew his stuff. Haley is already chomping on one.";
                         :press_any_key;
                         :print "\"Hey, you should work here! These are amazing! I guess I can see why Nora gets so grumpy without them. Can you take them to her? I really need to get back to this clean-up. Ugh.\"";
+                        :break;
                      }
                   }
                }
@@ -1593,7 +1596,7 @@ on_command {
                :print "\"634. 721.,";
                :print "284. 681. 379. 268. 634. 613. 684. 707., 52. 280. 447. 708. 635. 662. 125. 634. 379. 88. 5. 486..";
                :print "637., 280. 570. 4. 627. 633..";
-               :print "-- 708. 199. 23.\"";
+               :print "-- 708. 23.\"";
             }
    
             :add_choice "To 355" {
@@ -1620,6 +1623,7 @@ on_command {
    :if (is_beside("necklace")) {
       :match "take necklace" {
          :pocket "necklace";
+         :set_false "night2_necklace_dropped";
          :if (!is_present("daniel")) {
             :success;
             :print "You carefully take the necklace from the box. It is fairly heavy.";
@@ -1892,6 +1896,7 @@ on_command {
                } :else_if (is_at("hidden_room") && !hidden_room_lit) {
                   :success;
                   :set_true "hidden_room_lit";
+                  :create "box";
                   :print "You use your phone flashlight to reveal the room...";
                   :press_any_key;
                   :redescribe;
