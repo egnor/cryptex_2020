@@ -3,12 +3,13 @@
    game_version = "0.4.0";
    game_shortname = "CHPuzzle11";
    written_by = "Manda Whitney and Dan Egnor";
-   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86e9";
+   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86ea";
    year_of_release = "2021";
    short_synopsis = "Part of the 2021 Cryptex Hunt";
 }
 
 game_settings {
+   experimental_new_scroll = "false";
    inventory_items_limit_var = "inventory_limit";
 }
 
