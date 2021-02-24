@@ -70,7 +70,7 @@ booleans {
    night2_returned: boolean "false";
    night2_painting_dim: boolean "false";
    night2_papers_found: boolean "false";
-   
+
    day3_awake: boolean "false";
    day3_haley_done: boolean "false";
    day3_joyce_done: boolean "false";
@@ -80,7 +80,7 @@ booleans {
    phone_message: boolean "false";
    phone_message_read: boolean "false";
    phone_used: boolean "false";
-   
+
    hidden_room_opened: boolean "false";
    hidden_room_lit: boolean "false";
 }
@@ -174,42 +174,42 @@ locations {
          :if (!hidden_room_lit) {
             :print "The hidden room is pitch black and you can't see a thing. It smells musty.";
          } :else_if  (!night2_box_open) {
-            :print "Thick layers of dust cover a table and some shelves. On the table is an <elaborate box<5>>.";
-         } :else_if (is_beside("old_letter") && is_beside("necklace")) {
-            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table with an <old letter<4>> and a <golden necklace<4>> inside.";
-         } :else_if (is_beside("old_letter")) {
-            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table with an <old letter<4>> inside.";
+            :print "Thick layers of dust cover a table and some shelves. On the table is an elaborate <box<5>>.";
+         } :else_if (is_beside("letter") && is_beside("necklace")) {
+            :print "Thick layers of dust cover a table and some shelves. An elaborate <box<5>> sits open on the table with an old <letter<4>> and a golden <necklace<4>> inside.";
+         } :else_if (is_beside("letter")) {
+            :print "Thick layers of dust cover a table and some shelves. An elaborate <box<5>> sits open on the table with an old <letter<4>> inside.";
          } :else_if (is_beside("necklace") && !is_present("daniel")) {
-            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table with a <golden necklace<4>> inside.";
+            :print "Thick layers of dust cover a table and some shelves. An elaborate <box<5>> sits open on the table with a golden <necklace<4>> inside.";
          } :else  {
-            :print "Thick layers of dust cover a table and some shelves. An <elaborate box<5>> sits open on the table, empty.";
+            :print "Thick layers of dust cover a table and some shelves. An elaborate <box<5>> sits open on the table, empty.";
          }
          :if (!night2_daniel_conked) {
             :print "The bathroom is <north<14>>, back through the secret door.";
          } :else {
-            :print "You can see Daniel lying unconscious through the secret door to the <north<14>>.";
+            :print "You can see <Daniel<5>> lying unconscious through the secret door to the <north<14>>.";
          }
       }
    }
-   
+
    guest_room_1: location {
       header = "Guest Room 1 (Daniel's)";
       on_describe {
          :if (is_first_entered()) {
             :success;
-            :print "You use Daniel's stolen keys to sneak into the room.";
+            :print "You use the <stolen keys<4>> to sneak into the room.";
          }
 
-         :print "Judging by the equipment, this was Daniel's guest room. His stuff is all over, but a <log book<5>> on the table catches your eye...";
+         :print "Judging by the equipment, this was <Daniel<5>>'s guest room. His stuff is all over, but a <log book<5>> on the table catches your eye...";
       }
    }
-   
+
    guest_room_2: location {
       header = "Guest Room 2 (Empty)";
       on_describe {
          :if (is_first_entered()) {
             :success;
-            :print "You use Daniel's stolen keys to sneak into the room.";
+            :print "You use the <stolen keys<4>> to sneak into the room.";
          }
 
          :print "This is a guest room just like yours, but unoccupied; a <speaker<5>> is has been placed near a <heating vent<5>>.";
@@ -220,7 +220,7 @@ locations {
       header = "Guest Room 3 (Your Room)";
       on_describe {
          :if (!day1_slept) {
-            :print "Your guest room is small but sufficient, with a <hotel bed<5>> and the usual accessories.";
+            :print "Your guest room is small but sufficient, with a hotel <bed<5>> and the usual accessories.";
          } :else_if (day1_slept && !night1_awake) {
             :set_true "night1_awake";
             :print "A loud thump jolts you out of your sleep.";
@@ -230,10 +230,10 @@ locations {
          } :else_if (night1_slept && !day2_awake) {
             :set_true "day2_awake";
             :print "You wake up. In the daylight the room is back to its cheery coziness.";
-            :print "You have some time before the convention begins. Time to get some answers. Who does this button belong to? You should examine the staff and show it to them. And what does this recording mean? You're sure people would be interested in hearing it.";
+            :print "You have some time before the convention begins. Time to get some answers. Who does this <button<4>> belong to? You should examine the staff and show it to them. And what does this recording mean? You're sure people would be interested in hearing it.";
          } :else_if (night2_found && !day3_awake) {
             :set_true "day3_awake";
-            :print "You wake up several hours later. You figure you should talk to Joyce about last night.";
+            :print "You wake up several hours later. You figure you should talk to <Joyce<5>> about last night.";
          } :else {
             :print "This is your familiar hotel room.";
          }
@@ -278,13 +278,13 @@ locations {
          }
 
          :if (!day1_slept || (day2_awake && !night2_returned) || day3_awake) {
-            :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an <oil painting<5>> with a <plaque<5>> under it. There are some <pamphlets<4>> on the lobby desk.";
+            :print "Despite the somewhat worn look, the lobby seems very welcoming. On the wall is an oil <painting<5>> with a <plaque<5>> under it. There are some <pamphlets<4>> on the lobby <desk<5>>.";
 
             :if (day1_checkin_done) {
                :print "You can see a quaint little dining room to the <west<14>>, the hotel kitchen to the <north<14>>, some rickety steps <up<14>> to the guest rooms, and the hotel exit to the <east<14>>.";
             }
          } :else {
-            :print "The lobby seems far less inviting at night. You can still make out the <oil painting<5>>, <plaque<5>> and <pamphlets<4>>. You could make your way <west<14>> to the dining room, <north<14>> to the kitchen, or back <up<14>> to the guest rooms.";
+            :print "The lobby seems far less inviting at night. You can still make out the oil <painting<5>>, <plaque<5>> and <pamphlets<4>>. You could make your way <west<14>> to the dining room, <north<14>> to the kitchen, or back <up<14>> to the guest rooms.";
 
             :if (!night1_kitchen_visited) {
                :print "The clattering is definitely coming from the kitchen.";
@@ -332,12 +332,12 @@ connections {
       cellar, east, washroom,
       cellar, leave, cellar_stairs,
       cellar, up, cellar_stairs,
-      
+
       cellar_stairs, east, kitchen,
       cellar_stairs, south, dining_room,
 
       dining_room, east, lobby,
-      
+
       hallway_east, down, lobby,
       hallway_east, south, guest_room_1,
       hallway_east, west, hallway_west,
@@ -349,7 +349,7 @@ connections {
       guest_room_3, leave_oneway, hallway_west,
 
       kitchen, south, lobby,
-      
+
       outside, enter, lobby,
       outside, west, lobby,
 
@@ -370,29 +370,29 @@ barriers {
       location = "outside";
       message = "Brr! You're not going out into the cold until it's time for Gamecon.";
    }
-   
+
    hidden_room_opening :block {
       location = "hidden_room";
       block_when_not = "hidden_room_opened";
    }
-   
+
    daniel_blocks_exit :block {
       block_when = "night2_daniel_threatening";
-      message = "You can't go anywhere with Daniel waving that gun at you!";
+      message = "You can't go anywhere with <Daniel<5>> waving that <gun<5>> at you!";
    }
 
    do_not_leave_letter_unread :block_path {
       from = "washroom";
       to = "cellar";
       block_when = "night2_letter_unread";
-      message = "Before you leave, aren't you curious what the letter says?";
+      message = "Before you leave, aren't you curious what the <letter<4>> says?";
    }
 
    do_not_leave_necklace_behind :block_path {
       from = "washroom";
       to = "cellar";
       block_when = "night2_necklace_dropped";
-      message = "Are you going to leave the necklace behind?";
+      message = "Are you going to leave the <necklace<4>> behind?";
    }
 
    guest_room_1_locked :block {
@@ -413,83 +413,83 @@ barriers {
 #
 
 objects {
-   bed: scenery "hotel bed" at="guest_room_3" conspicuous="false" msg="The bed looks soft and comfortable.";
+   bed: scenery "a hotel <bed<5>>" at="guest_room_3" conspicuous="false" msg="The <bed<5>> looks soft and comfortable.";
 
-   box: scenery "an elaborate box" conspicuous="false" msg="The box is quite dusty, ornately carved, and apparently very old. It has a hinged lid.";
+   box: scenery "an elaborate <box<5>>" conspicuous="false" msg="The <box<5>> is quite dusty, ornately carved, and apparently very old. It has a hinged lid.";
 
-   brick_wall: scenery "brick wall" at="washroom" conspicuous="false" msg="The brick wall of the washroom doesn't seem very special.";
+   brick_wall: scenery "a brick <wall<5>>" at="washroom" conspicuous="false" msg="The brick <wall<5>> of the washroom doesn't seem very special.";
 
-   button: object "a shirt button you found with the creepy message" msg="This is a shirt button that seems to have fallen off someone's clothes. (<EXAMINE<14>> everyone when you can!)";
+   button: object "a shirt <button<4>> you found with the creepy message" msg="This shirt <button<4>> seems to have fallen off someone's clothes. (<EXAMINE<14>> everyone when you can!)";
 
-   clock: scenery "wall clock" at="hallway_east" conspicuous="false";
-   
-   clock_paper: object "a slip of paper from the clock" msg="There are lines on the old-looking paper, but they don't make much sense on their own.";
+   china: scenery "some fine <china<5>>" at="dining_room" conspicuous="false";
 
-   clock_plaque: scenery "plaque below the clock" at="hallway_east" conspicuous="false" msg="The plaque below the clock reads: \"This clock, owned by the late Captain Sunders himself, is a fine example of early-19th-century craftsmanship. Unfortunately this particular clock no longer runs, so don't set your watch by it!\"";
+   clock: scenery "an antique <clock<5>>" at="hallway_east" conspicuous="false";
 
-   computer: scenery "Daniel's computer" at="cellar" conspicuous="false";
-   
-   computer_headphones: scenery "headphones attached to the computer" at="cellar" conspicuous="false";
+   clock_paper: object "a slip of <paper<4>> from the <clock<5>>" msg="There are lines on the old-looking <paper<4>>, but they don't make much sense on their own.";
 
-   creepy_message: scenery "a message smeared on the cupboards" conspicuous="false";
+   clock_plaque: scenery "the <plaque<5>> below the <clock<5>>" at="hallway_east" conspicuous="false" msg="The <plaque<5>> below the <clock<5>> reads: \"This clock, owned by the late Captain Sunders himself, is a fine example of early-19th-century craftsmanship. Unfortunately this particular clock no longer runs, so don't set your watch by it!\"";
 
-   daniel: scenery "Daniel" at="cellar" conspicuous="false";
-   
-   fine_china: scenery "fine china" at="dining_room" conspicuous="false";
-   
-   flickering_light: scenery "a flickering light" at="washroom" conspicuous="false" msg="The flickering bathroom light doesn't seem very interesting.";
+   computer: scenery "a <computer<5>>" at="cellar" conspicuous="false";
 
-   front_desk: scenery "the hotel front desk" at="lobby" conspicuous="false" msg="The front desk isn't fancy but it is solid. The nameplate says \"Joyce\" and looks like it doesn't get changed much.";
-   
-   haley: scenery "Haley" at="kitchen" conspicuous="false";
+   computer_headphones: scenery "<headphones<5>> attached to the <computer<5>>" at="cellar" conspicuous="false";
 
-   heating_vent_1: scenery "a heating vent" at="guest_room_3" conspicuous="false" msg="The heating vent looks totally ordinary, and you have no way to remove it.";
+   creepy_message: scenery "a <message<5>> smeared on some cupboards" conspicuous="false";
 
-   heating_vent_2: scenery "a heating vent" at="guest_room_2" conspicuous="false" msg="The heating vent looks totally ordinary, and is probably linked to the one in your room.";
+   daniel: scenery "<Daniel<5>>" at="cellar" conspicuous="false";
 
-   hutch: scenery "an antique hutch" at="dining_room" conspicuous="false";
+   desk: scenery "the hotel front <desk<5>>" at="lobby" conspicuous="false" msg="The front <desk<5>> isn't fancy but it is solid. The nameplate says \"Joyce\" and looks like it doesn't get changed much.";
 
-   hutch_paper: object "a slip of paper from the hutch" msg="There are lines on the old-looking paper, but they don't make much sense on their own.";
-   
-   hutch_plaque: scenery "plaque on the hutch" at="dining_room" conspicuous="false" msg="The plaque on the hutch reads: \"This hutch is one of the few surviving pieces belonging to Captain Sunders. Specially crafted for the inn, it has remained here in accordance with Sunders' will.\"";
+   haley: scenery "<Haley<5>>" at="kitchen" conspicuous="false";
 
-   joyce: scenery "Joyce" at="lobby" conspicuous="false";
+   vent_1: scenery "a heating <vent<5>>" at="guest_room_3" conspicuous="false" msg="The heating <vent<5>> looks totally ordinary, and you have no way to remove it.";
 
-   log_book: scenery "a log book" at="guest_room_1" conspicuous="false";
+   vent_2: scenery "a heating <vent<5>>" at="guest_room_2" conspicuous="false" msg="The heating <vent<5>> looks totally ordinary, and is probably linked to the one in your room.";
 
-   necklace: object "a golden necklace" conspicuous="false" msg="The necklace feels like solid gold. It must be worth a fortune!";
+   hutch: scenery "an antique <hutch<5>>" at="dining_room" conspicuous="false";
 
-   nora: scenery "Nora" at="dining_room" conspicuous="false";
+   hutch_paper: object "a slip of <paper<4>> from the <hutch<5>>" msg="There are lines on the old-looking <paper<4>>, but they don't make much sense on their own.";
 
-   old_letter: object "an old letter" conspicuous="false";
+   hutch_plaque: scenery "the <plaque<5>> on the <hutch<5>>" at="dining_room" conspicuous="false" msg="The <plaque<5>> on the <hutch<5>> reads: \"This hutch is one of the few surviving pieces belonging to Captain Sunders. Specially crafted for the inn, it has remained here in accordance with Sunders' will.\"";
 
-   old_messages: object "old messages" conspicuous="false";
+   joyce: scenery "<Joyce<5>>" at="lobby" conspicuous="false";
 
-   painting: scenery "an oil painting" at="lobby" conspicuous="false";
+   letter: object "an old <letter<4>>" conspicuous="false";
 
-   painting_paper: object "a slip of paper from the painting" msg="There are lines on the old-looking paper, but they don't make much sense on their own.";
+   light: scenery "a flickering <light<5>>" at="washroom" conspicuous="false" msg="The flickering bathroom <light<5>> doesn't seem very interesting.";
 
-   painting_plaque: scenery "plaque below the painting" at="lobby" conspicuous="false" msg="The plaque below the painting reads: \"An original portrait of Captain Sunders, the original builder, owner, and now namesake of the Red Soldier inn. This was completed shortly before his death during the War of 1812.\"";
+   log_book: scenery "a <log book<5>>" at="guest_room_1" conspicuous="false";
 
-   pamphlet: object "an informational pamphlet" at="lobby" conspicuous="false" msg="The pamphlet details the history of the inn and the town. It seems the inn was originally built in the early 1800s by someone named Captain Sunders.";
+   necklace: object "a golden <necklace<4>>" conspicuous="false" msg="The <necklace<4>> feels like solid gold. It must be worth a fortune!";
 
-   phone: object "your mobile phone" at="inventory" msg="You will never let your beloved phone go!";
+   nora: scenery "<Nora<5>>" at="dining_room" conspicuous="false";
 
-   poem: object "a poem written on old paper";
+   messages: object "some old <messages<4>>" conspicuous="false";
 
-   room_keys: object "your hotel room keys" msg="This hotel is old enough to have real room keys, not some newfangled swipey card.";
+   painting: scenery "an oil <painting<5>>" at="lobby" conspicuous="false";
 
-   scones_recipe: object "a recipe for scones";
-   
-   scones: object "some delicious Captain Sunders scones" msg="These scones are incredibly buttery and fluffy.";
+   painting_paper: object "a slip of <paper<4>> from the <painting<5>>" msg="There are lines on the old-looking <paper<4>>, but they don't make much sense on their own.";
 
-   sound: scenery "an eerie sound" conspicuous="false" msg="The sound is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
-   
-   speaker: scenery "a speaker setup" at="guest_room_2" conspicuous="false" msg="A speaker is rigged up with some electronics, probably to play those creepy sounds.";
-   
-   stolen_keys: object "stolen keys to all the guest rooms" msg="These are keys to all three guest rooms (including yours!) which Daniel must have stolen.";
+   painting_plaque: scenery "the <plaque<5>> below the <painting<5>>" at="lobby" conspicuous="false" msg="The <plaque<5>> below the <painting<5>> reads: \"An original portrait of Captain Sunders, the original builder, owner, and now namesake of the Red Soldier inn. This was completed shortly before his death during the War of 1812.\"";
 
-   voice_recorder: object "a voice recorder" msg="Daniel gave you this to record and amplify \"unusual\" noises, and you took it to humour him. You can use it to <RECORD SOUND<14>> and <PLAY SOUND<14>>.";
+   pamphlet: object "an informational <pamphlet<4>>" at="lobby" conspicuous="false" msg="The <pamphlet<4>> details the history of the inn and the town. It seems the inn was originally built in the early 1800s by someone named Captain Sunders.";
+
+   phone: object "your mobile <phone<4>>" at="inventory" msg="You will never let your beloved <phone<4>> go!";
+
+   poem: object "a <poem<4>> written on old paper";
+
+   room_keys: object "your hotel <room keys<4>>" msg="This hotel is old enough to have real <room keys<4>>, not some newfangled swipey card.";
+
+   recipe: object "a <recipe<4>> for scones";
+
+   scones: object "some delicious Captain Sunders <scones<4>>" msg="These <scones<4>> are incredibly buttery and fluffy.";
+
+   sound: scenery "an eerie <sound<5>>" conspicuous="false" msg="The <sound<5>> is strange, distorted, and decidedly creepy. It might be words but it's too soft to make out.";
+
+   speaker: scenery "a <speaker<5>> setup" at="guest_room_2" conspicuous="false" msg="A <speaker<5>> is rigged up with some electronics, probably to play those creepy sounds.";
+
+   stolen_keys: object "<stolen keys<4>> to all the guest rooms" msg="<Daniel<5> must have stolen these <keys<4>> to all three guest rooms (including yours!).";
+
+   recorder: object "a voice <recorder<4>>" msg="<Daniel<5>> gave you this <recorder<4>> to capture and amplify \"unusual\" noises, and you took it to humour him. You can use it to <RECORD SOUND<14>> and <PLAY SOUND<14>>.";
 }
 
 on_render {
@@ -528,7 +528,7 @@ on_describe {
    :if (is_present("daniel")) {
       :if (!day1_daniel_met) {
          :set_true "day1_daniel_met";
-         :print "A portly gentleman hunched over some equipment must be <Daniel<5>> like Joyce had mentioned.";
+         :print "A portly gentleman hunched over some equipment must be <Daniel<5>> like <Joyce<5>> had mentioned.";
       } :else_if (!day1_daniel_done) {
          :print "<Daniel<5>> glances at you warily before going back to his equipment.";
       } :else_if (!night2_daniel_threatening && !night2_daniel_conked) {
@@ -537,7 +537,7 @@ on_describe {
          :print "<Daniel<5>> is holding a <gun<5>>, with a hint of a smirk on his lips.";
       } :else_if (night2_daniel_conked) {
          :if (is_beside("necklace")) {
-            :print "<Daniel<5>> lies unconscious on the floor, a <golden necklace<4>> spilled from his hands.";
+            :print "<Daniel<5>> lies unconscious on the floor, a golden <necklace<4>> spilled from his hands.";
          } :else {
             :print "<Daniel<5>> lies unconscious on the floor.";
          }
@@ -547,7 +547,7 @@ on_describe {
    :if (is_present("haley")) {
       :if (!day1_haley_met) {
          :set_true "day1_haley_met";
-         :print "A young woman making tea must be Joyce's daughter <Haley<5>>. She nods at you curiously, but doesn't seem to object to your presence.";
+         :print "A young woman making tea must be <Joyce<5>>'s daughter <Haley<5>>. She nods at you curiously, but doesn't seem to object to your presence.";
       } :else_if (!day1_haley_done) {
          :print "<Haley<5>> makes tea and tries not to seem too curious about you.";
       } :else_if (!day2_awake) {
@@ -562,16 +562,16 @@ on_describe {
    :if (is_present("joyce")) {
       :if (!day1_joyce_met) {
          :set_true "day1_joyce_met";
-         :print "Behind the <front desk<5>> a woman beams at you with her best customer service smile. \"Welcome to the Red Soldier Inn!\", she proclaims. \"I'm <Joyce<5>>. How can I help you?\" (Type <TALK TO JOYCE<14>> to say hello.)";
+         :print "Behind the front <desk<5>> a woman beams at you with her best customer service smile. \"Welcome to the Red Soldier Inn!\", she proclaims. \"I'm <Joyce<5>>. How can I help you?\" (Type <TALK TO JOYCE<14>> to say hello.)";
       } :else_if (!day1_checkin_attempted) {
          :print "<Joyce<5>> continues to beam at you, though the amount of time you are taking seems to be making her somewhat nervous. \"Excuse me\", she says, \"can I help you?\"";
       } :else_if (!day1_checkin_done) {
          :print "<Joyce<5>> waits patiently for you to find your confirmation number.";
       } :else_if (!day1_joyce_done) {
          :set_true "day1_joyce_done";
-         :print "<Joyce<5>> gives you a friendly wave. \"I hope you've settled in to your room? Do feel free to take a look around! We've got quite an historic beauty here. I'm sure Nora would love some company in the dining room! My daughter Haley is making her some tea. Daniel is off nosing about somewhere, I'm sure...\"";
+         :print "<Joyce<5>> gives you a friendly wave. \"I hope you've settled in to your room? Do feel free to take a look around! We've got quite an historic beauty here. I'm sure <Nora<5>> would love some company in the dining room! My daughter <Haley<5>> is making her some tea. <Daniel<5>> is off nosing about somewhere, I'm sure...\"";
       } :else_if (!night1_slept) {
-         :print "<Joyce<5>> is doing paperwork behind the check-in desk.";
+         :print "<Joyce<5>> is doing paperwork behind the check-in <desk<5>>.";
       } :else_if (!day3_awake) {
          :print "<Joyce<5>> is smiling, but clearly distressed. She must have seen the kitchen.";
       } :else {
@@ -582,7 +582,7 @@ on_describe {
    :if (is_holding("phone") && !is_at("outside")) {
       :if (!phone_message) {
          :set_true "phone_message";
-         :print "Meanwhile, your <mobile phone<4>> buzzes with a notification.";
+         :print "Meanwhile, your mobile <phone<4>> buzzes with a notification.";
       } :else_if (!phone_message_read) {
          :print "Also, your <phone<4>> buzzed recently, and you're itching to check it.";
       }
@@ -593,11 +593,11 @@ on_describe {
          :set_true "day1_nora_met";
          :print "An older woman sitting at a table must be <Nora<5>>. \"Oh, hello!\" she says. \"You must be the new guest?\"";
       } :else_if (!day1_nora_done && is_carried("pamphlet")) {
-         :print "<Nora<5>> is visibly excited to see you holding the pamphlet from the lobby.";
+         :print "<Nora<5>> is visibly excited to see you holding the <pamphlet<4>> from the lobby.";
       } :else_if (!night1_slept) {
          :print "<Nora<5>> waits for her tea.";
       } :else_if (is_holding("scones")) {
-         :print "<Nora<5>> is clearly interested in the scones you're holding.";
+         :print "<Nora<5>> is clearly interested in the <scones<4>> you're holding.";
       } :else_if (!day2_nora_given_scones) {
          :print "<Nora<5>> considers her tea unhappily.";
       } :else_if (!day3_awake) {
@@ -611,7 +611,7 @@ on_describe {
       :print "Oh gosh, look at the time! Better head out to Gamecon right away.";
    }
 
-   :if (day3_haley_done && day3_joyce_done && day3_nora_done && (!is_carried("stolen_keys") || is_carried("old_messages"))) {
+   :if (day3_haley_done && day3_joyce_done && day3_nora_done && (!is_carried("stolen_keys") || is_carried("messages"))) {
       :print "Oh gosh, look at the time! Better head out to Gamecon right away.";
    }
 }
@@ -627,12 +627,12 @@ on_tick {
    }
 
    :if (!day1_slept && phone_message_read && day1_daniel_done && day1_haley_done && day1_joyce_done && day1_nora_done) {
-      :print "You're feeling sleepy. Maybe you should head to bed?";
+      :print "You're feeling sleepy. Maybe you should head to <bed<5>>?";
    }
 
    :if (night1_awake && !night1_slept) {
       :if (is_carried("button") && !is_present("sound") && !(night1_sound_recorded && !night1_sound_played)) {
-         :print "You're quite tired now. Maybe head back to bed?";
+         :print "You're quite tired now. Maybe head back to <bed<5>>?";
       } :else_if (night1_sound_recorded && night1_sound_played) {
          :print "You're seriously exhausted now. Maybe try to get some sleep?";
       }
@@ -640,14 +640,14 @@ on_tick {
 
    :if (is_holding("clock_paper") && is_holding("hutch_paper") && is_holding("painting_paper") && !night2_papers_found) {
       :set_true "night2_papers_found";
-      :print "There were three verses on the poem... and now you have three pieces of paper... maybe you should <EXAMINE THE PAPER<14>> again?";
+      :print "There <poem<4>> has three verses... and now you have three pieces of <paper<4>>... maybe <EXAMINE THE PAPER<14>> again?";
    }
 
    #
    # Action triggers
    #
-   
-   :if (is_at("hidden_room") && is_holding("necklace") && is_holding("old_letter") && !night2_daniel_threatening && !night2_daniel_conked && !night2_found) {
+
+   :if (is_at("hidden_room") && is_holding("necklace") && is_holding("letter") && !night2_daniel_threatening && !night2_daniel_conked && !night2_found) {
       :create "daniel";
       :set_true "night2_daniel_threatening";
       :update_graphic;
@@ -669,15 +669,15 @@ on_tick {
 
       :print "As you stand in shock, you hear footsteps coming downstairs.";
       :press_any_key;
-      :print "It's Joyce and Haley. Their eyes widen at the scene.";
+      :print "It's <Joyce<5>> and <Haley<5>>. Their eyes widen at the scene.";
       :print "You take a deep breath. There is a lot of explaining to do.";
       :press_any_key;
       :print "The night is a blur.";
-      :print "The police are called. Daniel is arrested. It seems this is not his first offense.";
+      :print "The police are called. <Daniel<5>> is arrested. It seems this is not his first offense.";
       :press_any_key;
-      :print "Your statement is taken. When the necklace comes up, Joyce and Haley both gasp. You give the necklace to Joyce. She is shocked beyond words.";
+      :print "Your statement is taken. When the <necklace<4>> comes up, <Joyce<5>> and <Haley<5>> both gasp. You give it to <Joyce<5>>. She is shocked beyond words.";
       :press_any_key;
-      :print "You aren't sure how to explain ghostly doors flying open, but the police seem satisfied that Daniel slipped in some water. Joyce steps in though and insists you should get some rest.";
+      :print "You aren't sure how to explain ghostly doors flying open, but the police seem satisfied that <Daniel<5>> slipped in some water. <Joyce<5>> steps in though and insists you should get some rest.";
       :print "You can't help but agree, and gratefully head to your room.";
       :press_any_key;
       :goto "guest_room_3";
@@ -733,11 +733,11 @@ on_command {
          }
       } :else_if (day3_haley_done && day3_joyce_done && day3_nora_done) {
          :match "exit -;east -;go east" {
-            :print "Despite the craziness of the night, it’s time to get to the convention.";
+            :print "Despite the wild night, it’s time to get to the convention.";
             :press_any_key;
-            :print "You can’t wait to tell your friends about your crazy treasure hunt. They will hardly believe that, let alone the entire tale.";
+            :print "You can’t wait to tell your friends about your wacky treasure hunt. They will hardly believe that, let alone the entire tale.";
             :press_any_key;
-            :print "As you jaunt to the door, a cold breeze brushes past your neck. You glance back. For a moment, you could have sworn you saw Nora walking up the stairs. But the Red Soldier Inn is as empty as ever. For now, at least...";
+            :print "As you jaunt to the door, a cold breeze brushes past your neck. You glance back. For a moment, you could have sworn you saw <Nora<5>> walking up the stairs. But the Red Soldier Inn is as empty as ever. For now, at least...";
             :win_game;
             :done;
          }
@@ -765,38 +765,38 @@ on_command {
    :if (is_present("brick_wall")) {
       :if (!night2_papers_found) {
          :match "look bricks" {
-            :print "The brick wall doesn't seem very interesting.";
+            :print "The brick <wall<5>> doesn't seem very interesting.";
          }
          :match "push bricks" {
             :print "That's an odd thing to do.";
          }
       } :else_if (!hidden_room_opened) {
          :match "look bricks" {
-            :print "The brick wall looks exactly like the diagram from the secret slips of paper you combined. The indicated brick looks a little loose; you could <PUSH BRICK<14>>, if you dare...";
+            :print "The brick <wall<5>> looks exactly like the diagram from the secret slips of <paper<4>> you combined. The indicated <brick<5>> looks a little loose; you could <PUSH BRICK<14>>, if you dare...";
          }
          :match "push bricks" {
             :success;
             :set_true "hidden_room_opened";
-            :print "Hand shaking slightly, you press the brick marked in the diagram. It depresses into the wall. To the <south<14>> of you, a door made of bricks cracks open.";
+            :print "Hand shaking slightly, you press the <brick<5>> marked in the diagram. It slides into the wall. To the <south<14>> of you, a door made of bricks cracks open.";
          }
       } :else {
          :match "look bricks" {
-            :print "The bricks look totally normal... except for the gaping opening in the <south<14>> wall, that is.";
+            :print "The <bricks<5>> look totally normal... except for the gaping opening in the <south<14>> wall, that is.";
          }
          :match "push bricks" {
-            :print "You push various other bricks, but they don't seem to hide any more secrets.";
+            :print "You push various other <bricks<5>>, but they don't seem to hide any more secrets.";
          }
       }
    }
 
    :match "look cap;look hat" {
-      :print "Your purple cap is cute, but not otherwise interesting.";
+      :print "Your purple <cap<4>> is cute, but not otherwise interesting.";
    }
 
    :if (is_present("clock")) {
       :if (!day2_poem_read) {
          :match "look clock" {
-            :print "This is a fine old clock, but it seems to have stopped.";
+            :print "This is a fine old <clock<5>>, but it seems to have stopped.";
             :done;
          }
          :match "set clock" {
@@ -805,28 +805,28 @@ on_command {
          }
       } :else_if (!is_carried("clock_paper")) {
          :match "look clock" {
-            :print "Having read the poem, you wonder if this old clock holds any secrets. It looks like you might be able to <SET CLOCK<14>>...";
+            :print "Having read the <poem<4>>, you wonder if this old <clock<5>> holds any secrets. It looks like you might be able to <SET CLOCK<14>>...";
          }
          :match "set clock" {
             :ask_string var="clock_time_input" question="What time do you want to set the clock to (H:MM)?";
             :if (clock_time_input != "1:05" && clock_time_input != "01:05") {
                :failure;
-               :print "You move the hands, but they just flop back to their previous position.";
+               :print "You move the <clock<5>> hands, but they just flop back to their previous position.";
             } :else {
                :success;
                :pocket "clock_paper";
-               :print "As you move the hands into place, a compartment pops out of the bottom of the clock. You reach in and take a scrap of <paper<4>>!";
+               :print "As you move the hands into place, a compartment pops out of the bottom of the <clock<5>>. You reach in and take a scrap of <paper<4>>!";
                :update_graphic;
             }
             :done;
          }
       } :else_if (is_carried("clock_paper")) {
          :match "look clock" {
-            :print "You got the paper from this clock, but you can't find any other secrets.";
+            :print "You got the <paper<4>> from this <clock<5>>, but you can't find any other secrets.";
             :done;
          }
          :match "set clock" {
-            :print "You mess with the hands, but the clock doesn't seem to hide any more secrets.";
+            :print "You mess with the hands, but the <clock<5>> doesn't seem to hide any more secrets.";
             :done;
          }
       }
@@ -835,11 +835,11 @@ on_command {
    :if (is_present("computer")) {
       :match "look computer" {
          :if (is_present("daniel")) {
-            :print "You sneak a glimpse at Daniel's computer, but don't see anything interesting.";
+            :print "You sneak a glimpse at the <computer<5>>, but don't see anything interesting.";
          } :else_if (!night2_returned) {
-            :print "Daniel's computer is powered off.";
+            :print "The <computer<5>> is powered off.";
          } :else {
-            :print "Daniel's computer seems to be running some kind of audio editing software.";
+            :print "The <computer<5>> seems to be running some kind of audio editing software.";
          }
          :done;
       }
@@ -848,9 +848,9 @@ on_command {
    :if (is_present("computer_headphones")) {
       :match "look headphones;listen headphones;listen -" {
          :if (!night2_returned) {
-            :print "The computer headphones don't look very interesting.";
+            :print "The computer <headphones<5>> don't look very interesting.";
          } :else {
-            :print "You pick up the headphones. It is a similar message from the night before but... it is Daniel's voice.";
+            :print "You pick up the <headphones<5>>. You hear a similar message from the night before but... it is <Daniel<5>>'s voice.";
          }
          :done;
       }
@@ -861,9 +861,9 @@ on_command {
          :if (is_beside("button")) {
             :success;
             :pocket "button";
-            :print "You examine the message more closely. It smells like ketchup. Upon closer inspection, you notice something in one of the pools of ketchup dripping onto the counter. It appears to be a <shirt button<4>>. That's odd. Do ghosts wear button-down shirts? Impulsively, you pocket the button.";
+            :print "You examine the <message<5>> more closely. It smells like ketchup. Upon closer inspection, you notice something in one of the pools of ketchup dripping onto the counter. It appears to be a shirt <button<4>>. That's odd. Do ghosts wear button-down shirts? Impulsively, you pocket the <button<4>>.";
          } :else {
-            :print "The creepy GET OUT message seems to be made of ketchup.";
+            :print "The creepy GET OUT <message<5>> seems to be made of ketchup.";
          }
          :done;
       }
@@ -872,44 +872,44 @@ on_command {
    :if (is_present("daniel")) {
       :if (!night1_slept) {
          :match "look daniel" {
-            :print "Daniel is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
+            :print "<Daniel<5>> is a rotund fellow with frizzy hair. He keeps almost saying something but thinking better of it.";
             :done;
          }
 
          :match "talk -;talk daniel" {
             :while (true) {
-               :add_choice "Say hello to Daniel" {
+               :add_choice "Say hello to <Daniel<5>>" {
                   :print "You say hello, startling the man out of his work.";
                   :print "\"Can I help you?\" he asks. \"The washroom's over there if you're looking for it.\"";
                   :press_any_key;
                   :print "You explain you're staying at the inn, and realization comes over his face.";
-                  :print "\"Oh! Yeah, Joyce mentioned there would be another guest. I heard you were in the Captain's room. I had been using it for recordings, but... well, I guess it's good the hotel got new business.\"";
+                  :print "\"Oh! Yeah, <Joyce<5>> mentioned there would be another guest. I heard you were in the Captain's room. I had been using it for recordings, but... well, I guess it's good the hotel got new business.\"";
                   :press_any_key;
                   :print "He notices your quizzical look.";
-                  :print "\"Oh! I'm Daniel, by the way. I'm a ghost hunter. Uh, don't mind me, I'm just setting some stuff up for tonight.\"";
+                  :print "\"Oh! I'm <Daniel<5>>, by the way. I'm a ghost hunter. Uh, don't mind me, I'm just setting some stuff up for tonight.\"";
                }
-   
-               :add_choice "Ask Daniel about the equipment" {
+
+               :add_choice "Ask <Daniel<5>> about the equipment" {
                   :print "\"Oh, this junk? This is kid stuff, but they wouldn't let me cross the border with the real gear.\"";
                   :print "He never explains what it actually does, but you're starting to think that's just as well.";
                }
-   
-               :if (is_holding("pamphlet") && !is_holding("voice_recorder")) {
-                  :add_choice "Show Daniel the pamphlet" {
+
+               :if (is_holding("pamphlet") && !is_holding("recorder")) {
+                  :add_choice "Show <Daniel<5>> the <pamphlet<4>>" {
                      :success;
                      :set_true "day1_daniel_done";
-                     :pocket "voice_recorder";
-                     :print "Daniel almost looks annoyed when you show him the pamphlet.";
+                     :pocket "recorder";
+                     :print "<Daniel<5>> almost looks annoyed when you show him the <pamphlet<4>>.";
                      :print "\"She didn't even mention the hauntings here?! That's the most exciting thing about this inn! You would not believe the activity! I mean, you like ghost stories, don't you?\"";
-                     :print "You do, and you say as much. Daniel seems pleased with this answer.";
+                     :print "You do, and you say as much. <Daniel<5>> seems pleased with this answer.";
                      :press_any_key;
-                     :print "\"Hey... maybe you could help me out. I usually capture recordings in the Captain's room, where you're staying. I would hate to miss out on any activity. Think you could capture some for me? You can do it using this voice recorder! Any unusual noises, scratches, bumps, that sort of thing. There were rumours that there are voices, but I haven't heard them yet!\"";
-                     :print "He hands you an analogue <voice recorder<4>>. You take it nervously. You like a good ghost story, but do you want to be in one?";
+                     :print "\"Hey... maybe you could help me out. I usually capture recordings in the Captain's room, where you're staying. I would hate to miss out on any activity. Think you could capture some for me? You can do it using this voice <recorder<4>>! Any unusual noises, scratches, bumps, that sort of thing. There were rumours that there are voices, but I haven't heard them yet!\"";
+                     :print "He hands you the analogue voice <recorder<4>>. You take it nervously. You like a good ghost story, but do you want to be in one?";
                   }
                }
-               
+
                :add_choice "Done talking" {
-                  :print "Daniel shrugs and goes back to his equipment.";
+                  :print "<Daniel<5>> shrugs and goes back to his equipment.";
                   :break;
                }
 
@@ -920,21 +920,21 @@ on_command {
          }
       } :else_if (!night2_daniel_threatening && !night2_daniel_conked) {
          :match "look daniel" {
-            :print "Daniel looks like his normal self. All buttons accounted for.";
+            :print "<Daniel<5>> looks like his normal self. All buttons accounted for.";
          }
-         
+
          :match "talk -;talk daniel" {
             :while (true) {
-               :add_choice "Show Daniel the button" {
-                  :print "Daniel is completely uninterested in the button.";
+               :add_choice "Show <Daniel<5>> the <button<4>>" {
+                  :print "<Daniel<5>> is completely uninterested in the <button<4>>.";
                }
-   
-               :add_choice "Play the audio recording for Daniel" {
+
+               :add_choice "Play the <recorder<4>> for <Daniel<5>>" {
                   :if (!day2_daniel_done) {
                      :success;
                      :set_true "day2_daniel_done";
-                     :print "Daniel's eyes light up with glee.";
-                     :print "\"No way! You got a recording?! I knew it was a good instinct to give you the recorder! What did you get?!\"";
+                     :print "<Daniel<5>>'s eyes light up with glee.";
+                     :print "\"No way! You got a recording?! I knew it was a good instinct to give you the <recorder<4>>! What did you get?!\"";
                      :press_any_key;
                      :print "He plays the recording. His eyes practically bulge out of his head.";
                      :print "\"This is incredible... audio manifestation... it's very difficult to get. This spirit must be very strong... which might mean...\"";
@@ -942,21 +942,21 @@ on_command {
                      :print "He looks suddenly worried.";
                      :print "\"Strong spirits usually mean strong emotions. And more often than not that emotion is anger... Captain Sunders died under violent circumstances. It would not surprise me that he's vengeful. And you are staying in his room. I would find somewhere else to stay. But that's just me.\"";
                   } :else {
-                     :print "Daniel listens to the recording again and repeats \"I'd be careful if I were you\".";
+                     :print "<Daniel<5>> listens to the recording again and repeats \"I'd be careful if I were you\".";
                   }
                }
-               
+
                :if (is_carried("poem")) {
-                  :add_choice "Show Daniel the poem" {
-                     :print "Daniel is interested in ghosts, not their history. He barely gives the poem a single glance.";
+                  :add_choice "Show <Daniel<5>> the <poem<4>>" {
+                     :print "<Daniel<5>> is interested in ghosts, not their history. He barely gives the <poem<4>> a single glance.";
                   }
                }
-               
+
                :add_choice "Done talking" {
-                  :print "Daniel goes back to his equipment.";
+                  :print "<Daniel<5>> goes back to his equipment.";
                   :break;
                }
-               
+
                :choose;
                :press_any_key;
             }
@@ -964,53 +964,53 @@ on_command {
          }
       } :else_if (night2_daniel_threatening) {
          :match "look daniel" {
-            :print "Daniel is still very much Daniel, full of purpose and focus. Only it seems instead of ghosts, he is very much focused on the necklace you are holding.";
+            :print "<Daniel<5>> is still very much <Daniel<5>>, full of purpose and focus. Only it seems instead of ghosts, he is very much focused on the <necklace<4>> you are holding.";
             :done;
          }
-         
+
          :match "look gun" {
-            :print "The gun looks very real. Daniel must have smuggled it across the border.";
+            :print "The gun looks very real. <Daniel<5>> must have smuggled it across the border.";
             :done;
          }
 
          :match "talk -;talk daniel" {
             :set_false "night2_daniel_threatening";
             :set_true "night2_daniel_conked";
-            :print "You ask Daniel what is going on. He sighs.";
+            :print "You ask <Daniel<5>> what is going on. He sighs.";
             :press_any_key;
-            :print "\"Well, I guess it's obvious now I'm not a ghost hunter. Now give me the necklace.\" He points the gun a little higher. \"I still can't believe it. I've been in this miserable inn two months looking for that damned necklace, and you find it in under two days! How?!\"";
-            :print "You would explain the poem to him, but he doesn't deserve that. You simply ask him who he is. Perhaps he will keep talking.";
+            :print "\"Well, I guess it's obvious now I'm not a ghost hunter. Now give me the necklace.\" He points the gun a little higher. \"I still can't believe it. I've been in this miserable inn two months looking for that damned <necklace<4>>, and you find it in under two days! How?!\"";
+            :print "You would explain the <poem<4>> to him, but he doesn't deserve that. You simply ask him who he is. Perhaps he will keep talking.";
             :press_any_key;
             :print "\"I guess the base term for it is treasure hunter. I've wanted this necklace for a long time. I couldn't exactly let anyone know I was looking for it. They might claim it as their own. And since this inn was already rumoured to be haunted, I used that to my advantage. Since I was her only guest, she was more than happy to let me keep looking for ghosts. And it made it easy to scare guests away with 'haunting' -- and you should have been scared, too! I put a lot of work into that voice recording!\"";
-            :print "You are trying to think fast. Could you slip past Daniel somehow? No. You are trapped in this room.";
+            :print "You are trying to think fast. Could you slip past <Daniel<5>> somehow? No. You are trapped in this room.";
             :press_any_key;
             :print "He cocks the gun.";
             :print "\"Now... give me the necklace.\"";
             :press_any_key;
-            :print "You don't see much choice. Either you don't give him the necklace, and he shoots you now, or you give him the necklace and have a chance to live. The former may wake Joyce up, but it might mean you die.";
-            :ask_bool var="night2_necklace_input" question="Do you give him the necklace?";
+            :print "You don't see much choice. Either you don't give him the <necklace<4>>, and he shoots you now, or you give him the <necklace<4>> and have a chance to live. The former may wake <Joyce<5>> up, but it might mean you die.";
+            :ask_bool var="night2_necklace_input" question="Do you give him the <necklace<4>>?";
             :if (night2_necklace_input) {
                :set_true "night2_necklace_dropped";
                :destroy "daniel";
                :destroy "necklace";
                :create "daniel" target="washroom";
                :create "necklace" target="washroom";
-               :print "Daniel smiles, and backs up. He places his hand on the brick door.";
+               :print "<Daniel<5>> smiles, and backs up. He places his hand on the brick door.";
                :press_any_key;
                :print "\"Sorry to say, but I obviously can't let you leave here. Maybe they'll hear you screaming in the morning. These walls are pretty thick though. You'll have to be awfully loud. And I'll be across the border by then.\"";
                :press_any_key;
                :success;
-               :print "Just as he is about to shut the door, though, the air suddenly grows even colder. In less than a second, a whoosh of air violently blows the door open. Daniel topples into the washroom, where his head knocks against the sink. He lies there (to the <north<14>>), unconscious.";
+               :print "Just as he is about to shut the door, though, the air suddenly grows even colder. In less than a second, a whoosh of air violently blows the door open. <Daniel<5>> topples into the washroom, where his head knocks against the sink. He lies there (to the <north<14>>), unconscious.";
                :update_graphic;
             } :else {
                :destroy "daniel";
                :create "daniel" target="washroom";
-               :print "Daniel frowns.";
+               :print "<Daniel<5>> frowns.";
                :print "\"You really have a death wish, don’t you?\"";
                :print "He raises his gun.";
                :press_any_key;
                :success;
-               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots sitting on it roll forward, directly onto Daniel’s head. He topples into the washroom, unconscious.";
+               :print "The air suddenly grows colder. Before he can pull the trigger, a shelf above him seems to wrench itself off the wall. The heavy pots sitting on it roll forward, directly onto <Daniel<5>>’s head. He topples into the washroom, unconscious.";
                :press_any_key;
                :print "The air warms back up. You let out a breath. What on Earth was that? You could have sworn you heard a voice hissing \"No\" as the door blasted open.";
                :update_graphic;
@@ -1019,7 +1019,7 @@ on_command {
          }
       } :else_if (night2_daniel_conked) {
          :match "look daniel" {
-            :print "Daniel is sprawled ungracefully on the ground, but he's still breathing.";
+            :print "<Daniel<5>> is sprawled ungracefully on the ground, but he's still breathing.";
             :done;
          }
 
@@ -1032,9 +1032,9 @@ on_command {
             :if (!is_carried("stolen_keys")) {
                :success;
                :pocket "stolen_keys";
-               :print "You rifle through the unconscious Daniel's pockets, and find... a set of <stolen keys<4>> to all the hotel's guest rooms (including yours)! Creepy. You pocket them.";
+               :print "You rifle through the unconscious <Daniel<5>>'s pockets, and find... a set of <stolen keys<4>> to all the hotel's guest rooms (including yours)! Creepy. You pocket them.";
             } :else {
-               :print "You search Daniel again, but don't find anything new.";
+               :print "You search <Daniel<5>> again, but don't find anything new.";
             }
          }
       }
@@ -1042,16 +1042,16 @@ on_command {
 
    :if (is_present("box")) {
       :match "take box" {
-         :print "The box is very heavy, or maybe fixed to the table. Either way, you can't take it.";
+         :print "The <box<5>> is very heavy, or maybe fixed to the table. Either way, you can't take it.";
          :done;
       }
-      
+
       :match "open box;open lid" {
          :success;
          :set_true "night2_box_open";
-         :create "old_letter";
+         :create "letter";
          :create "necklace";
-         :print "The box creakily cracks open. You hold your breath. The air seems to have gone cold. Gripping the lid, you slowly lift it open. Inside appears to be an <old letter<4>> and, glinting in the light of your flashlight, a <golden necklace<4>> with a large oval-shaped jeweled pendant on the end.";
+         :print "The <box<5>> creakily cracks open. You hold your breath. The air seems to have gone cold. Gripping the lid, you slowly lift it open. Inside appears to be an old <letter<4>> and, glinting in the beam of your flashlight, a golden <necklace<4>> with a large oval-shaped jeweled pendant on the end.";
          :done;
       }
    }
@@ -1059,35 +1059,35 @@ on_command {
    :if (is_present("haley")) {
       :if (!night1_slept) {
          :match "look haley" {
-            :print "Haley wears a button-down uniform and a smirk only a teenager can perfect. She's making Nora's tea, which seems like a surprisingly complicated affair.";
+            :print "<Haley<5>> wears a button-down uniform and a smirk only a teenager can perfect. She's making <Nora<5>>'s tea, which seems like a surprisingly complicated affair.";
             :done;
          }
 
          :match "talk -;talk haley" {
             :while (true) {
-               :add_choice "Say hello to Haley" {
-                  :print "You greet Haley. She responds with a perky smile. She seems overly excited to see you here.";
+               :add_choice "Say hello to <Haley<5>>" {
+                  :print "You greet <Haley<5>>. She responds with a perky smile. She seems overly excited to see you here.";
                   :print "\"Finally! We get a new guest! And one that isn't a total weirdo! Have you met Daniel, by the way? He's a total weirdo. He's into all sorts of weird ghost stuff. Anyway, what brings you to town?\"";
                   :press_any_key;
-                  :print "You explain that you are here for the local gaming convention. Haley's eyes grow even bigger.";
+                  :print "You explain that you are here for the local gaming convention. <Haley<5>>'s eyes grow even bigger.";
                   :print "\"No way! You go to Gamecon! Aw man, I wish I could go, but I have to help Mom out with the inn. It's not fair. If it weren't for Nora out there always needing scones, I could probably go!\"";
                   :print "\"Also, I love your hat!\"";
                }
-   
-               :add_choice "Ask Haley about Nora" {
-                  :print "\"Nora comes over every single day and always orders the exact same thing and if I don't make her tea scones perfectly she complains to Mom and I have to do them all over again!\" Haley rolls her eyes.";
+
+               :add_choice "Ask <Haley<5>> about <Nora<5>>" {
+                  :print "\"Nora comes over every single day and always orders the exact same thing and if I don't make her tea scones perfectly she complains to Mom and I have to do them all over again!\" <Haley<5>> rolls her eyes.";
                   :press_any_key;
                   :print "\"But Nora's sweet in her way, I guess. Mom said Nora did a ton of research for that historical pamphlet, have you seen it? Don't tell Mom, but I haven't actually read it yet.\"";
                }
-   
+
                :if (is_holding("pamphlet")) {
-                  :add_choice "Show Haley the pamphlet" {
+                  :add_choice "Show <Haley<5>> the <pamphlet<4>>" {
                      :success;
                      :set_true "day1_haley_done";
                      :print "\"So you saw Mom's pamphlets! She'll be happy, she was really proud of those. Although she refused to mention the ghost.\"";
                      :press_any_key;
                      :print "She sees you raise your eyes.";
-                     :print "\"What? You don't know about the ghost? I thought that's the only reason people would come here. And also the reason this place stays empty. If it wasn't for Daniel, we would be out of business. He's been here two months! Seriously, how is a bunch of knocks worth staying here two months?! If there is a ghost, it should be a proper ghost, like--\"";
+                     :print "\"What? You don't know about the ghost? I thought that's the only reason people would come here. And also the reason this place stays empty. If it wasn't for <Daniel<5>>, we would be out of business. He's been here two months! Seriously, how is a bunch of knocks worth staying here two months?! If there is a ghost, it should be a proper ghost, like--\"";
                      :print "She makes a woooing sound and waves her arms around, then stops suddenly, looking worried.";
                      :press_any_key;
                      :print "\"Oh, crap. Hey, don't tell Mom I told you about the ghost, okay? It stresses her out. You won't leave, right?\"";
@@ -1099,7 +1099,7 @@ on_command {
                   :print "\"See ya 'round!\"";
                   :break;
                }
-   
+
                :choose;
                :press_any_key;
             }
@@ -1112,69 +1112,69 @@ on_command {
                :set_true "day2_haley_button_seen";
             }
             :if (!day2_haley_button_asked) {
-               :print "You can't help but notice a button missing off of Haley's uniform.";
+               :print "You can't help but notice a button missing off of <Haley<5>>'s uniform.";
             } :else_if (!day2_haley_done) {
-               :print "You can't help but notice a button missing off of Haley's uniform. Maybe you should ask her about that.";
+               :print "You can't help but notice a button missing off of <Haley<5>>'s uniform. Maybe you should ask her about that.";
             } :else {
-               :print "Haley diligently scrubs the cabinets, giving you a sheepish look.";
+               :print "<Haley<5>> diligently scrubs the cabinets, giving you a sheepish look.";
             }
             :done;
          }
 
          :match "talk -;talk haley" {
             :while (true) {
-               :add_choice "Play the audio recording for Haley" {
-                  :print "You play the recording for Haley. She looks shocked.";
+               :add_choice "Play the <recorder<4>> for <Haley<5>>" {
+                  :print "You play the recording for <Haley<5>>. She looks shocked.";
                   :print "\"Holy crap! Did you show Mom this?! That is so creepy! Huh... I wonder what he's looking for. I bet it has to do with the old legend. You should ask Nora about this!\"";
                }
-   
+
                :if (!day2_haley_done) {
-                  :add_choice "Ask Haley why she's cleaning" {
+                  :add_choice "Ask <Haley<5>> why she's cleaning" {
                      :print "\"Don't ask,\" she says. \"I've been cleaning up all morning. Mom is super upset. What's up?\"";
                   }
                }
-   
+
                :if (!day2_haley_button_seen) {
-                  :add_choice "Show Haley the button" {
+                  :add_choice "Show <Haley<5>> the <button<4>>" {
                      :set_true "day2_haley_button_asked";
                      :print "\"Yeah? It's a button. So what? Do you have a collection or something?\"";
                   }
                } :else_if (day2_haley_button_seen && !day2_haley_done) {
-                  :add_choice "Grill Haley about her missing button" {
+                  :add_choice "Grill <Haley<5>> about her missing button" {
                      :success;
                      :set_true "day2_haley_done";
-                     :print "Before Haley can say something sarcastic, you point out the missing button on her uniform and then hold out the missing ketchup-covered button to her. She immediately folds with a melodramatic sigh.";
+                     :print "Before <Haley<5>> can say something sarcastic, you point out the missing button on her uniform and then hold out the missing ketchup-covered <button<4>> to her. She immediately folds with a melodramatic sigh.";
                      :press_any_key;
                      :print "\"Okay, okay! Fine... I did it. I made all the noise and mess last night hoping it would be Mom to come check it out. But you came down before I could get out and... look, I'm sorry I scared you. I'm just... worried about Mom and the business, but she's so determined to make this work. I thought if the hauntings got bad enough, maybe she would... I don't know, sell. Okay, it doesn't make sense when I say it out loud, but this has been stressful, okay?!\"";
-                     :print "You can... sort of relate? Okay, not really. Teenagers. Faking a haunting is more desirable than actually talking to their parents. It makes you feel old, but you point this out to Haley. She sighs. It's far too logical to disagree.";
+                     :print "You can... sort of relate? Okay, not really. Teenagers. Faking a haunting is more desirable than actually talking to their parents. It makes you feel old, but you point this out to <Haley<5>>. She sighs. It's far too logical to disagree.";
                      :press_any_key;
                      :print "\"Okay... I'll talk to her. I GUESS that makes more sense. Ugh. This is going to be awful.\"";
                      :press_any_key;
-                     :print "Something's bothering you though. Where did Haley hide? You decide to ask her.";
-                     :print "Haley gives a sly smile. \"Oh, right. Check this out.\"";
+                     :print "Something's bothering you though. Where did <Haley<5>> hide? You decide to ask her.";
+                     :print "<Haley<5>> gives a sly smile. \"Oh, right. Check this out.\"";
                      :press_any_key;
-                     :print "She heads to the back of the kitchen and wiggles something. A trap door opens! Haley opens it to reveal a person-sized niche.";
+                     :print "She heads to the back of the kitchen and wiggles something. A trap door opens! <Haley<5>> opens it to reveal a person-sized niche.";
                      :print "\"There are a couple of these in the inn. We think they might have been hiding spots for when enemy soldiers invaded. Unfortunately the Captain didn't quite make it. Now, they just make great hiding places for when I want to avoid Mom... or fake a haunting.\"";
                   }
                } :else_if (day2_haley_done) {
-                  :add_choice "Tease Haley about the fake haunting" {
+                  :add_choice "Tease <Haley<5>> about the fake haunting" {
                      :print "\"Don't you have something better to do? I gotta clean this up.\"";
                   }
                }
-   
-               :if (is_carried("scones_recipe") && !is_carried("scones") && !day2_nora_given_scones) {
-                  :add_choice "Show Haley the scones recipe" {
+
+               :if (is_carried("recipe") && !is_carried("scones") && !day2_nora_given_scones) {
+                  :add_choice "Show <Haley<5>> the scones <recipe<4>>" {
                      :if (!day2_haley_shown_recipe) {
                         :set_true "day2_haley_shown_recipe";
-                        :print "Haley rolls her eyes. \"Uuugh. Did Nora not like my scones?! That lady is never satisfied! Ugh. Mom usually sets up the ingredients, but she's kinda mad right now, so... can you make any sense of that old recipe?\"";
+                        :print "<Haley<5>> rolls her eyes. \"Uuugh. Did Nora not like my scones?! That lady is never satisfied! Ugh. Mom usually sets up the ingredients, but she's kinda mad right now, so... can you make any sense of that old recipe?\"";
                         :print "You agree to try. Why not?";
                         :press_any_key;
                      } :else {
-                        :print "Haley sighs. \"Figure out that weird recipe yet?\"";
+                        :print "<Haley<5>> sighs. \"Figure out that weird recipe yet?\"";
                         :print "You decide to give it another go.";
                         :press_any_key;
                      }
-   
+
                      :ask_int var="recipe_sugar_input" question="How many cups of sugar should we add?";
                      :ask_int var="recipe_flour_input" question="How many cups of flour should we add?";
                      :ask_int var="recipe_salt_input" question="How many teaspoons of salt should we add?";
@@ -1182,29 +1182,29 @@ on_command {
                      :ask_int var="recipe_eggs_input" question="How many eggs should we add?";
                      :if (recipe_sugar_input != 1 || recipe_flour_input != 4 || recipe_salt_input != 2 || recipe_butter_input != 5 || recipe_eggs_input != 3) {
                         :failure;
-                        :print "Haley eyes the mix. \"Hmm, that really doesn't seem right... I dunno, maybe take another look at that recipe?\"";
+                        :print "<Haley<5>> eyes the mix. \"Hmm, that really doesn't seem right... I dunno, maybe take another look at that recipe?\"";
                      } :else {
                         :success;
                         :pocket "scones";
-                        :print "Success! In what seems like no time you have some delicious, hot <scones<4>>. You have to admit, Captain Sunders clearly knew his stuff. Haley is already chomping on one.";
+                        :print "Success! In what seems like no time you have some delicious, hot <scones<4>>. You have to admit, Captain Sunders clearly knew his stuff. <Haley<5>> is already chomping on one.";
                         :press_any_key;
                         :print "\"Hey, you should work here! These are amazing! I guess I can see why Nora gets so grumpy without them. Can you take them to her? I really need to get back to this clean-up. Ugh.\"";
                         :break;
                      }
                   }
                }
-   
+
                :if (day2_nora_given_scones) {
-                  :add_choice "Give Haley a high five because Nora loved the scones" {
-                     :print "Haley rolls her eyes a bit but you can tell she's pleased and she returns your high five.";
+                  :add_choice "Give <Haley<5>> a high five because <Nora<5>> loved the scones" {
+                     :print "<Haley<5>> rolls her eyes a bit but you can tell she's pleased and she returns your high five.";
                   }
                }
-               
+
                :add_choice "Done talking" {
                   :print "\"Laterz!\"";
                   :break;
                }
-   
+
                :choose;
                :press_any_key;
             }
@@ -1212,16 +1212,16 @@ on_command {
          }
       } :else_if (!day3_haley_done) {
          :match "look haley" {
-            :print "Haley greets you happily!";
+            :print "<Haley<5>> greets you happily!";
          }
 
          :match "talk haley;talk -" {
             :set_true "day3_haley_done";
             :if (!is_carried("stolen_keys")) {
-               :print "\"I can't believe you found the secret room! And Daniel! Didn't I say he was weird? Well, turns out he's weird and evil! Mom says the cops <searched his pockets<14>> and found stolen keys to all the rooms. I guess that's how he set up those noises you heard...\"";
+               :print "\"I can't believe you found the secret room! And <Daniel<5>>! Didn't I say he was weird? Well, turns out he's weird and evil! Mom says the cops <searched his pockets<14>> and found stolen keys to all the rooms. I guess that's how he set up those noises you heard...\"";
             } :else {
-               :print "\"I can't believe you found the secret room! And Daniel! Didn't I say he was weird? Well, turns out he's weird and evil! Funny thing, they still can't get into his room. Apparently all the keys went missing! A locksmith is coming later today, the cops really want to search his room...\"";
-               :print "You think about the stolen keys you found and feel a twinge of guilt. But you're just so curious!";
+               :print "\"I can't believe you found the secret room! And <Daniel<5>>! Didn't I say he was weird? Well, turns out he's weird and evil! Funny thing, they still can't get into his room. Apparently all the keys went missing! A locksmith is coming later today, the cops really want to search his room...\"";
+               :print "You think about the <stolen keys<4>> you found and feel a twinge of guilt. But you're just so curious!";
             }
             :press_any_key;
             :print "Now we can figure out what to do with that secret room. I'm trying to get Mom to let me make it into a game space. But I guess that's a bit weird since it attaches to the bathroom.\"";
@@ -1231,7 +1231,7 @@ on_command {
          }
       } :else {
          :match "look haley" {
-            :print "Haley flashes you a smile.";
+            :print "<Haley<5>> flashes you a smile.";
          }
          :match "talk haley;talk -" {
             :print "\"Wow. Yeah. Thanks again!\"";
@@ -1242,13 +1242,13 @@ on_command {
    :if (is_present("bed")) {
       :match "sleep -;sleep bed;go sleep;go bed;goto sleep;goto bed;lie bed;lie down;use bed;bed -" {
          :if (!phone_message_read) {
-            :print "How can you sleep with unread messages on your phone?";
+            :print "How can you sleep with unread messages on your <phone<4>>?";
          } :else_if (!day1_daniel_done || !day1_haley_done || !day1_joyce_done || !day1_nora_done) {
             :print "You're not feeling sleepy yet. Maybe explore the hotel and talk to people?";
          } :else_if (!day1_slept) {
             :success;
             :set_true "day1_slept";
-            :print "Exhausted from the travel today, you flop down on the bed to get some well-earned sleep.";
+            :print "Exhausted from the travel today, you flop down on the <bed<5>> to get some well-earned sleep.";
             :press_any_key;
             :destroy "daniel";
             :destroy "haley";
@@ -1260,10 +1260,10 @@ on_command {
          } :else_if (!night1_kitchen_visited) {
             :print "You'd try to sleep, but what was that sound you heard? Better go check it out.";
          } :else_if (!is_carried("button")) {
-            :print "You try to sleep, but something about that message tugs at your memory. Maybe go take a closer look?";
+            :print "You try to sleep, but something about that creepy message tugs at your memory. Maybe go take a closer look?";
          } :else_if (!is_present("sound") && !night1_sound_recorded) {
             :success;
-            :print "You are relieved to escape back to your bed. Your head gratefully hits the pillow.";
+            :print "You are relieved to escape back to your <bed<5>>. Your head gratefully hits the pillow.";
             :print "Sleep almost comes when...";
             :press_any_key;
             :create "sound" target="guest_room_3";
@@ -1295,11 +1295,11 @@ on_command {
    :if (is_present("hutch")) {
       :if (!day2_poem_read) {
          :match "look hutch" {
-            :print "The hutch reminds you of something your parents inherited from your grandparents. <Fine china<5>> sits on its shelves.";
+            :print "The <hutch<5>> reminds you of something your parents inherited from your grandparents. Fine <china<5>> sits on its shelves.";
             :done;
          }
          :match "look china" {
-            :print "The fine china in the hutch doesn't look very interesting.";
+            :print "The fine <china<5>> in the <hutch<5>> doesn't look very interesting.";
             :done;
          }
          :match "push hutch;push china" {
@@ -1308,7 +1308,7 @@ on_command {
          }
       } :else_if (is_present("nora") && !is_carried("hutch_paper")) {
          :match "look hutch;look china" {
-            :print "Having read the poem, you eye the old hutch and its china with interest. You don't see anything obvious, but you don't want to mess with it in front of people. Maybe come back when no one is around?";
+            :print "Having read the <poem<4>>, you eye the old <hutch<5>> and its <china<5>> with interest. You don't see anything obvious, but you don't want to mess with it in front of people. Maybe come back when no one is around?";
             :done;
          }
          :match "push hutch;push china" {
@@ -1317,27 +1317,27 @@ on_command {
          }
       } :else_if (!is_present("nora") && !is_carried("hutch_paper")) {
          :match "look hutch;look china" {
-            :print "Having read the poem, you eye the old hutch and its china suspiciously. It looks like you might be able to <PUSH HUTCH<14>> if you dare...";
+            :print "Having read the <poem<4>>, you eye the old <hutch<5>> and its <china<5>> suspiciously. It looks like you might be able to <PUSH HUTCH<14>> if you dare...";
          }
          :match "push hutch;push china" {
-            :ask_string var="hutch_direction_input" question="Which direction do you want to push the hutch with the china?";
-            :if (upper(hutch_direction_input) != "LEFT") {
+            :ask_string var="hutch_direction_input" question="Which direction do you want to push the <hutch<5>> with the <china<5>>?";
+            :if (upper(hutch_direction_input) != "LEFT" && upper(hutch_direction_input) != "L") {
                :failure;
-               :print "You give the hutch a gentle push in that direction, but nothing much happens.";
+               :print "You give the <hutch<5>> a gentle push in that direction, but nothing much happens.";
             } :else {
                :success;
                :pocket "hutch_paper";
-               :print "Feeling a little nervous, you give the hutch a push to the left. It shifts with a slight click, and a small secret compartment opens. You reach in and take a scrap of <paper<4>>!";
+               :print "Feeling a little nervous, you give the <hutch<5>> a push to the left. It shifts with a slight click, and a small secret compartment opens. You reach in and take a scrap of <paper<4>>!";
             }
             :done;
          }
       } :else_if (is_carried("hutch_paper")) {
          :match "look hutch;look china" {
-            :print "Having gotten the paper out of the hutch, you have a new appreciation for its design, but you can't find any other secrets.";
+            :print "Having gotten the <paper<4>> out of the <hutch<5>>, you have a new appreciation for its design, but you can't find any other secrets.";
             :done;
          }
          :match "push hutch;push china" {
-            :print "You push and pull, but the hutch doesn't seem hide any more secrets.";
+            :print "You push and pull, but the <hutch<5>> doesn't seem hide any more secrets.";
             :done;
          }
       }
@@ -1347,9 +1347,9 @@ on_command {
       :if (!day1_checkin_done) {
          :match "look joyce" {
             :if (!day1_checkin_attempted) {
-               :print "Joyce would like to talk to you. (Type <TALK TO JOYCE<14>> to say hello.)";
+               :print "<Joyce<5>> would like to talk to you. (Type <TALK TO JOYCE<14>> to say hello.)";
             } :else {
-               :print "Joyce is waiting for you to find your confirmation number. (Type <TALK TO JOYCE<14>> when you have it.)";
+               :print "<Joyce<5>> is waiting for you to find your confirmation number. (Type <TALK TO JOYCE<14>> when you have it.)";
             }
             :done;
          }
@@ -1357,14 +1357,14 @@ on_command {
          :match "talk -;talk joyce;check hotel" {
             :if (!day1_checkin_attempted) {
                :set_true "day1_checkin_attempted";
-               :ask_int var="checkin_code_input" question="You step up to the desk. Joyce says \"Hi! If you're here to check in, what's your confirmation number?\"";
+               :ask_int var="checkin_code_input" question="You step up to the <desk<5>>. <Joyce<5>> says \"Hi! If you're here to check in, what's your confirmation number?\"";
             } :else {
-               :ask_int var="checkin_code_input" question="Joyce looks up. \"Ah, did you find the confirmation number?\"";
+               :ask_int var="checkin_code_input" question="<Joyce<5>> looks up. \"Ah, did you find the confirmation number?\"";
             }
 
             :if (checkin_code_input != 13) {
                :failure;
-               :print "\"Hmm, that doesn't seem quite right. You should have an email with a confirmation number. Do you have your phone with you?\"";
+               :print "\"Hmm, that doesn't seem quite right. You should have an email with a confirmation number. Do you have your <phone<4>> with you?\"";
             } :else {
                :success;
                :set_true "day1_checkin_done";
@@ -1372,9 +1372,9 @@ on_command {
                :press_any_key;
                :print "She turns around to grab the key. Before her hands are anywhere near it, it suddenly seems to wrench itself off its peg and clatters to the floor.";
                :press_any_key;
-               :print "Joyce's cheerful demeanour falters for a moment, replaced with nervous fear. She recovers quickly and turns around, smile back in place. \"Oops! Butterfingers! Now let's get you upstairs!\"";
+               :print "<Joyce<5>>'s cheerful demeanour falters for a moment, replaced with nervous fear. She recovers quickly and turns around, smile back in place. \"Oops! Butterfingers! Now let's get you upstairs!\"";
                :press_any_key;
-               :print "She laughs, but it's a little shaky. What on Earth was that about? You follow Joyce up the creaky stairs and down the hallway. She unlocks the last door.";
+               :print "She laughs, but it's a little shaky. What on Earth was that about? You follow <Joyce<5>> up the creaky stairs and down the hallway. She unlocks the last door.";
                :press_any_key;
                :print "\"You have room 3, the Captain's room, I hope that's okay!\"";
                :press_any_key;
@@ -1389,17 +1389,17 @@ on_command {
          }
       } :else_if (!night1_slept) {
          :match "look joyce" {
-            :print "Joyce seems busy.";
+            :print "<Joyce<5>> seems busy.";
             :done;
          }
-   
+
          :match "talk -;talk joyce" {
             :while (true) {
-               :add_choice "Say hello to Joyce" {
-                  :print "Joyce is friendly but preoccupied. She encourages you to explore the hotel.";
+               :add_choice "Say hello to <Joyce<5>>" {
+                  :print "<Joyce<5>> is friendly but preoccupied. She encourages you to explore the hotel.";
                }
-               :add_choice "Ask Joyce about the pamphlet" {
-                  :print "Joyce seems excited you have taken an interest in the pamphlet. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
+               :add_choice "Ask <Joyce<5>> about the pamphlet" {
+                  :print "<Joyce<5>> seems excited you have taken an interest in the <pamphlet<4>>. \"Oh, I hope you enjoy it! The inn has a fascinating history! Did you know that Nora helped write our little pamphlet? She knows all about this place!\"";
                }
                :add_choice "Done talking" {
                   :print "\"Enjoy your stay!\"";
@@ -1412,50 +1412,50 @@ on_command {
          }
       } :else_if (!night2_found) {
          :match "look joyce" {
-            :print "Joyce is just as professionally dressed as she was yesterday. Not a thread is out of place.";
+            :print "<Joyce<5>> is just as professionally dressed as she was yesterday. Not a thread is out of place.";
          }
-         
+
          :match "talk -;talk joyce" {
             :while (true) {
-               :add_choice "Say good morning to Joyce" {
-                  :print "Joyce smiles and says hello, but she seems a little distracted.";
+               :add_choice "Say good morning to <Joyce<5>>" {
+                  :print "<Joyce<5>> smiles and says hello, but she seems a little distracted.";
                }
-   
-               :add_choice "Show Joyce the button" {
+
+               :add_choice "Show <Joyce<5>> the <button<4>>" {
                   :print "\"Sorry, I don't really recognize that. But ask around! I would hate to think someone lost a button!\"";
                }
-   
-               :add_choice "Ask Joyce if the hotel could be haunted" {
+
+               :add_choice "Ask <Joyce<5>> if the hotel could be haunted" {
                   :if (!day2_joyce_done) {
                      :print "\"What?! A haunting?! Here? Ridiculous.\"";
                   } :else {
                      :print "\"I don't know. I just don't know any more.\"";
                   }
                }
-   
-               :add_choice "Play the audio recording for Joyce" {
+
+               :add_choice "Play the <recorder<4>> for <Joyce<5>>" {
                   :if (!day2_joyce_done) {
                      :success;
                      :set_true "day2_joyce_done";
-                     :print "Joyce's face suddenly falls.";
+                     :print "<Joyce<5>>'s face suddenly falls.";
                      :print "\"Oh dear... where did you get that?\"";
                      :press_any_key;
-                     :print "You explain the events of the prior night. Joyce is immediately stressed.";
+                     :print "You explain the events of the prior night. <Joyce<5>> is immediately stressed.";
                      :print "\"I'm so sorry. I should have been more honest about the inn's reputation... but I hoped this time nothing would happen. It's been terrible... so many guests frightened away. I'm not sure how long we'll last.\"";
                      :press_any_key;
-                     :print "You can't help but feel bad for Joyce, and can't help but wonder if you can help her out somehow. You tell her as much and she sighs.";
+                     :print "You can't help but feel bad for <Joyce<5>>, and can't help but wonder if you can help her out somehow. You tell her as much and she sighs.";
                      :print "\"It's so odd. There were always strange sounds and rustlings around the inn. Normally guests enjoy the ghost stories. But recently the haunting has escalated. I don't normally believe in that sort of thing, but I can't really ignore what's in front of me... and when it hurts business like this...\"";
                      :press_any_key;
                      :print "You assure her you have no plans of leaving. She looks very relieved.";
                      :print "\"Thank you very much. It's odd. You know what? Dinner tonight is on the house!\"";
                      :print "Sweet! Free food! You thank her.";
                      :press_any_key;
-                     :print "\"It's my pleasure! And you should show that to Daniel. At the very least, he will be thrilled to see such conclusive results!\"";
+                     :print "\"It's my pleasure! And you should show that to <Daniel<5>>. At the very least, he will be thrilled to see such conclusive results!\"";
                   } :else {
-                     :print "Joyce listens to the recording again, looks distressed and says \"I just don't know what's going on\".";
+                     :print "<Joyce<5>> listens to the recording again, looks distressed and says \"I just don't know what's going on\".";
                   }
                }
-               
+
                :add_choice "Done talking" {
                   :print "\"Have a nice day!\"";
                   :break;
@@ -1468,7 +1468,7 @@ on_command {
          }
       } :else_if (!day3_joyce_done) {
          :match "look joyce" {
-            :print "Joyce is still reeling from everything that happened.";
+            :print "<Joyce<5>> is still reeling from everything that happened.";
             :done;
          }
 
@@ -1477,14 +1477,14 @@ on_command {
             :print "\"To think I trusted that awful jerk! All that lying for a single necklace?! Although I guess it is valuable. I feel stupid to be taken in by his lies, although I am relieved those hauntings weren't real!\"";
             :print "Not all of them, anyway, you think to yourself.";
             :press_any_key;
-            :print "You ask Joyce about the necklace. What will she do with it? Joyce looks thoughtful.";
+            :print "You ask <Joyce<5>> about the <necklace<4>>. What will she do with it? <Joyce<5>> looks thoughtful.";
             :press_any_key;
             :print "\"I'm still trying to take it all in. Obviously it could help the inn if I sell it. But maybe it should stay here.\"";
             :ask_bool var="day3_necklace_input" question="\"Should I sell the necklace?\"";
             :if (day3_necklace_input) {
-               :print "Joyce nods. \"You're right. The money could really help me recoup some of my losses.\"";
+               :print "<Joyce<5>> nods. \"You're right. The money could really help me recoup some of my losses.\"";
             } :else {
-               :print "Joyce nods. \"You're right. This is part of the inn's history. It should stay here, with Captain Sunders watching over it. I'm sure the publicity will improve the popularity of the inn.\"";
+               :print "<Joyce<5>> nods. \"You're right. This is part of the inn's history. It should stay here, with Captain Sunders watching over it. I'm sure the publicity will improve the popularity of the inn.\"";
             }
             :press_any_key;
             :print "\"You should tell Nora about it. She snuck into the dining room as usual this morning, I haven't had a chance to tell her yet!\"";
@@ -1492,14 +1492,14 @@ on_command {
          }
       } :else_if (day3_necklace_input) {
          :match "look joyce" {
-            :print "Joyce is on the phone making an appointment to appraise the necklace.";
+            :print "<Joyce<5>> is on the phone making an appointment to appraise the <necklace<4>>.";
          }
          :match "talk joyce;talk -" {
-            :print "Joyce is on the phone, you don't want to bother her.";
+            :print "<Joyce<5>> is on the phone, you don't want to bother her.";
          }
       } :else {
          :match "look joyce" {
-            :print "Joyce is doing her best to compose herself.";
+            :print "<Joyce<5>> is doing her best to compose herself.";
          }
          :match "talk joyce;talk -" {
             :print "\"I just can't believe it!\"";
@@ -1507,22 +1507,22 @@ on_command {
       }
    }
 
-   :if (is_beside("old_letter")) {
+   :if (is_beside("letter")) {
       :match "look letter" {
-         :print "The letter is folded up in the box. You'll need to take it out to read it.";
+         :print "The <letter<4>> is folded up in the <box<5>>. You'll need to take it out to read it.";
          :done;
       }
 
       :match "take letter" {
-         :pocket "old_letter";
+         :pocket "letter";
          :set_true "night2_letter_unread";
-         :print "You pick up the letter, hoping that the years of age won't cause it to crumble.";
+         :print "You pick up the <letter<4>>, hoping that the years of age won't cause it to crumble.";
          :done;
       }
-   } :else_if (is_present("old_letter")) {
+   } :else_if (is_present("letter")) {
       :match "look letter" {
          :set_false "night2_letter_unread";
-         :print "You carefully unfold the letter. It is written in fine cursive:";
+         :print "You carefully unfold the <letter<4>>. It is written in fine cursive:";
          :print "\"My dearest Nora,";
          :print "I hope it is you reading this and holding on to my family's most treasured possession rather than enemy hands. I had hoped to give you this necklace myself. But if you have found it, then it means the worst. I was not able to escape.";
          :print "I wish I could see you one last time, but it seems that our reunion was not meant to be. My only consolation is that the necklace will bring you some security, and that you were able to enjoy one last riddle game. Matching wits with you was one of my greatest pleasures in this life.";
@@ -1535,38 +1535,38 @@ on_command {
 
    :if (is_present("log_book")) {
       :match "look book;look log" {
-         :print "You can't help yourself and gingerly open Daniel's log book. There's a lot of data, but a few entries stand out...";
-         
+         :print "You can't help yourself and gingerly open the <log book<5>>. There's a lot of data, but a few entries stand out...";
+
          :while (true) {
             :add_choice "\"It's here, I just know it\"" {
                :print "\"Checked into the inn today. It's here, I just know it. The Americans never found it, and a rat like Sunders would surely keep a hidey-hole in his flea-trap inn. The owners are 100%% sold on the ghost thing so that's a perfect cover.\"";
             }
-   
+
             :add_choice "\"The old bat only cares about the story\"" {
                :print "\"Another evening wasted plying N with scones. If she knows about the necklace she's not saying. The old bat only cares about the story. Blah, blah, why did he stay, why did he get killed, whatever. Eyes on the prize, Danny boy.\"";
-               :print "You're offended on behalf of Nora.";
+               :print "You're offended on behalf of <Nora<5>>.";
             }
-   
+
             :add_choice "\"Spying for decades\"" {
                :print "\"This place is chock full of hiding spots, but every single one is empty! The old boy was spying for decades, maybe even since the Culper ring? He kept all kinds of secrets, but then he emptied things out for some reason. Whatever, that blasted necklace is still here somewhere.\"";
                :print "He wasn't wrong...";
             }
-   
+
             :add_choice "\"Idiot tourist\"" { 
                :print "\"Another guest! Bad timing, I was just set to scan that room. I'll have to shoo the idiot tourist away.\"";
                :print "That's you! You bristle at being called an \"idiot tourist\" but are pleased to have put a monkeywrench in his plans.";
             }
-   
+
             :add_choice "\"Absolutely worth it\"" {
                :print "\"I was skeptical but the new scanner is absolutely worth it. A cavity in the wall of this very room! It must open from the next room over. I'll go there in the morning and start knocking on the wall.\"";
-               :print "Much like the old Captain, seems like Daniel's plans got interrupted...";
+               :print "Much like the old Captain, seems like <Daniel<5>>'s plans got interrupted...";
             }
-            
-            :add_choice "Done with book" {
-               :print "You put the book back exactly as you found it.";
+
+            :add_choice "Done with <book<5>>" {
+               :print "You put the <log book<5>> back exactly as you found it.";
                :break;
             }
-   
+
             :choose;
             :press_any_key;
          }
@@ -1578,13 +1578,13 @@ on_command {
          :done;
       }
    }
-   
-   :if (is_present("old_messages")) {
+
+   :if (is_present("messages")) {
       :match "look messages;read message" {
-         :print "You found three neatly folded message papers, addressed but apparently never sent.";
-         
+         :print "You found three neatly folded <messages<4>>, addressed but apparently never sent.";
+
          :while (true) {
-            :add_choice "To Nora" {
+            :add_choice "\"To Nora\"" {
                :print "\"My dearest Nora, if you are reading this, I am safely gone.";
                :print "As you have surely suspected, I have been living a double life for many decades since the Revolution in the States and the Culper affair. But no longer! I am starting a new life, a life free of these horrid armies with their vicious secrets and marauding ways.";
                :print "I know your family and your town are precious to you! But, if you find it in your heart to join a simple country farmer, I can think of no greater joy than to spend my days in your company.";
@@ -1592,29 +1592,29 @@ on_command {
                :print "Love always and forever,";
                :print "William\"";
             }
-   
-            :add_choice "To 721" {
-               :print "This message was addressed only to \"721\"; the contents are mysterious:";
+
+            :add_choice "\"To 721\"" {
+               :print "This <message<4>> was addressed only to \"721\"; the contents are mysterious:";
                :print "\"634. 721.,";
                :print "284. 681. 379. 268. 634. 613. 684. 707., 52. 280. 447. 708. 635. 662. 125. 634. 379. 88. 5. 486..";
                :print "637., 280. 570. 4. 627. 633..";
                :print "-- 708. 23.\"";
             }
-   
-            :add_choice "To 355" {
-               :print "This message was addressed only to \"355\"; the contents are mysterious:";
+
+            :add_choice "\"To 355\"" {
+               :print "This <message<4>> was addressed only to \"355\"; the contents are mysterious:";
                :print "\"634. 379. 188., 1. 353. 561..";
                :print "475. 222. <Pqle.<14>> 634. 625. 184. 668. 561..";
                :print "625. 355. 683. 345. 707. 50. 708. 250. 92. 5. 1. 596. 342. 600.: 1. <i.<14>> 356. 534. 431. 633., 341. 634. 154..";
                :print "636., 625. 86.\"";
                :print "The \"Pqle.\" is underlined, and the \"i.\" is underlined twice. How odd.";
             }
-            
-            :add_choice "Done with messages" {
-               :print "You fold the messages back up.";
+
+            :add_choice "Done with <messages<4>>" {
+               :print "You fold the <messages<4>> back up.";
                :break;
             }
-  
+
             :choose;
             :press_any_key;
          }
@@ -1628,9 +1628,9 @@ on_command {
          :set_false "night2_necklace_dropped";
          :if (!is_present("daniel")) {
             :success;
-            :print "You carefully take the necklace from the box. It is fairly heavy.";
+            :print "You carefully take the <necklace<4>> from the <box<5>>. It is fairly heavy.";
          } :else {
-            :print "You pick up the necklace and put it in your pocket.";
+            :print "You pick up the <necklace<4>> and put it in your pocket.";
          }
       }
    }
@@ -1638,16 +1638,16 @@ on_command {
    :if (is_present("nora")) {
       :if (!night1_slept) {
          :match "look nora" {
-            :print "Nora is a primly dressed older woman, waiting for her tea. (Type <TALK TO NORA<14>> to chat.)";
+            :print "<Nora<5>> is a primly dressed older woman, waiting for her tea. (Type <TALK TO NORA<14>> to chat.)";
             :done;
          }
 
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
             :while (true) {
-               :add_choice "Say hello to Nora" {
+               :add_choice "Say hello to <Nora<5>>" {
                   :print "The old woman seems excited to see another guest. \"I love this old inn. In fact, I come here every day for tea. I just love surrounding myself with all this history. And really, you just can't beat the tea scones here!\"";
                }
-   
+
                :add_choice "Ask about the inn's history" {
                   :if (!is_holding("pamphlet")) {
                      :print "\"Oh, I do love history! Why, have you seen the pamphlet in the lobby? I helped write it myself! If you like, bring a copy and I can tell you all about it.\"";
@@ -1655,12 +1655,12 @@ on_command {
                      :print "\"Oh, I see you have a copy of the history pamphlet! Did you know I helped write it myself?\"";
                   }
                }
-   
+
                :if (is_holding("pamphlet")) {
-                  :add_choice "Show Nora the pamphlet" {
+                  :add_choice "Show <Nora<5>> the <pamphlet<4>>" {
                      :success;
                      :set_true "day1_nora_done";
-                     :print "Nora's eyes light up. \"Oh! Are you interested in history too? Well, you can't get much more interesting than Captain Sunders. Interesting, and tragic...\"";
+                     :print "<Nora<5>>'s eyes light up. \"Oh! Are you interested in history too? Well, you can't get much more interesting than Captain Sunders. Interesting, and tragic...\"";
                      :press_any_key;
                      :print "She barely gives you the chance to ask what she means before she barrels on.";
                      :press_any_key;
@@ -1683,23 +1683,23 @@ on_command {
          }
       } :else_if (!night2_found) {
          :match "look nora" {
-            :print "Nora's outfit is immaculate and fully buttoned up.";
+            :print "<Nora<5>>'s outfit is immaculate and fully buttoned up.";
             :done;
          }
 
          :match "talk -;talk nora;sit -;sit down;sit table;sit nora" {
-            :if (!day2_nora_given_scones && !is_holding("scones_recipe")) {
-               :pocket "scones_recipe";
-               :print "You say hello to Nora, but she is uncharacteristically grouchy.";
+            :if (!day2_nora_given_scones && !is_holding("recipe")) {
+               :pocket "recipe";
+               :print "You say hello to <Nora<5>>, but she is uncharacteristically grouchy.";
                :print "\"I'm sorry. Whatever you want to talk to me about, I just can't focus! It's Captain Sunders' birthday today and I always have his special scones. That young cook can never seem to get it right! Here, maybe you can help her! Why work in the Captain's Inn if you can't make his scones?\"";
                :print "She hands you a <recipe<4>>.";
             } :else_if (!day2_nora_given_scones && !is_holding("scones")) {
-               :print "Apparently Nora needs the Captain's scones to function. I guess you'll just have to make her some.";
+               :print "Apparently <Nora<5>> needs the Captain's scones to function. I guess you'll just have to make her some.";
             } :else_if (!day2_nora_given_scones && is_holding("scones")) {
                :success;
                :set_true "day2_nora_given_scones";
                :destroy "scones";
-               :print "Before you can even say anything, Nora exclaims at the sight of the scones.";
+               :print "Before you can even say anything, <Nora<5>> exclaims at the sight of the <scones<4>>.";
                :print "\"Ooooh, let me try!\"";
                :print "You hold your breath, hoping they meet her incredibly high standards.";
                :press_any_key;
@@ -1707,44 +1707,44 @@ on_command {
                :print "\"Exceptional! Oh, I had given up hope of having Captain Sunders' scones ever again! Now, what was it you wanted?\"";
                :press_any_key;
             } :else_if (day2_nora_given_scones) {
-               :print "Nora pauses eating. \"Why, if it isn't the master chef!\"";
+               :print "<Nora<5>> pauses eating. \"Why, if it isn't the master chef!\"";
             }
 
             :if (day2_nora_given_scones) {
                :while (true) {
-                  :add_choice "Ask Nora about the scones" {
-                     :print "Nora exclaims about the quality of the scones. \"These are wonderful! I do hope Haley can get these right from now on.\"";
+                  :add_choice "Ask <Nora<5>> about the <scones<4>>" {
+                     :print "<Nora<5>> exclaims about the quality of the scones. \"These are wonderful! I do hope <Haley<5>> can get these right from now on.\"";
                   }
-   
-                  :add_choice "Ask Nora about the haunting" {
+
+                  :add_choice "Ask <Nora<5>> about the haunting" {
                      :if (!is_holding("poem")) {
-                        :print "You tell Nora all about the events of last night. Nora looks at you oddly. \"That is quite a story! Do you have any evidence?\"";
+                        :print "You tell <Nora<5>> all about the events of last night. <Nora<5>> looks at you oddly. \"That is quite a story! Do you have any evidence?\"";
                      } :else {
                         :print "\"Wow, that is quite a story.\"";
                      }
                   }
-   
-                  :add_choice "Show Nora the button" {
-                     :print "You can tell Nora knows her buttons. \"My goodness, this looks just like the buttons on Haley's top. Have you checked if she's lost one?\"";
+
+                  :add_choice "Show <Nora<5>> the <button<4>>" {
+                     :print "You can tell <Nora<5>> knows her buttons. \"My goodness, this looks just like the buttons on <Haley<5>>'s top. Have you checked if she's lost one?\"";
                   }
-   
-                  :add_choice "Play the audio recording for Nora" {
+
+                  :add_choice "Play the <recorder<4>> for <Nora<5>>" {
                      :if (!is_holding("poem")) {
                         :success;
                         :set_true "day2_nora_done";
                         :pocket "poem";
                         :print "\"Oh, my! Did you record this here, at the inn?\"";
-                        :print "You quickly tell her about the events of last night and that Haley mentioned something about a legend. She nods, as if confirming something in her head.";
+                        :print "You quickly tell her about the events of last night and that <Haley<5>> mentioned something about a legend. She nods, as if confirming something in her head.";
                         :press_any_key;
                         :print "\"Oh, yes, the legend. I never mentioned that, did I? You see, the night Captain Sunders was killed he was actually coming back to the inn to retrieve a gift for his beloved. The rumour was it was a gold necklace that had been in his family for generations. He never made it, though. The only thing found on his body was a poem to his beloved. Would you like to see it? I keep a copy with me. I can't help it! I'm a romantic at heart!\"";
                         :press_any_key;
                         :print "She hands you a <poem<4>>, and looks wistful.";
                         :print "\"Some say the necklace is still somewhere in this inn... none have found it though. I imagine a soldier took it.\"";
                      } :else {
-                        :print "Nora listens to the recording again and says \"Hmm. Very strange indeed...\"";
+                        :print "<Nora<5>> listens to the recording again and says \"Hmm. Very strange indeed...\"";
                      }
                   }
-                  
+
                   :add_choice "Done talking" {
                      :print "\"Thanks again for the perfect scones!\"";
                      :break;
@@ -1758,7 +1758,7 @@ on_command {
          }
       } :else {
          :match "look nora" {
-            :print "Nora greets you.";
+            :print "<Nora<5>> greets you.";
             :done;
          }
 
@@ -1767,44 +1767,44 @@ on_command {
             :destroy "nora";
             :print "\"Good morning, dear! I heard there was some excitement last night! I'm relieved your recording wasn't real! Didn't I tell you? That certainly would not be how Captain Sunders sounded.\"";
             :press_any_key;
-            :print "You pull out the letter from the night before. Instantly, Nora’s eyes light up.";
+            :print "You pull out the <letter<4>> from the night before. Instantly, <Nora<5>>’s eyes light up.";
             :print "\"Oh my, dear... where did you get this?\"";
             :press_any_key;
-            :print "You explain the events of the night before, then get to the question burning on your mind. You slowly open the letter and hand it to her, pointing out the name of the recipient.";
-            :print "Nora’s eyes mist up.";
+            :print "You explain the events of the night before, then get to the question burning on your mind. You slowly open the <letter<4>> and hand it to her, pointing out the name of the recipient.";
+            :print "<Nora<5>>’s eyes mist up.";
             :press_any_key;
             :print "\"Goodness... I never thought I would lay eyes on this. My family always swore it never existed. I had always hoped otherwise, searched even, but... thank you, dear. You have no idea what this means to me. Oh, aren’t you late for your conference?\"";
-            :print "Egads! So you are! You gaze down at your phone, and start sending a text to your friends. Nora’s voice softly speaks behind you.";
+            :print "Egads! So you are! You gaze down at your <phone<4>>, and start sending a text to your friends. <Nora<5>>’s voice softly speaks behind you.";
             :press_any_key;
             :print "\"It is so good to see his poetry again... if you’ll excuse me...\"";
             :press_any_key;
             :print "You look up.";
             :update_graphic "dining_room";
             :press_any_key;
-            :print "Nora is gone.";
+            :print "<Nora<5>> is gone.";
             :done;
          }
       }
    }
-   
+
    :if (is_present("painting")) {
       :if (!day2_poem_read) {
          :match "look painting" {
-            :print "The painting depicts a soldier in a British Army uniform.";
+            :print "The <painting<5>> depicts a soldier in a British Army uniform.";
             :done;
          }
       } :else_if (is_present("joyce") && !is_carried("painting_paper")) {
          :match "look painting" {
-            :print "Having read the poem, you eye the painting with interest. You don't see anything obvious, but you don't want to get too nosy in front of people. Maybe come back when no one is around?";
+            :print "Having read the <poem<4>>, you eye the <painting<5>> with interest. You don't see anything obvious, but you don't want to get too nosy in front of people. Maybe come back when no one is around?";
             :done;
          }
       } :else_if (!is_present("nora") && !is_carried("painting_paper")) {
          :match "look painting" {
-            :print "Having read the poem, you resolve to inspect the painting more closely.";
-            :ask_string var="painting_location_input" question="Is there any particular part of the painting you'd like to inspect?";
-            :if (upper(painting_location_input) != "RIGHT" && upper(painting_location_input) != "RIGHT SIDE") {
+            :print "Having read the <poem<4>>, you resolve to inspect the <painting<5>> more closely.";
+            :ask_string var="painting_location_input" question="Is there any particular part of the <painting<5>> you'd like to inspect?";
+            :if (upper(painting_location_input) != "RIGHT" && upper(painting_location_input) != "RIGHT SIDE" && upper(painting_location_input) != "R") {
                :failure;
-               :print "You don't see anything special in that part of the painting.";
+               :print "You don't see anything special in that part of the <painting<5>>.";
             } :else {
                :success;
                :set_true "night2_painting_dim";
@@ -1814,7 +1814,7 @@ on_command {
          }
       } :else_if (is_carried("painting_paper")) {
          :match "look painting" {
-            :print "You look all over, but the painting of Captain Sunders doesn't seem to hide any more secrets.";
+            :print "You look all over, but the <painting<5>> of Captain Sunders doesn't seem to hide any more secrets.";
          }
       }
    }
@@ -1822,17 +1822,17 @@ on_command {
    :if (is_present("pamphlet")) {
       :match "take pamphlet" {
          :if (is_holding("pamphlet")) {
-            :print "You already have one pamphlet. Taking more just seems greedy.";
+            :print "You already have one <pamphlet<4>>. Taking more just seems greedy.";
          } :else {
             :pocket "pamphlet";
-            :print "You take a pamphlet off the desk.";
+            :print "You take a <pamphlet<4>> off the <desk<5>>.";
          }
          :done;
       }
-      
+
       :match "read pamphlet" {
          :if (!is_holding("pamphlet")) {
-            :print "The pamphlets are folded up in a display case. (Type <TAKE PAMPHLET<14>> to take one to read.)";
+            :print "The <pamphlets<4>> are folded up in a display case. (Type <TAKE PAMPHLET<14>> to take one to read.)";
             :done;
          }
          // Otherwise, use default "read" (aka "examine") processing.
@@ -1841,14 +1841,14 @@ on_command {
 
    :if (night2_papers_found) {
       :match "look paper" {
-         :print "Looking at all the scraps of paper, you can see they form a picture. It appears to be a brick wall. One of the bricks is indicated. You can't help but think these are the same bricks that are in the washroom.";
+         :print "Looking at all the scraps of <paper<4>>, you can see they form a picture. It appears to be a brick wall. One of the bricks is indicated. You can't help but think these are the same bricks that are in the washroom.";
          :done;
       }
    }
 
    :if (is_holding("phone")) {
       :match "drop phone" {
-         :print "You would never leave your mobile phone behind!";
+         :print "You would never leave your mobile <phone<4>> behind!";
          :done;
       }
 
@@ -1873,7 +1873,7 @@ on_command {
                   :print "You're not sure what Claire means by 'weird stories', but maybe you'll find out while you're here.";
                }
             }
-   
+
             :add_choice "Read Email (3)" {
                :add_choice "\"Scheme Holiday Sale\"" {
                   :print "Despite your better judgement, you look through the latest Scheme games on sale. It seems like they have sales every month. And every month you buy at least 10 games you will not play for at least a few years.";
@@ -1888,18 +1888,18 @@ on_command {
                }
                :choose;
             }
-   
+
             :add_choice "Use Flashlight" {
                :if (night2_painting_dim && is_present("painting") && !is_carried("painting_paper")) {
                   :success;
                   :pocket "painting_paper";
-                  :print "The flashlight on the phone is a great source of light. You see a faint square on the picture frame. Instinctively, you press it in. It pops out! You take a scrap of <paper<4>> from inside.";
+                  :print "The flashlight on the <phone<4>> is a great source of light. You see a faint square on the <painting<5>> frame. Instinctively, you press it in. It pops out! You take a scrap of <paper<4>> from inside.";
                   :break;
                } :else_if (is_at("hidden_room") && !hidden_room_lit) {
                   :success;
                   :set_true "hidden_room_lit";
                   :create "box";
-                  :print "You use your phone flashlight to reveal the room...";
+                  :print "You use your <phone<4>> flashlight to reveal the room...";
                   :press_any_key;
                   :redescribe;
                   :break;
@@ -1907,12 +1907,12 @@ on_command {
                   :print "You mess with the flashlight a bit, but there's plenty of light here and nothing special to see.";
                }
             }
-            
-            :add_choice "Done with phone" {
-               :print "You put your phone down.";
+
+            :add_choice "Done with <phone<4>>" {
+               :print "You put your <phone<4>> down.";
                :break;
             }
-   
+
             :choose;
             :press_any_key;
          }
@@ -1920,7 +1920,7 @@ on_command {
       }
 
       :match "answer phone;talk phone;call phone" {
-         :print "Nobody's calling you on your phone right now, and you're not really excited to make a call either.";
+         :print "Nobody's calling you on your <phone<4>> right now, and you're not really excited to make a call either.";
          :done;
       }
    }
@@ -1935,8 +1935,8 @@ on_command {
          :done;
       }
    }
-   
-   :if (is_present("scones_recipe")) {
+
+   :if (is_present("recipe")) {
       :match "read recipe" {
          :print "This is certainly one of the strangest recipes you've ever seen... it reminds you of your grandma's famously muddled recipes.";
          :print "^c^Captain Sunders' Scrumptious Scones\n1 cap swear^n^\n2 tornadoes sent\n3 eyes\n4 cats friar\n5 stages beaver^m^";
@@ -1956,21 +1956,21 @@ on_command {
       }
    }
 
-   :if (is_holding("voice_recorder")) {
-      :match "record sound;record voice;record -;use voice_recorder" {
+   :if (is_holding("recorder")) {
+      :match "record sound;record voice;record -;use recorder" {
          :if (is_present("sound")) {
             :success;
             :set_true "night1_sound_recorded";
             :destroy "sound";
-            :print "It takes a full five minutes to psych yourself up, but you grab the voice recorder and gingerly head to the heating vent.";
+            :print "It takes a full five minutes to psych yourself up, but you grab the voice <recorder<4>> and gingerly head to the heating <vent<5>>.";
             :press_any_key;
-            :print "You hold the voice recorder out over the vent and press the record button, hoping it's close enough to capture the strange sounds.";
+            :print "You hold the voice <recorder<4>> out over the <vent<5>> and press the record button, hoping it's close enough to capture the strange sounds.";
             :press_any_key;
             :print "The sounds fade shortly after you press stop.";
          } :else_if (night1_awake && !night1_kitchen_visited) {
             :print "The distant sound is pretty indistinct. Might as well just go see what's causing it.";
          } :else_if (night1_awake && !night1_slept && is_at("kitchen")) {
-            :print "You wave the recorder around, but no sound seems to remain.";
+            :print "You wave the <recorder<4>> around, but no sound seems to remain.";
          } :else {
             :print "There aren't any unusual sounds to record right now.";
          }
@@ -1979,13 +1979,13 @@ on_command {
 
       :match "listen recorder;listen recording;play recorder;play sound;play voice;play -" {
          :if (!night1_sound_recorded) {
-            :print "The voice recorder's memory is empty at the moment.";
+            :print "The voice <recorder<4>>'s memory is empty at the moment.";
          } :else {
             :if (!night1_sound_played) {
                :success;
                :set_true "night1_sound_played";
             }
-            :print "With the recorder able to amplify the sound, you can hear a raspy voice almost wheezing in despair...";
+            :print "With the <recorder<4>> able to amplify the sound, you can hear a raspy voice almost wheezing in despair...";
             :print "\"Wheeeeere iiiiis iiiit?\"";
             :press_any_key;
             :print "It's difficult to tell if it's a male or female voice. Either way, it creeps you right out.";
@@ -1993,7 +1993,7 @@ on_command {
          :done;
       }
    }
-   
+
    #
    # Knocking on walls
    #
@@ -2009,28 +2009,28 @@ on_command {
                :failure;
                :print "You can't find anything unusual.";
             }
-   
+
             :add_choice "Knock on south wall" {
                :print "You rap carefully on the wall...";
                :press_any_key;
                :failure;
                :print "You can't find anything unusual.";
             }
-   
+
             :add_choice "Knock on east wall" {
                :if (!is_at("guest_room_2")) {
                   :print "You rap carefully on the wall...";
                   :press_any_key;
                   :failure;
                   :print "You can't find anything unusual.";
-               } :else_if (!is_present("old_messages")) {
-                  :pocket "old_messages";
+               } :else_if (!is_present("messages")) {
+                  :pocket "messages";
                   :print "You rap carefully on the wall...";
                   :press_any_key;
                   :print "One area sounds a little hollow!";
                   :press_any_key;
                   :success;
-                  :print "You feel around and discover a hidden compartment! Inside is a stash of <old messages<4>>. You take the message papers, and carefully close up the compartment.";
+                  :print "You feel around and discover a hidden compartment! Inside is a stash of old <messages<4>>. You take the messages, and carefully close up the compartment.";
                   :break;
                } :else {
                   :print "You rap some more on the wall...";
@@ -2039,7 +2039,7 @@ on_command {
                   :print "You don't find any other compartments.";
                }
             }
-   
+
             :add_choice "Knock on west wall" {
                :print "You rap carefully on the wall...";
                :press_any_key;
@@ -2077,7 +2077,7 @@ on_command {
    :match "inventory _" {
       :inventory;
       :if (!phone_used) {
-         :print "Use <CHECK PHONE<14>> to check your phone.";
+         :print "Use <CHECK PHONE<14>> to check your <phone<4>>.";
       }
       :done;
    }
@@ -2122,7 +2122,7 @@ assets {
       lobby_night: base64_png "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";
       washroom: base64_gif "R0lGODlhQAFgAMQAAJw1GzJMTGpjbC8sLRIdHR0lLv///wsKC6Hh052RjRYcJA8UFgwPEB4aGyk+PrewtPaWecTfm/f39/3GiW3P9v/3mUwPB3CtpfWYnf+ICCchItTP1M7Guj05OKOdohQREiH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDYuMC1jMDAyIDc5LjE2NDQ4OCwgMjAyMC8wNy8xMC0yMjowNjo1MyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4YzVkYTUwNy1mOTRkLTQ5ZTQtYWM3ZS1kOGRiYzFkZmRlMWMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RTJFN0FGMDQxRkREMTFFQjlDMkZBMEEwMzlBNzBBQ0MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RTJFN0FGMDMxRkREMTFFQjlDMkZBMEEwMzlBNzBBQ0MiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDphMmQ1YTczYi1kMjk2LTRmNGUtODRiZS05Y2ZkYzYzZjg5NTMiIHN0UmVmOmRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDo3NDQ4OGUwNy01OGM3LTE5NDYtOTY1YS1hZWM1OWJiOTY4ODkiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQE8AAAACwAAAAAQAFgAAAF/yAgjmRpnmiqrmzrvnAsz3R61Hiur1IPHMCgcEgsGoGMpHLJbDqXyKd0Sq1alcesdsvt3nqSH2BCLpvP6LR6zW6732lROOytD5OLvH7P7/v3QH+Cg4SFhoR4ewwHDHlQjQuQkXaUQQBzYhMPm5ydnp+goaKjpKWmnhNyPpV2eQSvsLGys7QERrW4ubq7vL0Eka99s5OsdperYw8VDxjNGA8R0dLT1NXW19jZ2tvRzM7KD6mX48Verr69H+pB6O3u7+e58b8LwYvldeN0ycvOz9wAAwocSM1bM3DiMOHjMu/dLHUQ2TmcSDHWAkbyItWDFe/iwi76MoHzB42gyZMoI/8YfLYsIbmPWRpWhEhTYsWbuzbCWqRTlkadDSPhgZkl5A1N/b6lXMpU20qEcl4SLSJzIs2rNnFqHeazZ7BXWfm8SkJvqhGj/E6pXcu2bamWUemYJVL13dW7Wbfi1GPR69h6Hg945cNIz1wiaJGGewChsePHkCNLnky5suXLkxfDNXpYSN12d0Pn1duuY6NYZGcxCMYoEC1HjBp1FpIYIWPMuHPr3t3YggUIvx1rDhf3x+xAft2FXp7kAGl5E10l/6WELy2eeY4Dqd3yNu/v4L/7Bv54uEu5xz/zUlDAgfsAAQzIny8/gPsC+AtEX/28lpDTv7ADYEbafUFOWppA5lv/cAsCN55kDTrYm2MRNmjhgwqOxyB5HCpYnmLnGZfedLzg9x58KKaoonsO4NffayTy8l+Ao+GSnXbcLeYhecFx2COFj23Y44Y+AtlhkL39pqSSFC74o3nFFaheLiY6oOKVWN5XgAKvlabLgO7AJlh1MXZVYI4JBvngmhNGxiaPRhK5JoY7LsnjkE5+CBVnI75TJZaArtjilr3UhV9dZRaKXaKxbHnPcWh61yaTk1JGKaVFZqopkkUS6SCdEEDJ52xT0vJnoKjCpyWXMHLE3yyHvlpLqRn5qcCjs0Va56e8uonhnEsyqKGGbap56aaghgpilNrR2mh7VqYqrZZc7aTL/6Ev7uScrbh2pmt44IZrWbKiKtQso7CcKu20g7L6lS/YZvuus684eqZCCEoq7r7i5qnnZub22Yu667LroqsblRmvT3oB4469OOILor78VmxxuVKRii7BBRusXzDnkFjPoehOBMnDt9574MRutezyy6jsGbDGJULb8c32tagAYOiQTEB+QAct9NBEF230xxBDKrFtYDTt9NNQRy311FRXTTXG6NF8rc0433wfzzvFiO2WCpRtdtlDn4320Wzjp/bIKUe8sm301W333XjnrffefPctAdYiao2LugMUbvjhiCeueOEoUstRYYMXADd7ZJud9tltt632zj/HrfTc3fUt+v/opJe+N+BSis01fANgecHrFyAg++y0yy7A7be33niL0k05NuVb5gc80JhnzvbmcHd7WKSmN+/883ijfm7kJ6Koe4qwx1779gjgnnvjA7jnbqK/C2/+5cMbTzTynSs/F/PQxy8/6dILDOvq1mMfAOzccy+A7QK4ngNa57hdlE9oawtaAtW3PvYlLVdLC938JkjBu9VPcM+qXooGIAD48E97/avd/2wnQCuxyEXqOSACL8dAo1nObMlT2T4mVsEa1vCCnZEJx6wngAvs73UhDCIJd7c7R8nqfiMrWvrO18IGVi6Gcpsh3WxIRfnh8DAN2SEPPyjE/hmge9e7kvh+QSX/yf1MietrohIpVzYofk6KEqyiHJt3xbnMQ4tbBCIIuzi7L4IxRQO0j6oacLBaHEoDCyReGtWYNuFx7oHeiuBi5kjJ0tXRLPHAYx5jt0c++vGPRATfoN71rAV8IJFMVCAjG+m2R3oOgqCbZCVnybdLTuUcmrQeAoC4Sz72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";
       kitchen_haley_nobutton : base64_png "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";
-   
+
       clock105       : base64_png "iVBORw0KGgoAAAANSUhEUgAAAKUAAAAVBAMAAADVzzOcAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAG1BMVEWaNRv39/cAAAB5eXn///82GweaNRs2Gwf///+Qvxi1AAAABnRSTlMAAAAAAABupgeRAAAAAWJLR0QEj2jZUQAAAAd0SU1FB+UCFQk4MkfDAqgAAAA/SURBVDjLY0hgoD5gFGRSoi5QYGBkZDKmLjAAudOA6n5nHDVz1MxRM0fNJBM40MBM9wIamBlAfTPLaWBmaQAAHnoh1qKst1UAAAAASUVORK5CYII=" ;
       kitchen_getout : base64_png "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";      
       hidden_room_daniel_gun     : base64_png "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";
