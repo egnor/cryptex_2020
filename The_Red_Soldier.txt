@@ -3,7 +3,7 @@
    game_version = "0.4.0";
    game_shortname = "CHPuzzle11";
    written_by = "Manda Whitney and Dan Egnor";
-   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86ec";
+   uuid = "c6f4ccca-2f7f-4e4e-940f-ba5633fb86ed";
    year_of_release = "2021";
    short_synopsis = "Part of the 2021 Cryptex Hunt";
 }
@@ -492,7 +492,7 @@ objects {
 
    speaker: scenery "a <speaker<5>> setup" at="guest_room_2" conspicuous="false" msg="A <speaker<5>> is rigged up with some electronics, probably to play those creepy sounds.";
 
-   stolen_keys: object "<stolen keys<4>> to all the guest rooms" msg="<Daniel<5> must have stolen these <keys<4>> to all three guest rooms (including yours!).";
+   stolen_keys: object "<stolen keys<4>> to all the guest rooms" msg="<Daniel<5>> must have stolen these <keys<4>> to all three guest rooms (including yours!).";
 
    recorder: object "a voice <recorder<4>>" msg="<Daniel<5>> gave you this <recorder<4>> to capture and amplify \"unusual\" noises, and you took it to humour him. You can use it to <RECORD SOUND<14>> and <PLAY SOUND<14>>.";
 }
