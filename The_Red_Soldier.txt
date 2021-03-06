@@ -1635,7 +1635,7 @@ on_command {
                :print "\"My dearest Nora, if you are reading this, I am safely gone.";
                :print "As you have surely suspected, I have been living a double life for many decades since the Revolution in the States and the Culper affair. But no longer! I am starting a new life, a life free of these horrid armies with their vicious secrets and marauding ways.";
                :print "I know your family and your town are precious to you! But, if you find it in your heart to join a simple country farmer, I can think of no greater joy than to spend my days in your company.";
-               :print "If you wish to follow me, look for an inn guest with a purple cap. They will know our secret word, from that delightful summer day on the lake those years ago. Ask, and they will show the way, and we can have many more together.";
+               :print "If you wish to follow me, look for an inn guest who knows our secret word, from that delightful summer day on the lake those years ago. Ask, and they will show the way, and we can have many more of them together.";
                :print "Love always and forever,";
                :print "William\"";
             }
@@ -1652,7 +1652,7 @@ on_command {
                :print "This <message<4>> was addressed only to \"355\"; the contents are mysterious:";
                :print "\"634. 379. 188., 1. 353. 561..";
                :print "475. 222. <Pqle.<14>> 634. 625. 184. 668. 561..";
-               :print "625. 355. 683. 345. 707. 50. 708. 250. 92. 5. 1. 596. 342. 600.: 1. <i.<14>> 356. 534. 431. 633., 341. 634. 154..";
+               :print "625. 355. 683. 345. 707. 50. 1. 596. 342. 600.: 1. <i.<14>> 356. 534. 431. 633., 341. 634. 154..";
                :print "636., 625. 86.\"";
                :print "The \"Pqle.\" is underlined, and the \"i.\" is underlined twice. How odd.";
             }
